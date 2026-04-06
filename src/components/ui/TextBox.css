@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.textbox {
+  position: absolute;
+  cursor: move;
+  user-select: none;
+  min-width: 80px;
+  min-height: 40px;
+  font-family: 'Inter', sans-serif;
+  z-index: 10;
+}
+
+.textbox.selected {
+  outline: 2px solid #2EFF6E;
+  border-radius: 2px;
+}
+
+.textbox-content {
+  padding: 6px 8px;
+  min-height: 40px;
+  word-break: break-word;
+  cursor: move;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.textbox-textarea {
+  width: 100%;
+  height: 100%;
+  min-height: 40px;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  padding: 6px 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: inherit;
+  cursor: text;
+  display: block;
+}
+
+/* Handles */
+.tb-handle {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+}
+
+/* Delete — top left */
+.tb-handle-delete {
+  top: -11px;
+  left: -11px;
+  background: #e74c3c;
+  border: 2px solid #fff;
+  color: #fff;
+}
+.tb-handle-delete:hover { background: #c0392b; }
+
+/* Resize top-right */
+.tb-handle-tr {
+  top: -11px;
+  right: -11px;
+  background: #2EFF6E;
+  border: 2px solid #fff;
+  color: #000;
+  cursor: nesw-resize;
+}
+
+/* Resize bottom-right */
+.tb-handle-br {
+  bottom: -11px;
+  right: -11px;
+  background: #2EFF6E;
+  border: 2px solid #fff;
+  color: #000;
+  cursor: nwse-resize;
+}
+
+/* Rotation circle — top-right quadrant hidden (overlaps textbox) */
+.tb-handle-rotate-area {
+  position: absolute;
+  bottom: -30px;
+  left: -30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2.5px solid #2EFF6E;
+  background: #2EFF6E11;
+  box-shadow: 0 0 14px #2EFF6E55;
+  cursor: grab;
+  z-index: 15;
+  clip-path: polygon(0% 0%, 50% 0%, 50% 50%, 100% 50%, 100% 100%, 0% 100%);
+}
+
+.tb-handle-rotate-area:active { cursor: grabbing; }
+
+/* Resize icon at center of circle = corner of textbox */
+.tb-rotate-resize {
+  position: absolute;
+  top: calc(50% - 10px);
+  left: calc(50% - 10px);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2EFF6E;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: nwse-resize;
+  z-index: 25;
+}

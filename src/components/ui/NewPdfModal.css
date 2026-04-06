@@ -1,0 +1,213 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.npm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: npmFade 0.15s ease;
+}
+
+@keyframes npmFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.npm-card {
+  background: #161b27;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  animation: npmSlide 0.2s ease;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+
+@keyframes npmSlide {
+  from { opacity: 0; transform: translateY(-12px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.npm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+}
+
+.npm-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.npm-close {
+  background: #1e2535;
+  border: none;
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+.npm-close:hover {
+  background: #2a3347;
+  color: #fff;
+}
+
+.npm-body {
+  display: flex;
+  gap: 24px;
+  padding: 0 24px 20px;
+}
+
+/* Options */
+.npm-options {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.npm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.npm-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.npm-select {
+  background: #1e2535;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+.npm-input {
+  background: #1e2535;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  width: 80px;
+}
+
+.npm-input:focus { border-color: #2EFF6E; }
+
+.npm-color-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.npm-color-swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #2a3347;
+  cursor: pointer;
+  padding: 2px;
+  background: none;
+}
+
+/* Preview */
+.npm-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.npm-page {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  overflow: hidden;
+  position: relative;
+}
+
+.npm-page.portrait {
+  width: 160px;
+  height: 226px;
+}
+
+.npm-page.landscape {
+  width: 226px;
+  height: 160px;
+}
+
+/* Page patterns */
+.npm-lines {
+  position: absolute;
+  inset: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.npm-line {
+  height: 1px;
+  background: #c0c8d8;
+}
+
+.npm-grid-pattern {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(#c0c8d8 1px, transparent 1px),
+    linear-gradient(90deg, #c0c8d8 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+.npm-dot-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, #a0aac0 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
+/* Create button */
+.npm-create-btn {
+  width: 100%;
+  padding: 16px;
+  background: #2EFF6E;
+  color: #000;
+  font-weight: 700;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.npm-create-btn:hover { background: #1de85e; }

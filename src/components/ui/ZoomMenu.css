@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.zm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+
+.zm-menu {
+  position: fixed;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 14px;
+  padding: 6px;
+  min-width: 220px;
+  z-index: 100;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  animation: zmPop 0.15s ease;
+}
+
+@keyframes zmPop {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.97); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+.zm-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  color: #d1d5db;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.zm-item:hover { background: #1e2535; color: #fff; }
+.zm-item.active { color: #2EFF6E; }
+.zm-prefix { font-size: 12px; color: #4b5563; min-width: 20px; }
+.zm-check { margin-left: auto; }
+.zm-divider { height: 1px; background: #2a3347; margin: 4px 8px; }

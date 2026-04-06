@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+.tm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+
+.tm-menu {
+  position: fixed;
+  top: 58px;
+  right: 120px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 14px;
+  padding: 6px;
+  min-width: 300px;
+  z-index: 100;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  animation: tmPop 0.15s ease;
+}
+
+@keyframes tmPop {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.tm-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  color: #d1d5db;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tm-item:hover {
+  background: #1e2535;
+  color: #fff;
+}
+
+.tm-icon {
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.tm-item:hover .tm-icon {
+  color: #9ca3af;
+}
