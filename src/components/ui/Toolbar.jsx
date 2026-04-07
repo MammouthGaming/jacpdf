@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
+import { textFmtStore } from './textFmtStore'
+import { recentColorsStore } from './recentColorsStore'
+import ColorPicker from './ColorPicker'
 import './Toolbar.css'
 
-const RECENT_COLORS_DARK = ['#111111', '#e74c3c', '#f39c12']
-const RECENT_COLORS_HIGHLIGHT = ['#f39c12', '#2ecc71', '#3498db']
 const PENCIL_SIZES = [1, 2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 24, 30]
-const TEXT_SIZES = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 64, 72, 96]
+const TEXT_SIZES   = [8, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 64, 72, 96]
 const ERASER_SIZES = [5, 8, 10, 12, 16, 20, 24, 30, 50, 80]
 
 function ColorDot({ color, active, onClick }) {
@@ -41,13 +42,13 @@ function SizeDropdown({ value, options, onChange }) {
   )
 }
 
-function PaletteBtn() {
+function PaletteBtn({ onClick }) {
   return (
-    <button className="tb-palette-btn">
+    <button className="tb-palette-btn" onClick={onClick}>
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <circle cx="12" cy="12" r="10"/>
-        <circle cx="8" cy="10" r="1.5" fill="currentColor"/>
-        <circle cx="12" cy="8" r="1.5" fill="currentColor"/>
+        <circle cx="8"  cy="10" r="1.5" fill="currentColor"/>
+        <circle cx="12" cy="8"  r="1.5" fill="currentColor"/>
         <circle cx="16" cy="10" r="1.5" fill="currentColor"/>
         <path d="M8 15c1 1.5 5 2 7 0"/>
       </svg>
@@ -55,29 +56,17 @@ function PaletteBtn() {
   )
 }
 
-// Sous-menu flottant positionné en face du bouton
 function Submenu({ anchorRef, children }) {
   const [top, setTop] = useState(null)
-
   useEffect(() => {
     if (anchorRef?.current) {
       const rect = anchorRef.current.getBoundingClientRect()
       setTop(rect.top + rect.height / 2)
     }
   }, [anchorRef])
-
   if (top === null) return null
-
   return (
-    <div
-      className="tb-submenu"
-      style={{
-        position: 'fixed',
-        left: 90,
-        top: top,
-        transform: 'translateY(-50%)',
-      }}
-    >
+    <div className="tb-submenu" style={{ position: 'fixed', left: 90, top, transform: 'translateY(-50%)' }}>
       {children}
     </div>
   )
@@ -85,42 +74,64 @@ function Submenu({ anchorRef, children }) {
 
 export default function Toolbar({ activeTool, setActiveTool }) {
   const [submenu, setSubmenu] = useState(null)
+  const [colorPicker, setColorPicker] = useState(null) // { tool, anchorRect }
 
-  const [pencilSize, setPencilSize] = useState(3)
-  const [pencilColor, setPencilColor] = useState('#111111')
+  // Per-tool colors (synced with recentColorsStore)
+  const [textColors,      setTextColors]      = useState(() => recentColorsStore.get('text'))
+  const [pencilColors,    setPencilColors]    = useState(() => recentColorsStore.get('pencil'))
+  const [highlightColors, setHighlightColors] = useState(() => recentColorsStore.get('highlight'))
+  const [shapeColors,     setShapeColors]     = useState(() => recentColorsStore.get('shapes'))
+
+  // Active colors (first of recent)
+  const [pencilSize,    setPencilSize]    = useState(3)
   const [highlightSize, setHighlightSize] = useState(18)
-  const [highlightColor, setHighlightColor] = useState('#f39c12')
-  const [textSize, setTextSize] = useState(14)
-  const [textColor, setTextColor] = useState('#111111')
-  const [eraserSize, setEraserSize] = useState(20)
-  const [shape, setShape] = useState('rect')
-  const [shapeSize, setShapeSize] = useState(3)
-  const [shapeColor, setShapeColor] = useState('#111111')
+  const [eraserSize,    setEraserSize]    = useState(20)
+  const [shape,         setShape]         = useState('rect')
+  const [shapeSize,     setShapeSize]     = useState(3)
 
-  // Refs for each button
+  // Text fmt from store
+  const [textFmtLocal, setTextFmtLocal] = useState(() => textFmtStore.get())
+  useEffect(() => textFmtStore.subscribe(setTextFmtLocal), [])
+
+  // Subscribe to recent colors
+  useEffect(() => recentColorsStore.subscribe('text',      setTextColors),      [])
+  useEffect(() => recentColorsStore.subscribe('pencil',    setPencilColors),    [])
+  useEffect(() => recentColorsStore.subscribe('highlight', setHighlightColors), [])
+  useEffect(() => recentColorsStore.subscribe('shapes',    setShapeColors),     [])
+
   const refs = {
-    select: useRef(null),
-    text: useRef(null),
-    pencil: useRef(null),
+    select:    useRef(null),
+    text:      useRef(null),
+    pencil:    useRef(null),
     highlight: useRef(null),
-    shapes: useRef(null),
-    image: useRef(null),
-    eraser: useRef(null),
+    shapes:    useRef(null),
+    image:     useRef(null),
+    eraser:    useRef(null),
   }
 
   const handleTool = (tool) => {
     setActiveTool(tool)
     setSubmenu(submenu === tool ? null : tool)
+    setColorPicker(null)
+  }
+
+  const openPicker = (tool, btnEl) => {
+    const rect = btnEl ? btnEl.getBoundingClientRect() : null
+    setColorPicker({ tool, anchorRect: rect })
+  }
+
+  const handlePickerInsert = (tool, color) => {
+    recentColorsStore.add(tool, color)
+    if (tool === 'text') textFmtStore.set({ color })
+    if (tool === 'pencil') setPencilColors(recentColorsStore.get('pencil'))
+    if (tool === 'highlight') setHighlightColors(recentColorsStore.get('highlight'))
+    if (tool === 'shapes') setShapeColors(recentColorsStore.get('shapes'))
   }
 
   const TOOLS = [
     {
       id: 'select',
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M5 3l14 9-7 1-3 7z"/>
-        </svg>
-      ),
+      icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-7 1-3 7z"/></svg>,
     },
     {
       id: 'text',
@@ -197,14 +208,11 @@ export default function Toolbar({ activeTool, setActiveTool }) {
         ))}
       </div>
 
-      {/* Submenus — positioned next to their button */}
-
+      {/* ── SELECT ── */}
       {submenu === 'select' && (
         <Submenu anchorRef={refs.select}>
           <button className="tb-btn active">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M5 3l14 9-7 1-3 7z"/>
-            </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-7 1-3 7z"/></svg>
           </button>
           <button className="tb-btn">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="4 2">
@@ -214,64 +222,76 @@ export default function Toolbar({ activeTool, setActiveTool }) {
         </Submenu>
       )}
 
+      {/* ── TEXT ── */}
       {submenu === 'text' && (
         <Submenu anchorRef={refs.text}>
-          <SizeDropdown value={textSize} options={TEXT_SIZES} onChange={setTextSize} />
-          {RECENT_COLORS_DARK.map(c => (
-            <ColorDot key={c} color={c} active={textColor === c} onClick={setTextColor} />
+          <select
+            value={textFmtLocal.size}
+            style={{ width:44, height:32, background:'#1e2535', border:'none', borderRadius:10, color:'#fff', fontSize:12, fontWeight:600, fontFamily:'Inter,sans-serif', cursor:'pointer', outline:'none', textAlign:'center' }}
+            onChange={(e) => textFmtStore.set({ size: Number(e.target.value) })}
+          >
+            {TEXT_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+          {textColors.map(c => (
+            <ColorDot key={c} color={c} active={textFmtLocal.color === c}
+              onClick={(col) => { textFmtStore.set({ color: col }); recentColorsStore.add('text', col) }} />
           ))}
-          <PaletteBtn />
+          <PaletteBtn onClick={(e) => openPicker('text', e.currentTarget)} />
         </Submenu>
       )}
 
+      {/* ── PENCIL ── */}
       {submenu === 'pencil' && (
         <Submenu anchorRef={refs.pencil}>
           <SizeDropdown value={pencilSize} options={PENCIL_SIZES} onChange={setPencilSize} />
-          {RECENT_COLORS_DARK.map(c => (
-            <ColorDot key={c} color={c} active={pencilColor === c} onClick={setPencilColor} />
+          {pencilColors.map(c => (
+            <ColorDot key={c} color={c} active={pencilColors[0] === c}
+              onClick={(col) => recentColorsStore.add('pencil', col)} />
           ))}
-          <PaletteBtn />
+          <PaletteBtn onClick={(e) => openPicker('pencil', e.currentTarget)} />
         </Submenu>
       )}
 
+      {/* ── HIGHLIGHT ── */}
       {submenu === 'highlight' && (
         <Submenu anchorRef={refs.highlight}>
           <SizeDropdown value={highlightSize} options={PENCIL_SIZES} onChange={setHighlightSize} />
-          {RECENT_COLORS_HIGHLIGHT.map(c => (
-            <ColorDot key={c} color={c} active={highlightColor === c} onClick={setHighlightColor} />
+          {highlightColors.map(c => (
+            <ColorDot key={c} color={c} active={highlightColors[0] === c}
+              onClick={(col) => recentColorsStore.add('highlight', col)} />
           ))}
-          <PaletteBtn />
+          <PaletteBtn onClick={(e) => openPicker('highlight', e.currentTarget)} />
         </Submenu>
       )}
 
+      {/* ── SHAPES ── */}
       {submenu === 'shapes' && (
         <Submenu anchorRef={refs.shapes}>
           <SizeDropdown value={shapeSize} options={PENCIL_SIZES} onChange={setShapeSize} />
           {[
-            { id: 'rect', icon: <rect x="3" y="5" width="18" height="14" rx="1"/> },
-            { id: 'circle', icon: <circle cx="12" cy="12" r="9"/> },
+            { id: 'rect',     icon: <rect x="3" y="5" width="18" height="14" rx="1"/> },
+            { id: 'circle',   icon: <circle cx="12" cy="12" r="9"/> },
             { id: 'triangle', icon: <path d="M12 4L3 20h18z"/> },
-            { id: 'line', icon: <line x1="4" y1="20" x2="20" y2="4"/> },
+            { id: 'line',     icon: <line x1="4" y1="20" x2="20" y2="4"/> },
           ].map(s => (
             <button key={s.id} className={`tb-btn ${shape === s.id ? 'active' : ''}`} onClick={() => setShape(s.id)}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                {s.icon}
-              </svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">{s.icon}</svg>
             </button>
           ))}
-          {['#111111', '#2ecc71', '#e91e8c'].map(c => (
-            <ColorDot key={c} color={c} active={shapeColor === c} onClick={setShapeColor} />
+          {shapeColors.map(c => (
+            <ColorDot key={c} color={c} active={shapeColors[0] === c}
+              onClick={(col) => recentColorsStore.add('shapes', col)} />
           ))}
-          <PaletteBtn />
+          <PaletteBtn onClick={(e) => openPicker('shapes', e.currentTarget)} />
         </Submenu>
       )}
 
+      {/* ── IMAGE ── */}
       {submenu === 'image' && (
         <Submenu anchorRef={refs.image}>
           <button className="tb-btn" title="Depuis l'ordinateur">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="2" y="3" width="20" height="14" rx="2"/>
-              <path d="M8 21h8M12 17v4"/>
+              <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
             </svg>
           </button>
           <button className="tb-btn" title="Caméra">
@@ -280,30 +300,10 @@ export default function Toolbar({ activeTool, setActiveTool }) {
               <circle cx="12" cy="13" r="4"/>
             </svg>
           </button>
-          <button className="tb-btn" title="Google Drive">
-            <svg width="20" height="20" viewBox="0 0 122.88 109.79">
-              <path fill="#1967D2" d="M9.29,94.1l5.42,9.36c1.13,1.97,2.74,3.52,4.65,4.64l19.35-33.5H0c0,2.18,0.56,4.36,1.69,6.33L9.29,94.1z"/>
-              <path fill="#34A853" d="M61.44,35.19L42.09,1.69c-1.9,1.13-3.52,2.67-4.65,4.65L1.69,68.27C0.59,70.19,0,72.38,0,74.6l38.71,0L61.44,35.19z"/>
-              <path fill="#EA4335" d="M103.53,108.1c1.9-1.13,3.52-2.67,4.65-4.64l2.25-3.87l10.77-18.65c1.13-1.97,1.69-4.15,1.69-6.33H84.17l8.24,16.19L103.53,108.1z"/>
-              <path fill="#188038" d="M61.44,35.19l19.35-33.5C78.89,0.56,76.71,0,74.46,0H48.42c-2.25,0-4.43,0.63-6.33,1.69L61.44,35.19z"/>
-              <path fill="#4285F4" d="M84.17,74.6H38.71l-19.35,33.5c1.9,1.13,4.08,1.69,6.33,1.69h71.5c2.25,0,4.44-0.63,6.33-1.69L84.17,74.6z"/>
-              <path fill="#FBBC04" d="M103.31,37.3L85.44,6.33c-1.13-1.97-2.74-3.52-4.64-4.65l-19.35,33.5L84.17,74.6h38.64c0-2.18-0.56-4.36-1.69-6.33L103.31,37.3z"/>
-            </svg>
-          </button>
-          <button className="tb-btn" title="Recherche Google Images">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-          </button>
-          <button className="tb-btn" title="Cloud">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 10a6 6 0 0 0-9.33-5A5 5 0 0 0 2 10v1a4 4 0 0 0 0 8h16a3 3 0 0 0 0-6"/>
-            </svg>
-          </button>
         </Submenu>
       )}
 
+      {/* ── ERASER ── */}
       {submenu === 'eraser' && (
         <Submenu anchorRef={refs.eraser}>
           <SizeDropdown value={eraserSize} options={ERASER_SIZES} onChange={setEraserSize} />
@@ -312,13 +312,23 @@ export default function Toolbar({ activeTool, setActiveTool }) {
               <path d="M20 20H7L3 16l10-10 7 7-2 2"/>
             </svg>
           </button>
-          <button className="tb-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-            </svg>
-          </button>
         </Submenu>
+      )}
+
+      {/* ── COLOR PICKER POPUP ── */}
+      {colorPicker && (
+        <ColorPicker
+          color={
+            colorPicker.tool === 'text'      ? textFmtLocal.color :
+            colorPicker.tool === 'pencil'    ? pencilColors[0] :
+            colorPicker.tool === 'highlight' ? highlightColors[0] :
+            shapeColors[0]
+          }
+          recentColors={recentColorsStore.get(colorPicker.tool)}
+          anchorRect={colorPicker.anchorRect}
+          onInsert={(color) => handlePickerInsert(colorPicker.tool, color)}
+          onClose={() => setColorPicker(null)}
+        />
       )}
     </>
   )
