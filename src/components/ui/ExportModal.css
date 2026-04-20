@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .em-overlay {
   position: fixed;
   inset: 0;
@@ -314,7 +319,7 @@
   margin-top: 2px;
 }
 
-/* Footer */
+/* Footer buttons */
 .em-soon-btn {
   width: 100%;
   padding: 16px;
@@ -329,4 +334,27 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.em-export-btn {
+  width: 100%;
+  padding: 16px;
+  background: #2EFF6E;
+  border: none;
+  color: #000;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+.em-export-btn:hover:not(:disabled) { background: #1de85e; }
+.em-export-btn:disabled {
+  background: #1a3d2a;
+  color: #2EFF6E88;
+  cursor: not-allowed;
 }

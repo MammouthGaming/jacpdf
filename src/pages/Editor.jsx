@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import * as pdfjsLib from 'pdfjs-dist'
 import Settings from '../components/ui/Settings'
@@ -9,6 +9,7 @@ import PageMenu from '../components/ui/PageMenu'
 import ZoomMenu from '../components/ui/ZoomMenu'
 import Toolbar from '../components/ui/Toolbar'
 import TextBox from '../components/ui/TextBox'
+import { textFmtStore } from '../components/ui/textFmtStore'
 import './Editor.css'
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -16,24 +17,50 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url
 ).href
 
-function PdfPage({ pdf, pageNumber, zoom, rotation, onVisible }) {
+const A4_W_PX = 794
+const EDITOR_PADDING = 24
+const PAGE_GAP = 16
+
+function PdfPage({ pdf, pageNumber, zoom, rotation, onVisible, textBoxes = [], selectedBox, selectedBoxes = [], onSelect, onUpdate, onDelete, onGroupDrag, pageWidth = 612, pageHeight = 792 }) {
   const canvasRef = useRef(null)
   const wrapperRef = useRef(null)
+  const renderTaskRef = useRef(null)
 
+  // Render at scale 1 always — CSS transform handles zoom
   useEffect(() => {
     if (!pdf || !canvasRef.current) return
+
+    if (renderTaskRef.current) {
+      renderTaskRef.current.cancel()
+      renderTaskRef.current = null
+    }
+
     let cancelled = false
+
     pdf.getPage(pageNumber).then((page) => {
-      if (cancelled) return
-      const viewport = page.getViewport({ scale: zoom / 100, rotation })
+      if (cancelled || !canvasRef.current) return
+      const viewport = page.getViewport({ scale: 1, rotation })
       const canvas = canvasRef.current
       const ctx = canvas.getContext('2d')
       canvas.width = viewport.width
       canvas.height = viewport.height
-      page.render({ canvasContext: ctx, viewport })
+      const task = page.render({ canvasContext: ctx, viewport })
+      renderTaskRef.current = task
+      task.promise.catch((err) => {
+        if (err?.name !== 'RenderingCancelledException') {
+          console.error('PdfPage render error:', err)
+        }
+      })
     })
-    return () => { cancelled = true }
-  }, [pdf, pageNumber, zoom, rotation])
+
+    return () => {
+      cancelled = true
+      if (renderTaskRef.current) {
+        renderTaskRef.current.cancel()
+        renderTaskRef.current = null
+      }
+    }
+  }, [pdf, pageNumber, rotation]) // zoom removed — CSS handles it
 
   useEffect(() => {
     if (!wrapperRef.current) return
@@ -45,9 +72,44 @@ function PdfPage({ pdf, pageNumber, zoom, rotation, onVisible }) {
     return () => observer.disconnect()
   }, [pageNumber, onVisible])
 
+  const scale = zoom / 100
+
   return (
-    <div className="editor-page-wrapper" ref={wrapperRef}>
-      <canvas ref={canvasRef} />
+    // Outer div reserves the scaled space in the layout
+    <div style={{ width: pageWidth * scale, height: pageHeight * scale, flexShrink: 0, marginBottom: 16 }}>
+      {/* Inner wrapper scales visually via CSS transform */}
+      <div
+        className="editor-page-wrapper"
+        ref={wrapperRef}
+        style={{
+          position: 'relative',
+          transformOrigin: 'top left',
+          transform: `scale(${scale})`,
+        }}
+      >
+        <canvas ref={canvasRef} />
+        {textBoxes.map(box => {
+          // At scale 1, PDF points = screen px — no zoom math needed
+          const left = box.pdfX
+          const top  = box.pagePdfHeight - box.pdfY
+          return (
+            <TextBox
+              key={box.id}
+              {...box}
+              x={left}
+              y={top}
+              selected={selectedBox === box.id}
+              inSelection={selectedBoxes.includes(box.id)}
+              selectedBoxes={selectedBoxes}
+              onSelect={onSelect}
+              onUpdate={onUpdate}
+              onDelete={onDelete}
+              onGroupDrag={onGroupDrag}
+              zoom={zoom}
+            />
+          )
+        })}
+      </div>
     </div>
   )
 }
@@ -59,6 +121,7 @@ export default function Editor() {
 
   const [pdf, setPdf] = useState(null)
   const [numPages, setNumPages] = useState(0)
+  const [pageSizes, setPageSizes] = useState({})
   const [currentPage, setCurrentPage] = useState(1)
   const [zoom, setZoom] = useState(100)
   const [deletedPages, setDeletedPages] = useState([])
@@ -68,6 +131,8 @@ export default function Editor() {
   const [activeTool, setActiveTool] = useState('select')
   const [textBoxes, setTextBoxes] = useState([])
   const [selectedBox, setSelectedBox] = useState(null)
+  const [selectedBoxes, setSelectedBoxes] = useState([]) // multi-select ids
+  const [marquee, setMarquee] = useState(null) // { x, y, w, h } in screen px
   const [showSettings, setShowSettings] = useState(false)
   const [showView, setShowView] = useState(false)
   const [showTools, setShowTools] = useState(false)
@@ -76,19 +141,36 @@ export default function Editor() {
   const [showZoomMenu, setShowZoomMenu] = useState(false)
   const pageRef = useRef(null)
   const zoomRef = useRef(null)
-  const canvasRef = useRef(null)
+  const canvasRef = useRef(null)   // .editor-canvas (content wrapper, no scroll)
+  const scrollRef = useRef(null)   // .editor-main — used for ResizeObserver
+  const [containerWidth, setContainerWidth] = useState(800)
 
   const visiblePages = Array.from({ length: numPages }, (_, i) => i + 1).filter(p => !deletedPages.includes(p))
 
   useEffect(() => {
+    const el = canvasRef.current?.parentElement
+    if (!el) return
+    setContainerWidth(el.clientWidth)
+    const ro = new ResizeObserver(() => setContainerWidth(el.clientWidth))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  useEffect(() => {
     if (!fileUrl) return
-    pdfjsLib.getDocument(fileUrl).promise.then((doc) => {
+    pdfjsLib.getDocument(fileUrl).promise.then(async (doc) => {
       setPdf(doc)
       setNumPages(doc.numPages)
+      const sizes = {}
+      for (let i = 1; i <= doc.numPages; i++) {
+        const page = await doc.getPage(i)
+        const vp = page.getViewport({ scale: 1, rotation: 0 })
+        sizes[i] = { width: vp.width, height: vp.height, canvasHeightPx: vp.height, canvasWidthPx: vp.width }
+      }
+      setPageSizes(sizes)
     })
   }, [fileUrl])
 
-  // Keyboard for presentation mode
   useEffect(() => {
     if (!presentation) return
     const handleKey = (e) => {
@@ -131,31 +213,100 @@ export default function Editor() {
     }
   }
 
-  const handleCanvasClick = (e) => {
-    if (activeTool !== 'text') { setSelectedBox(null); return }
-    const rect = e.currentTarget.getBoundingClientRect()
+  const justDeselectedRef = useRef(false)
+  const selectedBoxRef = useRef(null)
+
+  // Keep ref in sync with state for sync reads in event handlers
+  useEffect(() => {
+    selectedBoxRef.current = selectedBox
+  }, [selectedBox])
+
+  const createTextBox = async (clientX, clientY) => {
+    const scale = zoom / 100
+
+    // Find which page was clicked using getBoundingClientRect (values are in scaled screen px)
+    let pageIndex = 0
+    let pageRelX = 0
+    let pageRelY = 0
+    const pageWrappers = canvasRef.current?.querySelectorAll('.editor-page-wrapper')
+    if (pageWrappers) {
+      for (let i = 0; i < pageWrappers.length; i++) {
+        const rect = pageWrappers[i].getBoundingClientRect()
+        if (clientY >= rect.top && clientY <= rect.bottom &&
+            clientX >= rect.left && clientX <= rect.right) {
+          pageIndex = i
+          // Divide by scale to convert from scaled screen px → unscaled PDF points
+          pageRelX = (clientX - rect.left) / scale
+          pageRelY = (clientY - rect.top)  / scale
+          break
+        }
+        if (i === pageWrappers.length - 1) {
+          const rect = pageWrappers[i].getBoundingClientRect()
+          pageIndex = i
+          pageRelX = (clientX - rect.left) / scale
+          pageRelY = (clientY - rect.top)  / scale
+        }
+      }
+    }
+
+    const pageNum = visiblePages[pageIndex] || 1
+    const realSize = pageSizes[pageNum] || { width: 612, height: 792, canvasHeightPx: 792, canvasWidthPx: 612 }
+
+    // At scale 1, pageRelX/Y are already in PDF points
+    const pdfX = pageRelX
+    const pdfY = realSize.height - pageRelY
+
+    // x/y = PDF points = px at scale 1
+    const x = pdfX
+    const y = realSize.height - pdfY
+
     const id = Date.now()
     setTextBoxes(prev => [...prev, {
-      id, x: e.clientX - rect.left, y: e.clientY - rect.top,
-      width: 200, height: 60, text: '', fontSize: 14, color: '#111111'
+      id,
+      pdfX,
+      pdfY,
+      pageIndex,
+      pagePdfWidth: realSize.width,
+      pagePdfHeight: realSize.height,
+      x,
+      y,
+      width: 200,
+      height: 60,
+      text: '',
+      fmt: textFmtStore.get(),
     }])
     setSelectedBox(id)
-    setActiveTool('select')
   }
 
-  const updateTextBox = (id, updates) => setTextBoxes(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b))
+  const updateTextBox = (id, updates) => setTextBoxes(prev => prev.map(b => {
+    if (b.id !== id) return b
+    const merged = { ...b, ...updates }
+    // x/y from drag are px relative to wrapper at scale 1 = PDF points directly
+    if (('x' in updates || 'y' in updates) && merged.pagePdfWidth && merged.pagePdfHeight) {
+      merged.pdfX = merged.x
+      merged.pdfY = merged.pagePdfHeight - merged.y
+    }
+    return merged
+  }))
   const deleteTextBox = (id) => { setTextBoxes(prev => prev.filter(b => b.id !== id)); setSelectedBox(null) }
+
+  // Move all selected boxes by (dx, dy) in PDF points
+  const handleGroupDrag = (dx, dy) => {
+    setTextBoxes(prev => prev.map(b => {
+      if (!selectedBoxes.includes(b.id)) return b
+      const newPdfX = b.pdfX + dx
+      const newPdfY = b.pdfY + dy
+      return { ...b, pdfX: newPdfX, pdfY: newPdfY, x: newPdfX, y: b.pagePdfHeight - newPdfY }
+    }))
+  }
   const zoomIn = () => setZoom(z => Math.min(z + 25, 400))
   const zoomOut = () => setZoom(z => Math.max(z - 25, 25))
 
-  // Render pages in groups of 2 for two-page view
   const renderPages = () => {
     if (!pdf) return <div className="editor-blank-page" />
     if (twoPages) {
       const pairs = []
-      for (let i = 0; i < visiblePages.length; i += 2) {
-        pairs.push(visiblePages.slice(i, i + 2))
-      }
+      for (let i = 0; i < visiblePages.length; i += 2) pairs.push(visiblePages.slice(i, i + 2))
       return pairs.map((pair, i) => (
         <div key={i} className="editor-two-page-row">
           {pair.map(pageNum => (
@@ -169,7 +320,9 @@ export default function Editor() {
     ))
   }
 
-  // ── PRESENTATION MODE ──
+  console.log('render - textBoxes.length:', textBoxes.length, 'zoom:', zoom)
+  console.log('zoom changed:', zoom)
+
   if (presentation) {
     const currentIdx = visiblePages.indexOf(currentPage)
     return (
@@ -188,23 +341,15 @@ export default function Editor() {
             />
           )}
         </div>
-
-        {/* Nav buttons */}
         <div className="presentation-nav">
           <button className="presentation-btn" onClick={goPrevPage} disabled={currentIdx === 0}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="15 18 9 12 15 6"/>
-            </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
           <span className="presentation-page">{currentIdx + 1} / {visiblePages.length}</span>
           <button className="presentation-btn" onClick={goNextPage} disabled={currentIdx === visiblePages.length - 1}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
         </div>
-
-        {/* Exit button */}
         <button className="presentation-exit" onClick={() => setPresentation(false)}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -216,8 +361,6 @@ export default function Editor() {
 
   return (
     <div className="editor-root">
-
-      {/* Top bar */}
       <div className="editor-topbar">
         <div className="topbar-left">
           <button className="topbar-logo" onClick={() => navigate('/welcome')}>
@@ -283,49 +426,233 @@ export default function Editor() {
         </div>
       </div>
 
-      {/* Main */}
-      <div className="editor-main">
-        <div className="editor-canvas" ref={canvasRef}>
-          {renderPages()}
-
-          {/* Text overlay — only when no box selected */}
-          {activeTool === 'text' && selectedBox === null && (
-            <div
-              className="text-click-overlay"
-              onClick={(e) => {
-                const canvas = canvasRef.current
-                const rect = canvas.getBoundingClientRect()
-                const id = Date.now()
-                setTextBoxes(prev => [...prev, {
-                  id,
-                  x: e.clientX - rect.left + canvas.scrollLeft,
-                  y: e.clientY - rect.top + canvas.scrollTop,
-                  width: 200, height: 60,
-                  text: '', fontSize: 14, color: '#111111'
-                }])
-                setSelectedBox(id)
-              }}
-            />
+      {/* editor-main scrolls — scrollRef points here */}
+      <div className="editor-main" ref={scrollRef}>
+        <div
+          className="editor-canvas"
+          ref={canvasRef}
+          style={{ cursor: activeTool === 'text' ? 'crosshair' : activeTool === 'hand' ? 'grab' : 'default' }}
+          onMouseDown={(e) => {
+            if (activeTool === 'hand') {
+              e.preventDefault()
+              const el = e.currentTarget
+              el.style.cursor = 'grabbing'
+              const startX = e.clientX + el.scrollLeft
+              const startY = e.clientY + el.scrollTop
+              const onMove = (e) => {
+                el.scrollLeft = startX - e.clientX
+                el.scrollTop  = startY - e.clientY
+              }
+              const onUp = () => {
+                el.style.cursor = 'grab'
+                window.removeEventListener('mousemove', onMove)
+                window.removeEventListener('mouseup', onUp)
+              }
+              window.addEventListener('mousemove', onMove)
+              window.addEventListener('mouseup', onUp)
+            }
+            if (activeTool === 'rectselect') {
+              e.preventDefault()
+              const canvasEl = canvasRef.current
+              const rect = canvasEl.getBoundingClientRect()
+              const startX = e.clientX - rect.left + canvasEl.scrollLeft
+              const startY = e.clientY - rect.top  + canvasEl.scrollTop
+              setMarquee({ x: startX, y: startY, w: 0, h: 0 })
+              setSelectedBoxes([])
+              const onMove = (e) => {
+                const curX = e.clientX - rect.left + canvasEl.scrollLeft
+                const curY = e.clientY - rect.top  + canvasEl.scrollTop
+                setMarquee({
+                  x: Math.min(startX, curX),
+                  y: Math.min(startY, curY),
+                  w: Math.abs(curX - startX),
+                  h: Math.abs(curY - startY),
+                })
+              }
+              const onUp = (e) => {
+                const curX = e.clientX - rect.left + canvasEl.scrollLeft
+                const curY = e.clientY - rect.top  + canvasEl.scrollTop
+                const selX = Math.min(startX, curX)
+                const selY = Math.min(startY, curY)
+                const selW = Math.abs(curX - startX)
+                const selH = Math.abs(curY - startY)
+                const scale = zoom / 100
+                // Find boxes that overlap the marquee rect
+                const hits = []
+                const pageWrappers = canvasEl.querySelectorAll('.editor-page-wrapper')
+                console.log('marquee selX:', selX, 'selY:', selY, 'selW:', selW, 'selH:', selH)
+                console.log('textBoxes count:', textBoxes.length, 'pageWrappers:', pageWrappers.length)
+                textBoxes.forEach(box => {
+                  const pageIdx = box.pageIndex || 0
+                  const wrapper = pageWrappers[pageIdx]
+                  if (!wrapper) { console.log('no wrapper for pageIdx', pageIdx); return }
+                  const wRect = wrapper.getBoundingClientRect()
+                  const bx = (wRect.left - rect.left + canvasEl.scrollLeft) + box.pdfX * scale
+                  const by = (wRect.top  - rect.top  + canvasEl.scrollTop)  + (box.pagePdfHeight - box.pdfY) * scale
+                  const bw = (box.width  || 200) * scale
+                  const bh = (box.height || 60)  * scale
+                  console.log('box', box.id, 'bx:', bx, 'by:', by, 'bw:', bw, 'bh:', bh)
+                  if (bx < selX + selW && bx + bw > selX && by < selY + selH && by + bh > selY) {
+                    hits.push(box.id)
+                  }
+                })
+                console.log('hits:', [...hits])
+                setSelectedBoxes(hits)
+                setMarquee(null)
+                window.removeEventListener('mousemove', onMove)
+                window.removeEventListener('mouseup', onUp)
+              }
+              window.addEventListener('mousemove', onMove)
+              window.addEventListener('mouseup', onUp)
+            }
+          }}
+          onClick={(e) => {
+            if (activeTool === 'text') {
+              // If a box was selected when this click started, just deselect
+              if (selectedBoxRef.current !== null) {
+                setSelectedBox(null)
+                return
+              }
+              createTextBox(e.clientX, e.clientY)
+            } else if (activeTool === 'select') {
+              setSelectedBox(null)
+              setSelectedBoxes([])
+            }
+          }}
+        >
+          {/* Marquee drag rectangle */}
+          {marquee && marquee.w > 2 && marquee.h > 2 && (
+            <div style={{
+              position: 'absolute',
+              left: marquee.x, top: marquee.y,
+              width: marquee.w, height: marquee.h,
+              border: '1.5px dashed #2EFF6E',
+              background: '#2EFF6E11',
+              pointerEvents: 'none',
+              zIndex: 50,
+            }} />
           )}
 
-          {activeTool === 'select' && (
-            <div className="text-click-overlay" style={{ zIndex: 1 }} onClick={() => setSelectedBox(null)} />
-          )}
+          {/* Persistent group selection bounding box */}
+          {selectedBoxes.length > 1 && (() => {
+            const canvasEl = canvasRef.current
+            if (!canvasEl) return null
+            const pageWrappers = canvasEl.querySelectorAll('.editor-page-wrapper')
+            const scale = zoom / 100
+            const canvasRect = canvasEl.getBoundingClientRect()
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+            selectedBoxes.forEach(id => {
+              const box = textBoxes.find(b => b.id === id)
+              if (!box) return
+              const wrapper = pageWrappers[box.pageIndex || 0]
+              if (!wrapper) return
+              const wRect = wrapper.getBoundingClientRect()
+              const bx = (wRect.left - canvasRect.left + canvasEl.scrollLeft) + box.pdfX * scale
+              const by = (wRect.top  - canvasRect.top  + canvasEl.scrollTop)  + (box.pagePdfHeight - box.pdfY) * scale
+              const bw = (box.width  || 200) * scale
+              const bh = (box.height || 60)  * scale
+              minX = Math.min(minX, bx)
+              minY = Math.min(minY, by)
+              maxX = Math.max(maxX, bx + bw)
+              maxY = Math.max(maxY, by + bh)
+            })
+            const pad = 8
+            return (
+              <div
+                style={{
+                  position: 'absolute',
+                  left: minX - pad, top: minY - pad,
+                  width: maxX - minX + pad * 2,
+                  height: maxY - minY + pad * 2,
+                  border: '2px solid #2EFF6E',
+                  borderRadius: 6,
+                  background: '#2EFF6E0D',
+                  zIndex: 40,
+                  pointerEvents: 'auto',
+                  cursor: 'move',
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation()
+                  // Drag the whole group
+                  const scale = zoom / 100
+                  let lastX = e.clientX
+                  let lastY = e.clientY
+                  const onMove = (e) => {
+                    const dx = (e.clientX - lastX) / scale
+                    const dy = -(e.clientY - lastY) / scale
+                    setTextBoxes(prev => prev.map(b => {
+                      if (!selectedBoxes.includes(b.id)) return b
+                      return { ...b, pdfX: b.pdfX + dx, pdfY: b.pdfY + dy }
+                    }))
+                    lastX = e.clientX
+                    lastY = e.clientY
+                  }
+                  const onUp = () => {
+                    window.removeEventListener('mousemove', onMove)
+                    window.removeEventListener('mouseup', onUp)
+                  }
+                  window.addEventListener('mousemove', onMove)
+                  window.addEventListener('mouseup', onUp)
+                }}
+              >
+                {/* X button — delete all selected */}
+                <button
+                  style={{
+                    position: 'absolute',
+                    top: -14, right: -14,
+                    width: 28, height: 28,
+                    borderRadius: '50%',
+                    background: '#e74c3c',
+                    border: '2px solid #fff',
+                    color: '#fff',
+                    cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    pointerEvents: 'auto',
+                    zIndex: 60,
+                  }}
+                  onMouseDown={(e) => {
+                    e.stopPropagation()
+                    setTextBoxes(prev => prev.filter(b => !selectedBoxes.includes(b.id)))
+                    setSelectedBoxes([])
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+            )
+          })()}
 
-          {textBoxes.map(box => (
-            <TextBox
-              key={box.id}
-              {...box}
-              selected={selectedBox === box.id}
-              onSelect={setSelectedBox}
-              onUpdate={updateTextBox}
-              onDelete={deleteTextBox}
-            />
-          ))}
+          {visiblePages.map((pageNum, pageIndex) => {
+            const pageBoxes = textBoxes.filter(b => (b.pageIndex || 0) === pageIndex)
+            const ps = pageSizes[pageNum] || { width: 612, height: 792 }
+            return (
+              <PdfPage
+                key={pageNum}
+                pdf={pdf}
+                pageNumber={pageNum}
+                zoom={zoom}
+                rotation={rotation}
+                onVisible={setCurrentPage}
+                pageWidth={ps.width}
+                pageHeight={ps.height}
+                textBoxes={pageBoxes}
+                selectedBox={selectedBox}
+                selectedBoxes={selectedBoxes}
+                onSelect={(id) => {
+                  setSelectedBox(id)
+                  setSelectedBoxes([])
+                }}
+                onUpdate={updateTextBox}
+                onDelete={deleteTextBox}
+                onGroupDrag={handleGroupDrag}
+              />
+            )
+          })}
         </div>
       </div>
 
-      {/* Zoom */}
       <div className="editor-zoom">
         {numPages > 1 && (
           <>
@@ -346,7 +673,6 @@ export default function Editor() {
         </button>
       </div>
 
-      {/* Toolbar */}
       <Toolbar activeTool={activeTool} setActiveTool={setActiveTool} />
 
       {showSettings && <Settings onClose={() => setShowSettings(false)} />}
@@ -361,10 +687,17 @@ export default function Editor() {
         />
       )}
       {showTools && <ToolsMenu onClose={() => setShowTools(false)} />}
-      {showExport && <ExportModal fileName={fileName} onClose={() => setShowExport(false)} />}
+      {showExport && (
+        <ExportModal
+          fileName={fileName}
+          fileUrl={fileUrl}
+          textBoxes={textBoxes}
+          visiblePages={visiblePages.length ? visiblePages : [1]}
+          onClose={() => setShowExport(false)}
+        />
+      )}
       {showPageMenu && <PageMenu numPages={numPages} currentPage={currentPage} deletedPages={deletedPages} anchorRef={pageRef} onDelete={handleDeletePage} onClose={() => setShowPageMenu(false)} />}
       {showZoomMenu && <ZoomMenu zoom={zoom} anchorRef={zoomRef} onZoomChange={handleZoomPreset} onClose={() => setShowZoomMenu(false)} />}
-
     </div>
   )
 }

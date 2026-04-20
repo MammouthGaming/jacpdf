@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { textFmtStore } from './textFmtStore'
 import { recentColorsStore } from './recentColorsStore'
 import ColorPicker from './ColorPicker'
 import './TextBox.css'
 
-// ── Styles de la FormatBar injectés directement ──
 const FBAR_STYLE = `
   .fbar-wrapper {
     position: fixed;
@@ -58,7 +58,6 @@ const FBAR_STYLE = `
   .fbar-color:hover { background:#1e2535; }
   .fbar-color-letter { font-size:14px; font-weight:700; color:#d1d5db; line-height:1; font-family:'Inter',sans-serif; }
   .fbar-color-bar { width:18px; height:3px; border-radius:2px; }
-  .fbar-color input[type=color] { position:absolute; opacity:0; width:100%; height:100%; cursor:pointer; top:0; left:0; }
 `
 
 const FONTS = ['Inter', 'Outfit', 'Georgia', 'Courier New', 'Montserrat', 'Roboto']
@@ -68,12 +67,6 @@ const LINE_HEIGHTS = [
   { label: '1.8pt', value: 1.8 }, { label: '2pt', value: 2 }, { label: '2.5pt', value: 2.5 },
 ]
 
-const DEFAULT_FMT = {
-  font: 'Inter', size: 14, lineHeight: 1.5, color: '#111111',
-  bold: false, italic: false, underline: false, align: 'left',
-}
-
-// Injecter les styles une seule fois
 let stylesInjected = false
 function injectStyles() {
   if (stylesInjected) return
@@ -89,105 +82,72 @@ function FormatBar({ fmt, onChange, onOpenColorPicker }) {
     const cycle = { left: 'center', center: 'right', right: 'left' }
     set('align', cycle[fmt.align] || 'left')
   }
-
   const AlignIcon = () => {
     if (fmt.align === 'center') return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     if (fmt.align === 'right') return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   }
-
   return (
     <div className="fbar-wrapper">
       <div className="fbar">
         <span className="fbar-drag">⠿</span>
         <div className="fbar-divider" />
-
-        {/* Police */}
         <div className="fbar-sel-wrap">
-          <select className="fbar-sel" value={fmt.font} style={{ fontFamily: fmt.font, minWidth: 90 }}
-            onChange={(e) => set('font', e.target.value)}>
+          <select className="fbar-sel" value={fmt.font} style={{ fontFamily: fmt.font, minWidth: 90 }} onChange={(e) => set('font', e.target.value)}>
             {FONTS.map(f => <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>)}
           </select>
           <svg className="fbar-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div className="fbar-divider" />
-
-        {/* Taille */}
         <div className="fbar-sel-wrap">
-          <select className="fbar-sel" value={fmt.size} style={{ minWidth: 46 }}
-            onChange={(e) => set('size', Number(e.target.value))}>
+          <select className="fbar-sel" value={fmt.size} style={{ minWidth: 46 }} onChange={(e) => set('size', Number(e.target.value))}>
             {SIZES.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
           <svg className="fbar-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div className="fbar-divider" />
-
-        {/* Interligne */}
         <div className="fbar-sel-wrap">
-          <select className="fbar-sel" value={fmt.lineHeight} style={{ minWidth: 60 }}
-            onChange={(e) => set('lineHeight', Number(e.target.value))}>
+          <select className="fbar-sel" value={fmt.lineHeight} style={{ minWidth: 60 }} onChange={(e) => set('lineHeight', Number(e.target.value))}>
             {LINE_HEIGHTS.map(lh => <option key={lh.value} value={lh.value}>{lh.label}</option>)}
           </select>
           <svg className="fbar-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div className="fbar-divider" />
-
-        {/* Couleur */}
-        <button
-          className="fbar-color"
-          onMouseDown={(e) => { e.preventDefault(); onOpenColorPicker(e.currentTarget.getBoundingClientRect()) }}
-        >
+        <button className="fbar-color" onMouseDown={(e) => { e.preventDefault(); onOpenColorPicker(e.currentTarget.getBoundingClientRect()) }}>
           <span className="fbar-color-letter">A</span>
           <div className="fbar-color-bar" style={{ background: fmt.color }} />
         </button>
         <div className="fbar-divider" />
-
-        {/* Gras */}
-        <button className={`fbar-btn ${fmt.bold ? 'on' : ''}`} onMouseDown={(e) => { e.preventDefault(); set('bold', !fmt.bold) }}>
-          <strong>B</strong>
-        </button>
-        {/* Italique */}
-        <button className={`fbar-btn ${fmt.italic ? 'on' : ''}`} onMouseDown={(e) => { e.preventDefault(); set('italic', !fmt.italic) }}>
-          <em style={{ fontStyle: 'italic' }}>I</em>
-        </button>
-        {/* Souligné */}
-        <button className={`fbar-btn ${fmt.underline ? 'on' : ''}`} onMouseDown={(e) => { e.preventDefault(); set('underline', !fmt.underline) }}>
-          <span style={{ textDecoration: 'underline' }}>U</span>
-        </button>
+        <button className={`fbar-btn ${fmt.bold ? 'on' : ''}`} onMouseDown={(e) => { e.preventDefault(); set('bold', !fmt.bold) }}><strong>B</strong></button>
+        <button className={`fbar-btn ${fmt.italic ? 'on' : ''}`} onMouseDown={(e) => { e.preventDefault(); set('italic', !fmt.italic) }}><em style={{ fontStyle: 'italic' }}>I</em></button>
+        <button className={`fbar-btn ${fmt.underline ? 'on' : ''}`} onMouseDown={(e) => { e.preventDefault(); set('underline', !fmt.underline) }}><span style={{ textDecoration: 'underline' }}>U</span></button>
         <div className="fbar-divider" />
-
-        {/* Alignement */}
-        <button className="fbar-btn" onMouseDown={(e) => { e.preventDefault(); cycleAlign() }}>
-          <AlignIcon />
-        </button>
+        <button className="fbar-btn" onMouseDown={(e) => { e.preventDefault(); cycleAlign() }}><AlignIcon /></button>
       </div>
     </div>
   )
 }
 
-export default function TextBox({ id, x, y, width, height, text, onUpdate, onDelete, selected, onSelect }) {
+export default function TextBox({ id, x, y, width, height, text, fmt: fmtProp, onUpdate, onDelete, selected, inSelection, onSelect, onGroupDrag, zoom = 100 }) {
   const [editing, setEditing] = useState(true)
   const [rotation, setRotation] = useState(0)
   const [colorPickerAnchor, setColorPickerAnchor] = useState(null)
-  // Lit le store UNE FOIS à la création comme valeur par défaut, puis état local indépendant
-  const [fmt, setFmtState] = useState(() => textFmtStore.get())
+  const [fmt, setFmtState] = useState(() => fmtProp || textFmtStore.get())
   const textareaRef = useRef(null)
   const boxRef = useRef(null)
 
+  // Update local fmt, sync to store, AND persist to parent for export
   const setFmt = (newFmt) => {
-    // Met à jour le state local de CETTE box seulement
     setFmtState(newFmt)
-    // Met aussi à jour le store pour que la PROCHAINE box créée hérite de ces valeurs
     textFmtStore.set(newFmt)
+    onUpdate(id, { fmt: newFmt })
   }
 
   useEffect(() => { injectStyles() }, [])
-
   useEffect(() => {
     if (textareaRef.current) textareaRef.current.focus()
   }, [])
 
-  // Fermer quand on clique dehors de la box ET de la FormatBar
   useEffect(() => {
     if (!editing) return
     const onDown = (e) => {
@@ -203,9 +163,28 @@ export default function TextBox({ id, x, y, width, height, text, onUpdate, onDel
 
   const handleDrag = (e) => {
     e.preventDefault(); e.stopPropagation(); onSelect(id)
-    const canvas = boxRef.current.closest('.editor-canvas')
-    const sx = e.clientX - x + canvas.scrollLeft, sy = e.clientY - y + canvas.scrollTop
-    const onMove = (e) => onUpdate(id, { x: e.clientX - sx + canvas.scrollLeft, y: e.clientY - sy + canvas.scrollTop })
+    const wrapper = boxRef.current.closest('.editor-page-wrapper')
+    const wRect = wrapper.getBoundingClientRect()
+    const scale = zoom / 100
+    const offsetX = e.clientX - wRect.left - x
+    const offsetY = e.clientY - wRect.top  - y
+    let lastX = e.clientX
+    let lastY = e.clientY
+    const onMove = (e) => {
+      if (inSelection && onGroupDrag) {
+        // Move all selected boxes together — delta in PDF points
+        const dx = (e.clientX - lastX) / scale
+        const dy = -(e.clientY - lastY) / scale // Y inverted in PDF space
+        onGroupDrag(dx, dy)
+        lastX = e.clientX
+        lastY = e.clientY
+      } else {
+        onUpdate(id, {
+          x: e.clientX - wRect.left - offsetX,
+          y: e.clientY - wRect.top  - offsetY,
+        })
+      }
+    }
     const onUp = () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp) }
     window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onUp)
   }
@@ -265,7 +244,7 @@ export default function TextBox({ id, x, y, width, height, text, onUpdate, onDel
     <>
       <div
         ref={boxRef}
-        className={`textbox ${selected ? 'selected' : ''}`}
+        className={`textbox ${selected ? 'selected' : ''} ${inSelection ? 'in-selection' : ''}`}
         style={{ left: x, top: y, width, minHeight: height, transform: `rotate(${rotation}deg)`, transformOrigin: 'center center' }}
         onMouseDown={(e) => { if (!editing) handleDrag(e) }}
         onClick={(e) => { e.stopPropagation(); onSelect(id) }}
@@ -313,12 +292,13 @@ export default function TextBox({ id, x, y, width, height, text, onUpdate, onDel
         </>}
       </div>
 
-      {editing && (
+      {editing && createPortal(
         <FormatBar
           fmt={fmt}
           onChange={setFmt}
           onOpenColorPicker={(anchorRect) => setColorPickerAnchor(anchorRect)}
-        />
+        />,
+        document.body
       )}
 
       {colorPickerAnchor && (

@@ -74,26 +74,22 @@ function Submenu({ anchorRef, children }) {
 
 export default function Toolbar({ activeTool, setActiveTool }) {
   const [submenu, setSubmenu] = useState(null)
-  const [colorPicker, setColorPicker] = useState(null) // { tool, anchorRect }
+  const [colorPicker, setColorPicker] = useState(null)
 
-  // Per-tool colors (synced with recentColorsStore)
   const [textColors,      setTextColors]      = useState(() => recentColorsStore.get('text'))
   const [pencilColors,    setPencilColors]    = useState(() => recentColorsStore.get('pencil'))
   const [highlightColors, setHighlightColors] = useState(() => recentColorsStore.get('highlight'))
   const [shapeColors,     setShapeColors]     = useState(() => recentColorsStore.get('shapes'))
 
-  // Active colors (first of recent)
   const [pencilSize,    setPencilSize]    = useState(3)
   const [highlightSize, setHighlightSize] = useState(18)
   const [eraserSize,    setEraserSize]    = useState(20)
   const [shape,         setShape]         = useState('rect')
   const [shapeSize,     setShapeSize]     = useState(3)
 
-  // Text fmt from store
   const [textFmtLocal, setTextFmtLocal] = useState(() => textFmtStore.get())
   useEffect(() => textFmtStore.subscribe(setTextFmtLocal), [])
 
-  // Subscribe to recent colors
   useEffect(() => recentColorsStore.subscribe('text',      setTextColors),      [])
   useEffect(() => recentColorsStore.subscribe('pencil',    setPencilColors),    [])
   useEffect(() => recentColorsStore.subscribe('highlight', setHighlightColors), [])
@@ -110,8 +106,14 @@ export default function Toolbar({ activeTool, setActiveTool }) {
   }
 
   const handleTool = (tool) => {
-    setActiveTool(tool)
-    setSubmenu(submenu === tool ? null : tool)
+    if (tool === 'select') {
+      // Just toggle submenu, don't change activeTool if already in the group
+      if (!['select','hand','rectselect'].includes(activeTool)) setActiveTool('select')
+      setSubmenu(submenu === 'select' ? null : 'select')
+    } else {
+      setActiveTool(tool)
+      setSubmenu(submenu === tool ? null : tool)
+    }
     setColorPicker(null)
   }
 
@@ -131,7 +133,19 @@ export default function Toolbar({ activeTool, setActiveTool }) {
   const TOOLS = [
     {
       id: 'select',
-      icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-7 1-3 7z"/></svg>,
+      icon: activeTool === 'hand' ? (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path d="M18 11V8a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+          <path d="M14 10V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4"/>
+          <path d="M10 10.5V8a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6c0 3.31 2.69 6 6 6h2a6 6 0 0 0 6-6v-1.5a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+        </svg>
+      ) : activeTool === 'rectselect' ? (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="4 2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+        </svg>
+      ) : (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-7 1-3 7z"/></svg>
+      ),
     },
     {
       id: 'text',
@@ -194,13 +208,12 @@ export default function Toolbar({ activeTool, setActiveTool }) {
 
   return (
     <>
-      {/* Main toolbar */}
       <div className={`toolbar ${submenu ? 'toolbar-glow' : ''}`}>
         {TOOLS.map(tool => (
           <button
             key={tool.id}
             ref={refs[tool.id]}
-            className={`tb-btn ${activeTool === tool.id ? 'active' : ''}`}
+            className={`tb-btn ${tool.id === 'select' ? (['select','hand','rectselect'].includes(activeTool) ? 'active' : '') : activeTool === tool.id ? 'active' : ''}`}
             onClick={() => handleTool(tool.id)}
           >
             {tool.icon}
@@ -208,13 +221,35 @@ export default function Toolbar({ activeTool, setActiveTool }) {
         ))}
       </div>
 
-      {/* ── SELECT ── */}
+      {/* ── SELECT submenu — arrow / hand / rect-select ── */}
       {submenu === 'select' && (
         <Submenu anchorRef={refs.select}>
-          <button className="tb-btn active">
+          {/* Arrow */}
+          <button
+            className={`tb-btn ${activeTool === 'select' ? 'active' : ''}`}
+            title="Sélectionner"
+            onClick={() => setActiveTool('select')}
+          >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-7 1-3 7z"/></svg>
           </button>
-          <button className="tb-btn">
+          {/* Hand / pan */}
+          <button
+            className={`tb-btn ${activeTool === 'hand' ? 'active' : ''}`}
+            title="Déplacer le PDF"
+            onClick={() => setActiveTool('hand')}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M18 11V8a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+              <path d="M14 10V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4"/>
+              <path d="M10 10.5V8a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6c0 3.31 2.69 6 6 6h2a6 6 0 0 0 6-6v-1.5a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+            </svg>
+          </button>
+          {/* Rectangle select */}
+          <button
+            className={`tb-btn ${activeTool === 'rectselect' ? 'active' : ''}`}
+            title="Sélection rectangle"
+            onClick={() => setActiveTool('rectselect')}
+          >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="4 2">
               <rect x="3" y="3" width="18" height="18" rx="2"/>
             </svg>

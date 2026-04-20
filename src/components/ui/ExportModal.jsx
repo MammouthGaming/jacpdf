@@ -1,32 +1,280 @@
 import { useState } from 'react'
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
+import fontkit from '@pdf-lib/fontkit'
 import './ExportModal.css'
 
-export default function ExportModal({ fileName, onClose }) {
+function hexToRgb(hex) {
+  const h = (hex || '#111111').replace('#', '').padEnd(6, '0')
+  return rgb(
+    parseInt(h.slice(0, 2), 16) / 255,
+    parseInt(h.slice(2, 4), 16) / 255,
+    parseInt(h.slice(4, 6), 16) / 255
+  )
+}
+
+// Map font name + style → TTF file in /public/fonts/
+function getFontPath(fmt = {}) {
+  const { font, bold, italic } = fmt
+  const name = font || 'Inter'
+
+  const map = {
+    'Inter': {
+      normal:     '/fonts/Inter_18pt-Regular.ttf',
+      bold:       '/fonts/Inter_18pt-Bold.ttf',
+      italic:     '/fonts/Inter_18pt-Italic.ttf',
+      bolditalic: '/fonts/Inter_18pt-BlackItalic.ttf',
+    },
+    'Outfit': {
+      normal:     '/fonts/Inter_18pt-Regular.ttf',
+      bold:       '/fonts/Inter_18pt-Bold.ttf',
+      italic:     '/fonts/Inter_18pt-Italic.ttf',
+      bolditalic: '/fonts/Inter_18pt-BlackItalic.ttf',
+    },
+    'Montserrat': {
+      normal:     '/fonts/Inter_18pt-Regular.ttf',
+      bold:       '/fonts/Inter_18pt-Bold.ttf',
+      italic:     '/fonts/Inter_18pt-Italic.ttf',
+      bolditalic: '/fonts/Inter_18pt-BlackItalic.ttf',
+    },
+    'Roboto': {
+      normal:     '/fonts/Inter_18pt-Regular.ttf',
+      bold:       '/fonts/Inter_18pt-Bold.ttf',
+      italic:     '/fonts/Inter_18pt-Italic.ttf',
+      bolditalic: '/fonts/Inter_18pt-BlackItalic.ttf',
+    },
+    'Georgia': {
+      normal:     '/fonts/Inter_18pt-Regular.ttf',
+      bold:       '/fonts/Inter_18pt-Bold.ttf',
+      italic:     '/fonts/Inter_18pt-Italic.ttf',
+      bolditalic: '/fonts/Inter_18pt-BlackItalic.ttf',
+    },
+    'Courier New': {
+      normal:     '/fonts/Inter_18pt-Regular.ttf',
+      bold:       '/fonts/Inter_18pt-Bold.ttf',
+      italic:     '/fonts/Inter_18pt-Italic.ttf',
+      bolditalic: '/fonts/Inter_18pt-BlackItalic.ttf',
+    },
+  }
+
+  const variants = map[name] || map['Inter']
+  const key = bold && italic ? 'bolditalic' : bold ? 'bold' : italic ? 'italic' : 'normal'
+  return variants[key] || variants['normal']
+}
+
+// Module-level cache — reuse ArrayBuffer across boxes in the same export
+const fontBytesCache = {}
+
+async function embedFont(pdfDoc, fmt) {
+  const path = getFontPath(fmt)
+  try {
+    if (!fontBytesCache[path]) {
+      // Exact pattern from pdf-lib docs: fetch → arrayBuffer directly
+      fontBytesCache[path] = await fetch(path).then(res => res.arrayBuffer())
+    }
+    // registerFontkit must already be called on pdfDoc before this
+    return await pdfDoc.embedFont(fontBytesCache[path])
+  } catch (err) {
+    console.warn(`embedFont failed for ${path} — falling back to Helvetica`, err)
+    const { bold, italic } = fmt
+    if (bold && italic) return pdfDoc.embedFont(StandardFonts.HelveticaBoldOblique)
+    if (bold)           return pdfDoc.embedFont(StandardFonts.HelveticaBold)
+    if (italic)         return pdfDoc.embedFont(StandardFonts.HelveticaOblique)
+    return pdfDoc.embedFont(StandardFonts.Helvetica)
+  }
+}
+
+async function drawTextBoxesOnPage(pdfPage, pdfDoc, textBoxes, pageIndex) {
+  const pageBoxes = textBoxes.filter(b => b.text?.trim() && b.pageIndex === pageIndex)
+  console.log('pageBoxes for pageIndex', pageIndex, pageBoxes)
+
+  // Real dimensions from the actual PDF page — works for Letter, A4, any format
+  const { width: pageW, height: pageH } = pdfPage.getSize()
+  console.log('page width:', pageW, 'page height:', pageH)
+
+  for (const box of pageBoxes) {
+    console.log('box.pdfX:', box.pdfX, 'box.pdfY:', box.pdfY)
+
+    const fmt = box.fmt || {}
+    const fontSize = fmt.size || 14
+    const lineH = fontSize * (fmt.lineHeight || 1.5)
+    const color = hexToRgb(fmt.color)
+    const font = await embedFont(pdfDoc, fmt)
+
+    const lines = box.text.split('\n')
+
+    // box.width is canvas-space px at zoom 100%
+    // box.pagePdfWidth is the real PDF width stored at creation — same ratio as pdfX
+    const pagePdfWidth = box.pagePdfWidth || pageW
+    const pdfBoxWFinal = (box.width / (box.canvasWidthPx || pageW)) * pagePdfWidth
+
+    lines.forEach((line, i) => {
+      // font.heightAtSize gives the real typographic height — correct baseline at any font size
+      const adjustedY = box.pdfY - font.heightAtSize(fontSize)
+      const y = adjustedY - i * lineH
+
+      let drawX = box.pdfX + 10
+      if ((fmt.align === 'center' || fmt.align === 'right') && line) {
+        const tw = font.widthOfTextAtSize(line, fontSize)
+        if (fmt.align === 'center') drawX = (box.pdfX + 10) + (pdfBoxWFinal - tw) / 2
+        else drawX = (box.pdfX + 10) + pdfBoxWFinal - tw
+      }
+
+      console.log(`line "${line}" → drawX: ${drawX}, y: ${y}`)
+
+      if (line) {
+        pdfPage.drawText(line, { x: drawX, y, size: fontSize, font, color })
+      }
+
+      if (fmt.underline && line) {
+        const tw = font.widthOfTextAtSize(line, fontSize)
+        pdfPage.drawLine({
+          start: { x: drawX, y: y - 1 },
+          end: { x: drawX + tw, y: y - 1 },
+          thickness: Math.max(0.5, fontSize / 18),
+          color,
+        })
+      }
+    })
+  }
+}
+
+export default function ExportModal({
+  fileName,
+  fileUrl,
+  textBoxes = [],
+  visiblePages = [],
+  onClose,
+}) {
+  const baseName = (fileName || 'Document').replace(/\.pdf$/i, '')
+
   const [tab, setTab] = useState('exporter')
   const [destination, setDestination] = useState('ordinateur')
   const [option, setOption] = useState('avec')
-  const [fileNameValue, setFileNameValue] = useState(fileName || 'Nouveau_Document.pdf')
+  const [fileNameValue, setFileNameValue] = useState(`JacPDF Export - ${baseName}`)
   const [pages, setPages] = useState('toutes')
   const [pagesCustom, setPagesCustom] = useState('')
   const [sharePermission, setSharePermission] = useState('lien')
   const [downloadPermission, setDownloadPermission] = useState('oui')
+  const [exporting, setExporting] = useState(false)
+
+  const resolvePages = () => {
+    if (pages === 'annotees') {
+      const filtered = visiblePages.filter((_, idx) =>
+        textBoxes.some(b => b.text?.trim() && b.pageIndex === idx)
+      )
+      return filtered.length ? filtered : [...visiblePages]
+    }
+    if (pages === 'custom' && pagesCustom.trim()) {
+      const parsed = []
+      pagesCustom.split(',').forEach(part => {
+        const t = part.trim()
+        if (t.includes('-')) {
+          const [s, e] = t.split('-').map(Number)
+          for (let i = s; i <= e; i++) if (visiblePages.includes(i)) parsed.push(i)
+        } else {
+          const n = Number(t)
+          if (!isNaN(n) && visiblePages.includes(n)) parsed.push(n)
+        }
+      })
+      const unique = [...new Set(parsed)].sort((a, b) => a - b)
+      return unique.length ? unique : [...visiblePages]
+    }
+    return [...visiblePages]
+  }
+
+  const triggerDownload = (bytes, name) => {
+    const blob = new Blob([bytes], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = name
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+  }
+
+  const doExport = async () => {
+    setExporting(true)
+    try {
+      const pagesToExport = resolvePages()
+      const raw = fileNameValue.trim() || 'export'
+      const outName = raw.toLowerCase().endsWith('.pdf') ? raw : raw + '.pdf'
+
+      if (option === 'original') {
+        if (fileUrl) {
+          const res = await fetch(fileUrl)
+          const blob = await res.blob()
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = outName
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+          setTimeout(() => URL.revokeObjectURL(url), 1000)
+        }
+        onClose()
+        return
+      }
+
+      if (option === 'avec') {
+        if (!fileUrl) { onClose(); return }
+        const existingBytes = await fetch(fileUrl).then(r => r.arrayBuffer())
+        const srcDoc = await PDFDocument.load(existingBytes)
+        const outDoc = await PDFDocument.create()
+        outDoc.registerFontkit(fontkit)
+
+        const copiedPages = await outDoc.copyPages(srcDoc, pagesToExport.map(p => p - 1))
+        copiedPages.forEach(p => outDoc.addPage(p))
+
+        const outPages = outDoc.getPages()
+        for (let i = 0; i < pagesToExport.length; i++) {
+          const pageIndex = visiblePages.indexOf(pagesToExport[i])
+          await drawTextBoxesOnPage(outPages[i], outDoc, textBoxes, pageIndex)
+        }
+
+        triggerDownload(await outDoc.save(), outName)
+        onClose()
+        return
+      }
+
+      if (option === 'annotations') {
+        const outDoc = await PDFDocument.create()
+        outDoc.registerFontkit(fontkit)
+        for (let i = 0; i < pagesToExport.length; i++) {
+          const pageIndex = visiblePages.indexOf(pagesToExport[i])
+          const refBox = textBoxes.find(b => b.pageIndex === pageIndex)
+          const pw = refBox?.pagePdfWidth || 612
+          const ph = refBox?.pagePdfHeight || 792
+          const page = outDoc.addPage([pw, ph])
+          await drawTextBoxesOnPage(page, outDoc, textBoxes, pageIndex)
+        }
+        triggerDownload(await outDoc.save(), outName)
+        onClose()
+        return
+      }
+    } catch (err) {
+      console.error('Export error:', err)
+      alert('Erreur lors de l\'export : ' + err.message)
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  const canExportNow = destination === 'ordinateur'
 
   return (
     <div className="em-overlay" onClick={onClose}>
       <div className="em-card" onClick={(e) => e.stopPropagation()}>
 
-        {/* Header */}
         <div className="em-header">
           <h2 className="em-title">Comment voulez-vous exporter ?</h2>
           <button className="em-close" onClick={onClose}>✕</button>
         </div>
 
-        {/* Tabs */}
         <div className="em-tabs">
-          <button
-            className={`em-tab ${tab === 'exporter' ? 'active' : ''}`}
-            onClick={() => setTab('exporter')}
-          >
+          <button className={`em-tab ${tab === 'exporter' ? 'active' : ''}`} onClick={() => setTab('exporter')}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="7 10 12 15 17 10"/>
@@ -34,14 +282,9 @@ export default function ExportModal({ fileName, onClose }) {
             </svg>
             Exporter
           </button>
-          <button
-            className={`em-tab ${tab === 'partager' ? 'active' : ''}`}
-            onClick={() => setTab('partager')}
-          >
+          <button className={`em-tab ${tab === 'partager' ? 'active' : ''}`} onClick={() => setTab('partager')}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="18" cy="5" r="3"/>
-              <circle cx="6" cy="12" r="3"/>
-              <circle cx="18" cy="19" r="3"/>
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
               <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
             </svg>
@@ -49,16 +292,13 @@ export default function ExportModal({ fileName, onClose }) {
           </button>
         </div>
 
-        {/* ── TAB EXPORTER ── */}
         {tab === 'exporter' && (
           <div className="em-body">
-
             <p className="em-section-label">EXPORTER VERS</p>
             <div className="em-dest-row">
               <button className={`em-dest-btn ${destination === 'ordinateur' ? 'active' : ''}`} onClick={() => setDestination('ordinateur')}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="2" y="3" width="20" height="14" rx="2"/>
-                  <path d="M8 21h8M12 17v4"/>
+                  <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
                 </svg>
                 Votre Ordinateur
               </button>
@@ -114,11 +354,7 @@ export default function ExportModal({ fileName, onClose }) {
 
             <div className="em-field-row">
               <label className="em-field-label">Nom du fichier</label>
-              <input
-                className="em-input"
-                value={fileNameValue}
-                onChange={(e) => setFileNameValue(e.target.value)}
-              />
+              <input className="em-input" value={fileNameValue} onChange={(e) => setFileNameValue(e.target.value)} />
             </div>
 
             <div className="em-field-row">
@@ -127,7 +363,7 @@ export default function ExportModal({ fileName, onClose }) {
                 <label className="em-radio">
                   <input type="radio" name="pages" checked={pages === 'toutes'} onChange={() => setPages('toutes')} />
                   <span className="em-radio-dot" />
-                  Toutes les pages (1 page)
+                  Toutes les pages ({visiblePages.length} page{visiblePages.length > 1 ? 's' : ''})
                 </label>
                 <label className="em-radio">
                   <input type="radio" name="pages" checked={pages === 'annotees'} onChange={() => setPages('annotees')} />
@@ -147,14 +383,11 @@ export default function ExportModal({ fileName, onClose }) {
                 </label>
               </div>
             </div>
-
           </div>
         )}
 
-        {/* ── TAB PARTAGER ── */}
         {tab === 'partager' && (
           <div className="em-body">
-
             <p className="em-section-label">LIEN DE PARTAGE</p>
             <div className="em-share-row">
               <input className="em-input em-share-input" placeholder="Générez un lien de partage..." readOnly />
@@ -165,25 +398,17 @@ export default function ExportModal({ fileName, onClose }) {
                 </svg>
               </button>
             </div>
-
             <p className="em-section-label">PERMISSIONS DE PARTAGE</p>
             <div className="em-perm-group">
               <label className={`em-perm-row ${sharePermission === 'restreint' ? 'active' : ''}`} onClick={() => setSharePermission('restreint')}>
                 <span className={`em-radio-dot ${sharePermission === 'restreint' ? 'checked' : ''}`} />
-                <div>
-                  <p className="em-perm-title">Restreint</p>
-                  <p className="em-perm-sub">Seules les personnes invitées peuvent accéder</p>
-                </div>
+                <div><p className="em-perm-title">Restreint</p><p className="em-perm-sub">Seules les personnes invitées peuvent accéder</p></div>
               </label>
               <label className={`em-perm-row ${sharePermission === 'lien' ? 'active' : ''}`} onClick={() => setSharePermission('lien')}>
                 <span className={`em-radio-dot ${sharePermission === 'lien' ? 'checked' : ''}`} />
-                <div>
-                  <p className="em-perm-title">Toute personne avec le lien</p>
-                  <p className="em-perm-sub">Peut voir le document</p>
-                </div>
+                <div><p className="em-perm-title">Toute personne avec le lien</p><p className="em-perm-sub">Peut voir le document</p></div>
               </label>
             </div>
-
             <p className="em-section-label">PERMISSION DE TÉLÉCHARGEMENT</p>
             <div className="em-perm-group">
               <label className={`em-perm-row ${downloadPermission === 'oui' ? 'active' : ''}`} onClick={() => setDownloadPermission('oui')}>
@@ -195,18 +420,38 @@ export default function ExportModal({ fileName, onClose }) {
                 <div><p className="em-perm-title">Téléchargement désactivé</p></div>
               </label>
             </div>
-
           </div>
         )}
 
-        {/* Footer */}
-        <button className="em-soon-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12 6 12 12 16 14"/>
-          </svg>
-          Bientôt disponible
-        </button>
+        {tab === 'exporter' && canExportNow ? (
+          <button className="em-export-btn" onClick={doExport} disabled={exporting}>
+            {exporting ? (
+              <>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: 'spin 1s linear infinite' }}>
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                </svg>
+                Exportation…
+              </>
+            ) : (
+              <>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Exporter en PDF
+              </>
+            )}
+          </button>
+        ) : (
+          <button className="em-soon-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Bientôt disponible
+          </button>
+        )}
 
       </div>
     </div>
