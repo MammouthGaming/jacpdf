@@ -1,0 +1,323 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.toolbar {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 20px;
+  padding: 10px 8px;
+  z-index: 50;
+  transition: box-shadow 0.3s;
+}
+
+.toolbar-vertical {
+  flex-direction: column;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.toolbar-horizontal {
+  flex-direction: row;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 10px;
+}
+
+/* Poignée de drag — pour déplacer la toolbar à la souris */
+.tb-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 18px;
+  color: #4b5563;
+  cursor: grab;
+  border-radius: 6px;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.tb-drag-handle:hover { background: #1e2535; color: #9ca3af; }
+.tb-drag-handle:active { cursor: grabbing; }
+.toolbar-horizontal .tb-drag-handle { width: 18px; height: 28px; }
+
+.toolbar-glow {
+  box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.4);
+}
+
+.tb-btn {
+  width: 44px;
+  height: 44px;
+  background: #1e2535;
+  border: none;
+  border-radius: 12px;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  font-family: 'Inter', sans-serif;
+}
+
+.tb-btn:hover { background: #2a3347; color: #fff; }
+.tb-btn.active { background: var(--accent); color: #000; }
+
+/* Submenu */
+.tb-submenu {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 20px;
+  padding: 10px 8px;
+  z-index: 50;
+}
+.tb-submenu-vertical { flex-direction: column; }
+.tb-submenu-horizontal { flex-direction: row; }
+
+/* Color dot */
+.tb-color-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.tb-color-dot.active { border-color: #fff; transform: scale(1.1); }
+.tb-color-dot:hover { transform: scale(1.05); }
+
+/* Palette button */
+.tb-palette-btn {
+  width: 36px;
+  height: 36px;
+  background: #1e2535;
+  border: none;
+  border-radius: 50%;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.tb-palette-btn:hover { background: #2a3347; color: #fff; }
+
+/* Size dropdown */
+.tb-size-wrapper { position: relative; width: 44px; }
+
+.tb-size-btn {
+  width: 44px;
+  height: 32px;
+  background: #1e2535;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transition: background 0.15s;
+}
+.tb-size-btn:hover { background: #2a3347; }
+
+.tb-size-dropdown {
+  position: fixed;
+  left: 90px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 10px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 300;
+  max-height: 200px;
+  overflow-y: auto;
+  min-width: 60px;
+}
+
+.tb-size-dropdown::-webkit-scrollbar { width: 3px; }
+.tb-size-dropdown::-webkit-scrollbar-thumb { background: #2a3347; border-radius: 2px; }
+
+.tb-size-option {
+  padding: 5px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: #9ca3af;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s, color 0.15s;
+}
+.tb-size-option:hover { background: #1e2535; color: #fff; }
+.tb-size-option.active { color: var(--accent); font-weight: 700; }
+
+/* ── Custom size selector (composant React SizeSelect) ────────────────
+   Remplace les <select> natifs dans tous les sous-menus de la toolbar
+   (text, pencil, highlight, shapes, eraser). Le bouton et la liste
+   d'options sont cohérents cross-browser, contrairement à un <select>
+   natif dont le caret et la dropdown list restent rendus par l'OS. */
+.tb-size-select {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 44px;
+  height: 32px;
+  background-color: transparent;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  padding: 0 4px 0 6px;
+  outline: none;
+  transition: background-color 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.tb-size-select:hover:not(.disabled),
+.tb-size-select.open { background-color: #2a3347; }
+.tb-size-select.disabled { opacity: 0.4; cursor: not-allowed; }
+.tb-size-value { line-height: 1; }
+.tb-size-arrow {
+  flex: 0 0 auto;
+  color: #d1d5db;
+  transition: transform 0.15s;
+}
+.tb-size-select.open .tb-size-arrow { transform: rotate(180deg); }
+
+.tb-size-popup {
+  /* z-index plus élevé que .tb-submenu pour ne jamais être caché derrière */
+  z-index: 1100;
+  background: #1e2535;
+  border: 1px solid #2a3347;
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  /* Hauteur fixe : montre ~6 options ; les tailles suivantes
+     restent accessibles via scroll. 8(pad) + 6*44 + 8(pad) = 280 px. */
+  max-height: 282px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  /* Pas de gap : chaque option remplit toute sa rangée pour que le clic
+     entre deux nombres atteigne toujours un bouton (pas de zone morte). */
+  gap: 0;
+  animation: tbSizePopupIn 0.12s ease-out;
+}
+.tb-size-popup::-webkit-scrollbar { width: 4px; }
+.tb-size-popup::-webkit-scrollbar-thumb { background: #2a3347; border-radius: 2px; }
+
+/* Mode "preset nommé" — popup plus large avec aperçu + label sur chaque ligne */
+.tb-size-popup.named {
+  min-width: 180px;
+  padding: 6px;
+  /* En mode nommé (preset Kami) on garde un léger gap entre les rangées. */
+  gap: 2px;
+}
+.tb-size-popup.named .tb-size-option {
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 0 10px;
+  height: 36px;
+  font-weight: 500;
+}
+.tb-size-option-preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  flex-shrink: 0;
+  color: #fff;
+}
+.tb-size-option-label {
+  flex: 1;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 500;
+}
+.tb-size-preview-dot,
+.tb-size-preview-line { pointer-events: none; }
+@keyframes tbSizePopupIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tb-size-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  /* Padding vertical à l'intérieur du bouton : crée un écart visuel
+     entre les remplissages hover/actif tout en gardant la hitbox
+     complète (44px) — donc pas de zone morte entre deux options. */
+  padding: 5px 12px;
+  text-align: center;
+  background-clip: content-box;
+  transition: background 0.1s;
+}
+.tb-size-option:hover { background: #2a3347; }
+.tb-size-option.active { background: transparent; color: var(--accent); font-weight: 700; }
+.tb-size-option.active:hover { background: #2a3347; }
+.tb-native-size:disabled { opacity: 0.35; cursor: not-allowed; }
+.tb-native-size option {
+  background: #161b27;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ─── Mode clair ─── */
+[data-theme="light"] .toolbar { background: #ffffff; border-color: #d1d5db; }
+[data-theme="light"] .tb-btn { background: #f0f1f5; color: #4b5563; }
+[data-theme="light"] .tb-btn:hover { background: #e5e7eb; color: #0d1117; }
+[data-theme="light"] .tb-submenu { background: #ffffff; border-color: #d1d5db; }
+[data-theme="light"] .tb-color-dot.active { border-color: #0d1117; }
+[data-theme="light"] .tb-palette-btn { background: #f0f1f5; color: #6b7280; }
+[data-theme="light"] .tb-palette-btn:hover { background: #e5e7eb; color: #0d1117; }
+[data-theme="light"] .tb-drag-handle { color: #9ca3af; }
+[data-theme="light"] .tb-drag-handle:hover { background: #f0f1f5; color: #4b5563; }
+[data-theme="light"] .tb-size-btn { background-color: #f0f1f5; color: #0d1117; }
+[data-theme="light"] .tb-size-select { background-color: transparent; color: #0d1117; }
+[data-theme="light"] .tb-size-btn:hover,
+[data-theme="light"] .tb-size-select:hover:not(.disabled),
+[data-theme="light"] .tb-size-select.open { background-color: #e5e7eb; }
+[data-theme="light"] .tb-size-arrow { color: #4b5563; }
+[data-theme="light"] .tb-size-popup {
+  background: #fff;
+  border-color: #e5e7eb;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+[data-theme="light"] .tb-size-option { color: #0d1117; }
+[data-theme="light"] .tb-size-option:hover { background: #f0f1f5; }
+[data-theme="light"] .tb-size-option.active { background: transparent; color: var(--accent); }
+[data-theme="light"] .tb-size-option.active:hover { background: #f0f1f5; }
+[data-theme="light"] .tb-size-dropdown { background: #ffffff; border-color: #d1d5db; }
+[data-theme="light"] .tb-size-option { color: #4b5563; }
+[data-theme="light"] .tb-size-option:hover { background: #f0f1f5; color: #0d1117; }
+[data-theme="light"] .tb-native-size option { background: #ffffff; color: #0d1117; }
+[data-theme="light"] .tb-size-option-preview { color: #0d1117; }
+[data-theme="light"] .tb-size-popup::-webkit-scrollbar-thumb { background: #d1d5db; }

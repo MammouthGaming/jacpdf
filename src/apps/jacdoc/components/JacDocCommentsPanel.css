@@ -1,0 +1,750 @@
+/* ── Panneau commentaires style JacDoc ──────────────────────────────
+   Calque la sidebar Google Docs en gardant la structure (header / onglets
+   / filtres / état vide / footer) mais reskinné aux couleurs JacDoc :
+   panneau #161b27, accent vert néon, bordures + hover sur --jacdoc-border
+   et --jacdoc-panel-hover comme le reste de l'éditeur. */
+.jacdoc-root.has-comments-open .jacdoc-scroll {
+  padding-right: 390px;
+}
+.jacdoc-root.has-comments-open .jacdoc-floating-right {
+  right: 372px;
+}
+.jacdoc-comments-panel {
+  position: absolute;
+  top: 70px;
+  right: 16px;
+  bottom: 16px;
+  width: 340px;
+  z-index: 35;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--jacdoc-panel);
+  color: var(--jacdoc-fg);
+  border-radius: 14px;
+  border: 1px solid var(--jacdoc-border);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(var(--jacdoc-accent-rgb), 0.06);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+.jacdoc-comments-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 12px 12px 18px;
+  border-bottom: 1px solid var(--jacdoc-border);
+  flex-shrink: 0;
+}
+.jacdoc-comments-header h2 {
+  margin: 0;
+  color: var(--jacdoc-fg);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+.jacdoc-comments-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.jacdoc-comments-icon-btn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--jacdoc-fg-dim);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+}
+.jacdoc-comments-icon-btn:hover {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+  border-color: var(--jacdoc-border);
+}
+.jacdoc-comments-icon-btn:active { transform: scale(0.94); }
+.jacdoc-comments-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 44px;
+  align-items: stretch;
+  height: 44px;
+  border-bottom: 1px solid var(--jacdoc-border);
+  flex-shrink: 0;
+}
+.jacdoc-comments-tabs button {
+  position: relative;
+  border: none;
+  background: transparent;
+  color: var(--jacdoc-fg-dim);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.jacdoc-comments-tabs button:hover {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+}
+.jacdoc-comments-tabs button.is-active {
+  background: rgba(var(--jacdoc-accent-rgb), 0.10);
+  color: var(--jacdoc-accent);
+}
+.jacdoc-comments-tabs button.is-active::after {
+  content: '';
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px 2px 0 0;
+  background: var(--jacdoc-accent);
+  box-shadow: 0 0 10px rgba(var(--jacdoc-accent-rgb), 0.55);
+}
+.jacdoc-comments-search {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid var(--jacdoc-border);
+}
+.jacdoc-comments-searchbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--jacdoc-border);
+  flex-shrink: 0;
+}
+.jacdoc-comments-searchbar-back {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--jacdoc-fg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: background 0.12s;
+}
+.jacdoc-comments-searchbar-back:hover {
+  background: var(--jacdoc-panel-hover);
+}
+.jacdoc-comments-searchbar-back:active {
+  transform: scale(0.94);
+}
+.jacdoc-comments-searchbar-input {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 999px;
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 14px;
+  padding: 0 18px;
+  outline: none;
+  transition: border-color 0.12s, box-shadow 0.12s, background 0.12s;
+}
+.jacdoc-comments-searchbar-input::placeholder {
+  color: var(--jacdoc-fg-dim);
+}
+.jacdoc-comments-searchbar-input:focus {
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.55);
+  box-shadow: 0 0 0 3px rgba(var(--jacdoc-accent-rgb), 0.15);
+  background: var(--jacdoc-bg);
+}
+[data-theme="light"] .jacdoc-comments-searchbar {
+  border-bottom-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-comments-searchbar-back {
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-comments-searchbar-back:hover {
+  background: #f0f1f5;
+}
+[data-theme="light"] .jacdoc-comments-searchbar-input {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-comments-searchbar-input::placeholder {
+  color: #5f6368;
+}
+[data-theme="light"] .jacdoc-comments-searchbar-input:focus {
+  background: #ffffff;
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.55);
+}
+/* Animation d'ouverture style Google Docs : la barre entière fond à
+   l'apparition, la flèche retour glisse depuis la gauche avec un léger
+   scale, et le champ se révèle de droite à gauche via clip-path — comme
+   si l'input poussait depuis la position initiale de la loupe. */
+@keyframes jacdoc-comments-searchbar-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes jacdoc-comments-searchbar-back-in {
+  from { opacity: 0; transform: translateX(-8px) scale(0.85); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes jacdoc-comments-searchbar-input-in {
+  from { clip-path: inset(0 0 0 calc(100% - 36px)); opacity: 0.55; }
+  to { clip-path: inset(0 0 0 0); opacity: 1; }
+}
+.jacdoc-comments-searchbar {
+  animation: jacdoc-comments-searchbar-in 0.45s cubic-bezier(0.2, 0, 0, 1);
+}
+.jacdoc-comments-searchbar-back {
+  animation: jacdoc-comments-searchbar-back-in 0.55s cubic-bezier(0.2, 0, 0, 1) both;
+  animation-delay: 0.05s;
+}
+.jacdoc-comments-searchbar-input {
+  animation: jacdoc-comments-searchbar-input-in 0.6s cubic-bezier(0.2, 0, 0, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .jacdoc-comments-searchbar,
+  .jacdoc-comments-searchbar-back,
+  .jacdoc-comments-searchbar-input {
+    animation: none;
+  }
+}
+
+.jacdoc-comments-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 14px 0;
+  flex-shrink: 0;
+}
+.jacdoc-comments-filter-btn {
+  height: 32px;
+  min-width: 130px;
+  max-width: 150px;
+  padding: 0 12px;
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 8px;
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.jacdoc-comments-filter-btn:hover {
+  background: var(--jacdoc-bg);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.4);
+  color: var(--jacdoc-fg);
+}
+.jacdoc-comments-filter-btn.is-open {
+  background: var(--jacdoc-bg);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.55);
+  color: var(--jacdoc-fg);
+}
+/* Texte interne du bouton filtre tronqué quand trop long, exactement
+   comme Google Docs (« Tous les statuts » → « Tous les ... »). */
+.jacdoc-comments-filter-btn > span {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.jacdoc-comments-filter-wrap {
+  position: relative;
+  display: inline-flex;
+}
+/* L'animation jacdoc-menu-in vit dans JacDocEditor.css (partagée avec
+   les autres menus de l'éditeur — toolbar, zoom, etc.). */
+.jacdoc-comments-filter-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 160px;
+  background: var(--jacdoc-panel);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  animation: jacdoc-menu-in 0.12s ease-out;
+}
+.jacdoc-comments-filter-opt {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.jacdoc-comments-filter-opt:hover {
+  background: var(--jacdoc-panel-hover);
+}
+.jacdoc-comments-filter-opt.is-active {
+  background: rgba(var(--jacdoc-accent-rgb), 0.14);
+  color: var(--jacdoc-accent);
+}
+.jacdoc-comments-empty {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  color: var(--jacdoc-fg-dim);
+}
+.jacdoc-comments-empty p {
+  margin: 0 0 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--jacdoc-fg);
+}
+.jacdoc-comments-empty button {
+  height: 38px;
+  min-width: 210px;
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 999px;
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg-dim);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+.jacdoc-comments-footer {
+  padding: 14px 22px 20px;
+  border-top: 1px solid var(--jacdoc-border);
+  color: var(--jacdoc-fg-dim);
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.55;
+  flex-shrink: 0;
+}
+.jacdoc-comments-footer strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--jacdoc-fg);
+  font-weight: 700;
+  font-size: 12px;
+}
+.jacdoc-comments-footer p {
+  margin: 0;
+}
+.jacdoc-comments-footer span {
+  color: var(--jacdoc-accent);
+  font-weight: 700;
+  cursor: pointer;
+}
+.jacdoc-comments-footer span:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+/* ── Commentaires fonctionnels ─────────────────────────────────────── */
+.jacdoc-comments-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px 12px 10px;
+}
+.jacdoc-comments-state {
+  margin: 12px 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 12px;
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg-dim);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.jacdoc-comments-state.is-error {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.10);
+  color: #fca5a5;
+}
+.jacdoc-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.jacdoc-comment-card {
+  position: relative;
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  padding: 12px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+  transition: border-color 0.14s, background 0.14s, transform 0.14s;
+}
+.jacdoc-comment-card:hover {
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.32);
+  background: rgba(var(--jacdoc-accent-rgb), 0.055);
+}
+.jacdoc-comment-card.is-mine {
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.24);
+}
+.jacdoc-comment-card.is-resolved {
+  opacity: 0.72;
+}
+.jacdoc-comment-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+.jacdoc-comment-author {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.jacdoc-comment-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(var(--jacdoc-accent-rgb), 0.32);
+  background: var(--jacdoc-panel-hover);
+}
+.jacdoc-comment-avatar.is-initial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--jacdoc-accent);
+  font-size: 12px;
+  font-weight: 800;
+}
+.jacdoc-comment-author strong {
+  display: block;
+  max-width: 155px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--jacdoc-fg);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+.jacdoc-comment-author span {
+  display: block;
+  margin-top: 2px;
+  color: var(--jacdoc-fg-dim);
+  font-size: 11px;
+  line-height: 1.2;
+}
+.jacdoc-comment-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.jacdoc-comment-card:hover .jacdoc-comment-actions,
+.jacdoc-comment-card:focus-within .jacdoc-comment-actions {
+  opacity: 1;
+}
+.jacdoc-comment-icon-btn {
+  width: 25px;
+  height: 25px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--jacdoc-fg-dim);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.12s, color 0.12s, border-color 0.12s, transform 0.12s;
+}
+.jacdoc-comment-icon-btn:hover {
+  background: var(--jacdoc-panel-hover);
+  border-color: var(--jacdoc-border);
+  color: var(--jacdoc-fg);
+}
+.jacdoc-comment-icon-btn.is-danger:hover {
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.10);
+}
+.jacdoc-comment-icon-btn:active {
+  transform: scale(0.94);
+}
+.jacdoc-comment-body {
+  margin: 0;
+  color: var(--jacdoc-fg);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.jacdoc-comment-resolved-pill {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 10px;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: rgba(var(--jacdoc-accent-rgb), 0.12);
+  color: var(--jacdoc-accent);
+  border: 1px solid rgba(var(--jacdoc-accent-rgb), 0.22);
+  font-size: 11px;
+  font-weight: 750;
+}
+.jacdoc-comment-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.jacdoc-comment-edit textarea,
+.jacdoc-comments-composer textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 72px;
+  max-height: 180px;
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 12px;
+  background: var(--jacdoc-bg);
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+  padding: 10px 11px;
+  outline: none;
+  transition: border-color 0.12s, box-shadow 0.12s, background 0.12s;
+}
+.jacdoc-comment-edit textarea:focus,
+.jacdoc-comments-composer textarea:focus {
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.55);
+  box-shadow: 0 0 0 3px rgba(var(--jacdoc-accent-rgb), 0.14);
+}
+.jacdoc-comments-composer textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+.jacdoc-comment-edit-actions,
+.jacdoc-comments-composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.jacdoc-comments-composer-actions span {
+  margin-right: auto;
+  color: var(--jacdoc-fg-dim);
+  font-size: 10.5px;
+}
+.jacdoc-comment-edit-actions button,
+.jacdoc-comments-composer-actions button {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s, transform 0.12s;
+}
+.jacdoc-comment-edit-actions button:hover,
+.jacdoc-comments-composer-actions button:hover {
+  background: var(--jacdoc-panel-hover);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.35);
+}
+.jacdoc-comment-edit-actions button.is-primary,
+.jacdoc-comments-composer-actions button {
+  background: var(--jacdoc-accent);
+  border-color: var(--jacdoc-accent);
+  color: #07130a;
+}
+.jacdoc-comment-edit-actions button.is-primary:hover,
+.jacdoc-comments-composer-actions button:hover {
+  filter: brightness(1.05);
+}
+.jacdoc-comment-edit-actions button:disabled,
+.jacdoc-comments-composer-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  filter: none;
+}
+.jacdoc-comments-composer {
+  flex-shrink: 0;
+  padding: 12px;
+  border-top: 1px solid var(--jacdoc-border);
+  background: color-mix(in srgb, var(--jacdoc-panel) 94%, var(--jacdoc-accent) 6%);
+}
+.jacdoc-comments-empty button:not(:disabled) {
+  cursor: pointer;
+  opacity: 1;
+  color: var(--jacdoc-fg);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.28);
+}
+.jacdoc-comments-empty button:not(:disabled):hover {
+  background: rgba(var(--jacdoc-accent-rgb), 0.12);
+  color: var(--jacdoc-accent);
+}
+[data-theme="light"] .jacdoc-comments-body {
+  background: #ffffff;
+}
+[data-theme="light"] .jacdoc-comments-state {
+  background: #f5f6f8;
+  border-color: #e5e7eb;
+  color: #5f6368;
+}
+[data-theme="light"] .jacdoc-comments-state.is-error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+[data-theme="light"] .jacdoc-comment-card {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+}
+[data-theme="light"] .jacdoc-comment-card:hover {
+  background: rgba(var(--jacdoc-accent-rgb), 0.055);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.28);
+}
+[data-theme="light"] .jacdoc-comment-card.is-mine {
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.24);
+}
+[data-theme="light"] .jacdoc-comment-avatar {
+  background: #f5f6f8;
+}
+[data-theme="light"] .jacdoc-comment-author strong,
+[data-theme="light"] .jacdoc-comment-body {
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-comment-author span,
+[data-theme="light"] .jacdoc-comments-composer-actions span {
+  color: #5f6368;
+}
+[data-theme="light"] .jacdoc-comment-icon-btn {
+  color: #5f6368;
+}
+[data-theme="light"] .jacdoc-comment-icon-btn:hover {
+  background: #f0f1f5;
+  color: #0d1117;
+  border-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-comment-icon-btn.is-danger:hover {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+[data-theme="light"] .jacdoc-comment-edit textarea,
+[data-theme="light"] .jacdoc-comments-composer textarea {
+  background: #ffffff;
+  color: #0d1117;
+  border-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-comments-composer {
+  background: #ffffff;
+  border-top-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-comments-panel {
+  background: #ffffff;
+  color: #0d1117;
+  border-color: #e5e7eb;
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.14),
+    0 0 0 1px rgba(var(--jacdoc-accent-rgb), 0.08);
+}
+[data-theme="light"] .jacdoc-comments-header { border-bottom-color: #e5e7eb; }
+[data-theme="light"] .jacdoc-comments-header h2 { color: #0d1117; }
+[data-theme="light"] .jacdoc-comments-icon-btn { color: #5f6368; }
+[data-theme="light"] .jacdoc-comments-icon-btn:hover {
+  background: #f0f1f5; color: #0d1117; border-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-comments-tabs { border-bottom-color: #e5e7eb; }
+[data-theme="light"] .jacdoc-comments-tabs button { color: #5f6368; }
+[data-theme="light"] .jacdoc-comments-tabs button:hover {
+  background: #f0f1f5; color: #0d1117;
+}
+[data-theme="light"] .jacdoc-comments-tabs button.is-active {
+  background: rgba(var(--jacdoc-accent-rgb), 0.14);
+  color: #0a7a05;
+}
+[data-theme="light"] .jacdoc-comments-tabs button.is-active::after {
+  background: #0a7a05;
+  box-shadow: 0 0 8px rgba(var(--jacdoc-accent-rgb), 0.45);
+}
+[data-theme="light"] .jacdoc-comments-search { border-left-color: #e5e7eb; }
+[data-theme="light"] .jacdoc-comments-filter-btn {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-comments-filter-btn:hover {
+  background: #f0f1f5;
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.4);
+}
+[data-theme="light"] .jacdoc-comments-filter-btn.is-open {
+  background: #f0f1f5;
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.55);
+}
+[data-theme="light"] .jacdoc-comments-filter-menu {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+}
+[data-theme="light"] .jacdoc-comments-filter-opt { color: #0d1117; }
+[data-theme="light"] .jacdoc-comments-filter-opt:hover { background: #f0f1f5; }
+[data-theme="light"] .jacdoc-comments-filter-opt.is-active {
+  background: rgba(var(--jacdoc-accent-rgb), 0.14);
+  color: #0a7a05;
+}
+[data-theme="light"] .jacdoc-comments-empty { color: #5f6368; }
+[data-theme="light"] .jacdoc-comments-empty p { color: #0d1117; }
+[data-theme="light"] .jacdoc-comments-empty button {
+  background: #f5f6f8; color: #9ca3af; border-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-comments-footer {
+  border-top-color: #e5e7eb;
+  color: #5f6368;
+}
+[data-theme="light"] .jacdoc-comments-footer strong { color: #0d1117; }
+[data-theme="light"] .jacdoc-comments-footer span { color: #0a7a05; }
+@media (max-width: 900px) {
+  .jacdoc-root.has-comments-open .jacdoc-scroll {
+    padding-right: 24px;
+  }
+  .jacdoc-root.has-comments-open .jacdoc-floating-right {
+    right: 16px;
+  }
+  .jacdoc-comments-panel {
+    top: 58px;
+    right: 10px;
+    bottom: 10px;
+    width: min(340px, calc(100vw - 20px));
+  }
+}

@@ -1,0 +1,634 @@
+/* ============================================================
+   JacPaint — HomeContent.css
+   Mirror structurel de JacDoc HomeContent.css, namespace propre.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+.jacpaint-home-bg {
+  /* Accent = couleur de marque JacPaint (mauve du logo). Redéfini localement :
+     tout ce qui utilise var(--accent) / var(--accent-rgb) dans l'accueil
+     (logo, focus, FAB, sidebar, drag, icônes récentes) prend la couleur du
+     logo au lieu du vert JacSuite global. */
+  --accent: #a855f7;
+  --accent-rgb: 168, 85, 247;
+  --accent-hover: #9333ea;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  color: #f7f7fa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 40px 40px;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  overflow: hidden auto;
+  box-sizing: border-box;
+}
+
+/* ───── Top actions ───── */
+.jacpaint-home-top-actions {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 10;
+}
+
+.jacpaint-home-top-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  background: #161b27;
+  border: none;
+  border-radius: 50%;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.jacpaint-home-top-btn:hover {
+  background: #1e2535;
+  color: #fff;
+}
+
+.jacpaint-home-top-btn.is-active {
+  background: rgba(168, 85, 247, 0.18);
+  border-color: rgba(168, 85, 247, 0.5);
+}
+
+.jacpaint-home-top-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 0 0 2px #000;
+  pointer-events: none;
+}
+
+.jacpaint-home-profile-btn {
+  overflow: hidden;
+  padding: 0;
+}
+
+.jacpaint-home-profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.jacpaint-home-profile-initial {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f7f7fa;
+}
+
+/* ───── Menu Applications ───── */
+.jacpaint-home-apps-wrapper {
+  position: relative;
+}
+
+.jacpaint-home-apps-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+}
+
+.jacpaint-home-apps-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 21;
+  background: #161b27;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+  min-width: 320px;
+}
+
+.jacpaint-home-apps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.jacpaint-home-apps-tile {
+  position: relative;
+  appearance: none;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 10px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: #f7f7fa;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.jacpaint-home-apps-tile:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.jacpaint-home-apps-tile.is-current {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.45);
+}
+
+.jacpaint-home-apps-tile-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.jacpaint-home-apps-tile-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.jacpaint-home-apps-tile-icon-jacpdf      { background: linear-gradient(135deg, rgba(239, 68, 68, 0.92), rgba(220, 38, 38, 0.92)); }
+.jacpaint-home-apps-tile-icon-jacdoc      { background: linear-gradient(135deg, rgba(59, 130, 246, 0.92), rgba(37, 99, 235, 0.92)); }
+.jacpaint-home-apps-tile-icon-jacslide    { background: linear-gradient(135deg, rgba(249, 115, 22, 0.92), rgba(234, 88, 12, 0.92)); }
+.jacpaint-home-apps-tile-icon-jacnote     { background: linear-gradient(135deg, rgba(250, 204, 21, 0.92), rgba(234, 179, 8, 0.92)); }
+.jacpaint-home-apps-tile-icon-jacpaint    { background: linear-gradient(135deg, rgba(168, 85, 247, 0.92), rgba(147, 51, 234, 0.92)); }
+.jacpaint-home-apps-tile-icon-jactache    { background: linear-gradient(135deg, rgba(34, 197, 94, 0.92), rgba(22, 163, 74, 0.92)); }
+.jacpaint-home-apps-tile-icon-jaccalendrier { background: linear-gradient(135deg, rgba(14, 165, 233, 0.92), rgba(2, 132, 199, 0.92)); }
+.jacpaint-home-apps-tile-icon-classroom   { background: linear-gradient(135deg, rgba(244, 114, 182, 0.92), rgba(219, 39, 119, 0.92)); }
+
+.jacpaint-home-apps-tile-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #d1d5db;
+  text-align: center;
+}
+
+.jacpaint-home-apps-tile-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fbbf24;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
+
+/* ───── Hero ───── */
+.jacpaint-home-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 48px;
+}
+
+.jacpaint-home-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.jacpaint-home-logo-img {
+  width: 48px;
+  height: 64px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.jacpaint-home-logo-text {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -2px;
+  color: #fff;
+}
+
+.jacpaint-home-logo-green {
+  color: var(--accent);
+}
+
+.jacpaint-home-subtitle {
+  margin: 0;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+/* ───── Cartes ───── */
+.jacpaint-home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 40px;
+}
+
+.jacpaint-home-card {
+  appearance: none;
+  font-family: inherit;
+  background: #161b27;
+  border: none;
+  border-radius: 16px;
+  padding: 36px 24px 28px;
+  color: #f7f7fa;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  min-height: 160px;
+}
+
+.jacpaint-home-card:hover {
+  transform: translateY(-2px);
+  background: #1e2535;
+}
+
+.jacpaint-home-card.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.jacpaint-home-card.is-disabled:hover {
+  transform: none;
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+.jacpaint-home-card-icon {
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.jacpaint-home-card-icon img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.jacpaint-home-card-icon img.jacpaint-home-drive-logo {
+  width: 64px;
+  height: 64px;
+  transform: scale(1.35);
+  object-fit: contain;
+}
+
+.jacpaint-home-card-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.jacpaint-home-card-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* ───── Section toiles récentes ───── */
+.jacpaint-home-recent-section {
+  width: 100%;
+  max-width: 900px;
+  margin: 0;
+}
+
+/* Espacement entre les sections empilées (Activité des amis + Récents) —
+   quel que soit leur ordre (réorganisables par drag-drop). Sans ça, quand
+   on inverse les deux, elles se collent l'une à l'autre. */
+.faf-section + .jacpaint-home-recent-section,
+.jacpaint-home-recent-section + .faf-section {
+  margin-top: 32px;
+}
+
+.jacpaint-home-recent-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.jacpaint-home-recent-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.jacpaint-home-recent-title svg {
+  color: #9ca3af;
+}
+
+.jacpaint-home-recent-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.jacpaint-home-recent-search-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.jacpaint-home-recent-search-icon {
+  position: absolute;
+  left: 10px;
+  color: #6b7280;
+  pointer-events: none;
+}
+
+.jacpaint-home-recent-search {
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  padding: 8px 30px 8px 32px;
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  width: 200px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.jacpaint-home-recent-search::placeholder {
+  color: #4b5563;
+}
+
+.jacpaint-home-recent-search:focus {
+  border-color: rgba(168, 85, 247, 0.5);
+  background: #1e2535;
+}
+
+.jacpaint-home-recent-search-clear {
+  position: absolute;
+  right: 6px;
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 999px;
+}
+
+.jacpaint-home-recent-search-clear:hover {
+  background: #2a3347;
+  color: #fff;
+}
+
+.jacpaint-home-clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #3d1515;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: #f87171;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.jacpaint-home-clear-btn:hover {
+  background: #4d1a1a;
+}
+
+.jacpaint-home-recent-filter-select {
+  width: 180px;
+  flex-shrink: 0;
+}
+
+.jacpaint-home-recent-empty {
+  background: #161b27;
+  border-radius: 12px;
+  padding: 36px 24px;
+  color: #6b7280;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.jacpaint-home-empty-icon {
+  font-size: 20px;
+}
+
+.jacpaint-home-recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jacpaint-home-recent-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #161b27;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  outline: none;
+}
+
+.jacpaint-home-recent-item:hover {
+  background: #1e2535;
+  transform: translateX(2px);
+}
+
+.jacpaint-home-recent-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #0f1320;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  flex-shrink: 0;
+  border: 1px solid rgba(168, 85, 247, 0.25);
+}
+
+.jacpaint-home-recent-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.jacpaint-home-recent-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #0f1320;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(168, 85, 247, 0.25);
+}
+
+.jacpaint-home-recent-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.jacpaint-home-recent-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jacpaint-home-recent-info {
+  font-size: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jacpaint-home-recent-remove {
+  width: 28px;
+  height: 28px;
+  appearance: none;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #6b7280;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.jacpaint-home-recent-remove:hover {
+  background: #3d1515;
+  color: #f87171;
+}
+
+/* ─── Édition de l'accueil : sidebar EditSidebar + mode réorganisation ───
+   Le FAB (.home-edit-fab) et la sidebar (.es-sidebar) sont stylés par
+   EditSidebar.css (importé via le composant partagé). Ici on gère seulement
+   le décalage « push-left » de la home quand la sidebar est ouverte + le
+   feedback visuel du drag-drop, namespacés .jacpaint-home-*. */
+
+/* Animation du décalage quand la sidebar s'ouvre. */
+.jacpaint-home-bg { transition: padding-right 0.25s ease; }
+
+/* Sidebar ouverte : la home est POUSSÉE vers la gauche (style Chrome side
+   panel) via padding-right animé au lieu d'être recouverte. */
+.jacpaint-home-bg.jacpaint-home-bg-with-sidebar {
+  padding-right: min(420px, 90vw);
+}
+
+/* Les boutons du haut glissent vers la gauche pour rester visibles à côté
+   de la sidebar. */
+.jacpaint-home-top-actions { transition: right 0.25s ease; }
+.jacpaint-home-bg-with-sidebar .jacpaint-home-top-actions { right: 400px; }
+
+/* ─── Drag-drop : réorganiser les éléments directement sur la page ─── */
+.jacpaint-home-top-btn[draggable="true"],
+.jacpaint-home-card[draggable="true"],
+.faf-section[draggable="true"],
+.jacpaint-home-recent-section[draggable="true"] {
+  cursor: grab;
+}
+.jacpaint-home-top-btn[draggable="true"]:active,
+.jacpaint-home-card[draggable="true"]:active,
+.faf-section[draggable="true"]:active,
+.jacpaint-home-recent-section[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+/* Item en cours de drag. */
+.jacpaint-home-top-btn.is-dragging,
+.jacpaint-home-card.is-dragging,
+.faf-section.is-dragging,
+.jacpaint-home-recent-section.is-dragging {
+  opacity: 0.4;
+}
+
+/* Cible survolée par un drop. */
+.jacpaint-home-top-btn.is-drag-over,
+.jacpaint-home-card.is-drag-over,
+.faf-section.is-drag-over,
+.jacpaint-home-recent-section.is-drag-over {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* Mode réorganisation actif : anneau pointillé d'accent autour de chaque
+   élément draggable. .jacpaint-home-bg-drag-mode est ajouté sur
+   .jacpaint-home-bg quand homeVisibility.dragMode === true. */
+.jacpaint-home-bg-drag-mode .jacpaint-home-top-btn[draggable="true"],
+.jacpaint-home-bg-drag-mode .jacpaint-home-card[draggable="true"],
+.jacpaint-home-bg-drag-mode .faf-section[draggable="true"],
+.jacpaint-home-bg-drag-mode .jacpaint-home-recent-section[draggable="true"] {
+  outline: 2px dashed rgba(var(--accent-rgb), 0.45);
+  outline-offset: 4px;
+}
+
+/* ─── FAB édition : position fixed + suit la sidebar (comme JacDoc) ───
+   Le FAB de base (.home-edit-fab) est en position: absolute dans
+   EditSidebar.css → on le repasse en fixed puis on le décale vers la
+   gauche quand la sidebar est ouverte. HomeContent.css est importé APRÈS
+   EditSidebar.css → l'override gagne. */
+.home-edit-fab {
+  position: fixed;
+  transition: right 0.25s ease, transform 0.15s ease, background 0.2s, box-shadow 0.2s;
+}
+.jacpaint-home-bg-with-sidebar .home-edit-fab {
+  right: min(404px, calc(90vw + 4px));
+}

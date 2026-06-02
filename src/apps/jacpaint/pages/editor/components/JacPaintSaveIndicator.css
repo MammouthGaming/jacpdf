@@ -1,0 +1,194 @@
+/* ============================================
+   JacPaintSaveIndicator — bouton icône + menu de sauvegarde
+   .jpsi-wrapper > .jpsi-btn (icône cloud-check, variantes -idle/-saved/…)
+                > .jpsi-menu (popover : .jpsi-menu-status + .jpsi-menu-action-*)
+   Miroir 1-pour-1 du DriveSaveIndicator JacPDF.
+   ============================================ */
+
+.jpsi-wrapper {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	flex-shrink: 0;
+	font-family: 'Inter', sans-serif;
+}
+
+/* ───── Bouton icône dans la TopBar ───── */
+.jpsi-btn {
+	position: relative;
+	min-width: 34px;
+	height: 34px;
+	padding: 0 12px 0 10px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 8px;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 10px;
+	color: #9ca3af;
+	cursor: pointer;
+	transition: background 0.15s, color 0.15s, border-color 0.15s;
+	outline: none;
+}
+
+.jpsi-btn-label {
+	display: inline-block;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.01em;
+	white-space: nowrap;
+	line-height: 1;
+	max-width: 180px;
+	overflow: hidden;
+}
+
+.jpsi-btn-compact {
+	width: 34px;
+	min-width: 34px;
+	padding: 0 6px 0 10px;
+	gap: 0;
+}
+.jpsi-btn-compact .jpsi-btn-label {
+	max-width: 0;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.jpsi-btn:hover {
+	background: #1e2535;
+	color: #fff;
+}
+
+.jpsi-btn > svg {
+	flex-shrink: 0;
+}
+
+.jpsi-btn:focus-visible {
+	border-color: rgba(168, 85, 247, 0.55);
+	box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.18);
+}
+
+.jpsi-btn-open {
+	background: #1e2535;
+	color: #fff;
+}
+
+/* Variantes de couleur de l'icône selon l'état de la sauvegarde */
+.jpsi-btn-saved   { color: var(--jpe-accent, #a855f7); }
+.jpsi-btn-saving  { color: #60a5fa; }
+.jpsi-btn-dirty   { color: #f59e0b; }
+.jpsi-btn-error   { color: #f87171; }
+.jpsi-btn-idle    { color: #6b7280; }
+
+/* ───── Menu déroulant ───── */
+.jpsi-menu {
+	position: absolute;
+	top: calc(100% + 8px);
+	left: 0;
+	min-width: 240px;
+	background: #161b27;
+	border: 1px solid #2a3347;
+	border-radius: 12px;
+	padding: 8px;
+	box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+	z-index: 200;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	animation: jpsi-menu-pop 0.15s cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes jpsi-menu-pop {
+	from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+	to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+.jpsi-menu-status {
+	font-size: 12px;
+	font-weight: 500;
+	color: #9ca3af;
+	padding: 8px 10px 4px;
+	line-height: 1.4;
+}
+
+.jpsi-menu-status-saved   { color: var(--jpe-accent, #a855f7); }
+.jpsi-menu-status-saving  { color: #60a5fa; }
+.jpsi-menu-status-dirty   { color: #f59e0b; }
+.jpsi-menu-status-error   { color: #f87171; }
+
+.jpsi-menu-action {
+	width: 100%;
+	text-align: left;
+	padding: 9px 10px;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 8px;
+	color: #d1d5db;
+	font-size: 13px;
+	font-weight: 500;
+	font-family: 'Inter', sans-serif;
+	cursor: pointer;
+	transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.jpsi-menu-action:hover:not(:disabled) {
+	background: #1e2535;
+	color: #fff;
+}
+
+.jpsi-menu-action:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+.jpsi-menu-action-primary {
+	background: rgba(168, 85, 247, 0.14);
+	border-color: rgba(168, 85, 247, 0.38);
+	color: var(--jpe-accent, #a855f7);
+}
+
+.jpsi-menu-action-primary:hover:not(:disabled) {
+	background: rgba(168, 85, 247, 0.22);
+	border-color: rgba(168, 85, 247, 0.6);
+	color: var(--jpe-accent, #a855f7);
+}
+
+.jpsi-menu-action-secondary {
+	color: #9ca3af;
+}
+
+/* ───── Mode clair ───── */
+[data-theme="light"] .jpsi-btn { color: #4b5563; }
+[data-theme="light"] .jpsi-btn:hover { background: #f0f1f5; color: #0d1117; }
+[data-theme="light"] .jpsi-btn-open  { background: #f0f1f5; color: #0d1117; }
+[data-theme="light"] .jpsi-btn-saved  { color: #7c3aed; }
+[data-theme="light"] .jpsi-btn-saving { color: #2563eb; }
+[data-theme="light"] .jpsi-btn-dirty  { color: #d97706; }
+[data-theme="light"] .jpsi-btn-error  { color: #dc2626; }
+[data-theme="light"] .jpsi-btn-idle   { color: #6b7280; }
+
+[data-theme="light"] .jpsi-menu {
+	background: #ffffff;
+	border-color: #d1d5db;
+	box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+[data-theme="light"] .jpsi-menu-status        { color: #4b5563; }
+[data-theme="light"] .jpsi-menu-status-saved  { color: #7c3aed; }
+[data-theme="light"] .jpsi-menu-status-saving { color: #2563eb; }
+[data-theme="light"] .jpsi-menu-status-dirty  { color: #d97706; }
+[data-theme="light"] .jpsi-menu-status-error  { color: #dc2626; }
+
+[data-theme="light"] .jpsi-menu-action { color: #1f2937; }
+[data-theme="light"] .jpsi-menu-action:hover:not(:disabled) { background: #f0f1f5; color: #0d1117; }
+[data-theme="light"] .jpsi-menu-action-primary {
+	background: rgba(124, 58, 237, 0.12);
+	border-color: rgba(124, 58, 237, 0.4);
+	color: #7c3aed;
+}
+[data-theme="light"] .jpsi-menu-action-primary:hover:not(:disabled) {
+	background: rgba(124, 58, 237, 0.2);
+	border-color: rgba(124, 58, 237, 0.6);
+	color: #6d28d9;
+}
+[data-theme="light"] .jpsi-menu-action-secondary { color: #4b5563; }

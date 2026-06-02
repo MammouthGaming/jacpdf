@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+.tm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+
+.tm-menu {
+  position: fixed;
+  top: calc(58px + var(--jacpdf-tabbar-h, 0px));
+  right: 120px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 14px;
+  padding: 6px;
+  min-width: 300px;
+  z-index: 100;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  animation: tmPop 0.15s ease;
+}
+
+@keyframes tmPop {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.tm-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  color: #d1d5db;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tm-item:hover {
+  background: #1e2535;
+  color: #fff;
+}
+
+.tm-icon {
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.tm-label-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tm-note {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  border-radius: 999px;
+  padding: 3px 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tm-item:hover .tm-note {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.28);
+}
+
+.tm-item:hover .tm-icon {
+  color: #9ca3af;
+}
+
+/* ─── Mode clair ─── */
+[data-theme="light"] .tm-menu { background: #ffffff; border-color: #d1d5db; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+[data-theme="light"] .tm-item { color: #1f2937; }
+[data-theme="light"] .tm-item:hover { background: #f0f1f5; color: #0d1117; }
+[data-theme="light"] .tm-icon { color: #6b7280; }
+[data-theme="light"] .tm-note,
+[data-theme="light"] .tm-item:hover .tm-note {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(180, 83, 9, 0.28);
+}
+[data-theme="light"] .tm-item:hover .tm-icon { color: #4b5563; }

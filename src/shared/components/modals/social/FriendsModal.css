@@ -1,0 +1,796 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.fm-overlay {
+  position: fixed;
+  top: var(--jacpdf-tabbar-h, 0);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fmFade 0.15s ease;
+}
+
+@keyframes fmFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fm-card {
+  background: #161b27;
+  border-radius: 16px;
+  /* Width dynamique : fit-content grandit avec le contenu (typiquement quand
+     un ami a un PDF avec un nom très long affiché dans la ligne d'activité).
+     min-width garde une base raisonnable pour les états vides ; max-width
+     cape à 92vw pour rester dans l'écran et 720px en absolu. Au-delà du cap,
+     la ligne d'activité wrap sur 2 lignes (cf. .fm-row-activity-text). */
+  width: fit-content;
+  min-width: min(460px, 100%);
+  max-width: min(92vw, 720px);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  animation: fmSlide 0.2s ease;
+  overflow: hidden;
+}
+
+@keyframes fmSlide {
+  from { opacity: 0; transform: translateY(-12px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.fm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid #1e2535;
+}
+
+.fm-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.fm-close {
+  background: #1e2535;
+  border: none;
+  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.fm-close:hover { background: #2a3347; color: #fff; }
+
+.fm-tabs {
+  display: flex;
+  gap: 0;
+  padding: 12px 20px 0;
+  border-bottom: 1px solid #1e2535;
+}
+
+.fm-tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: color 0.2s;
+}
+
+.fm-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.fm-tab-count {
+  background: rgba(var(--accent-rgb), 0.18);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 8px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.fm-tab-count-pending {
+  background: rgba(251, 146, 60, 0.16);
+  color: #fb923c;
+}
+
+.fm-body {
+  padding: 16px 20px;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fm-empty {
+  font-size: 13px;
+  color: #6b7280;
+  text-align: center;
+  padding: 20px 0;
+  margin: 0;
+}
+
+.fm-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 30px 0;
+}
+
+.fm-cta-btn {
+  padding: 9px 18px;
+  background: var(--accent);
+  color: #000;
+  font-weight: 700;
+  font-size: 13px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s;
+}
+.fm-cta-btn:hover { background: var(--accent-hover); }
+
+.fm-error {
+  font-size: 13px;
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 0;
+}
+
+.fm-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #4b5563;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 8px 0 4px;
+  padding: 0 2px;
+}
+
+.fm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fm-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #1e2535;
+  border: 1px solid #2a3347;
+  border-radius: 10px;
+}
+
+.fm-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #2a3347;
+  border: 2px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.fm-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fm-avatar-initials {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.fm-row-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fm-row-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fm-row-email {
+  font-size: 11px;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Phase 5 — Ligne d'activité courante sous l'email d'un ami. Affichée
+   uniquement quand l'ami est dans un onglet PDF actif (row dans user_activity
+   non stale). Dot vert glow pour indiquer en ligne, verbe + nom du PDF.
+   Le texte peut wrap sur plusieurs lignes si le nom du PDF dépasse la
+   max-width de la modal (qui grandit déjà dynamiquement, cf. .fm-card). */
+.fm-row-activity {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 3px;
+  min-width: 0;
+}
+.fm-row-activity-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #39FF14;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(57, 255, 20, 0.5);
+  /* Aligne le dot avec la 1ère ligne de texte plutôt qu'avec le top absolu
+     du conteneur (utile quand le texte wrap sur 2 lignes). */
+  margin-top: 4px;
+}
+.fm-row-activity-text {
+  /* Pas de nowrap ni d'ellipsis : on veut le nom complet du PDF visible.
+     La modal grandit jusqu'à 720px / 92vw, puis le texte wrap. */
+  white-space: normal;
+  line-height: 1.45;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.fm-row-activity-doc {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: #e7ecf5;
+  /* Wrap au-delà du conteneur pour les noms de PDF très longs. */
+  overflow-wrap: anywhere;
+}
+
+/* Phase 5.1 — Mode « activité passée » (ami plus en ligne mais row encore
+   fraîche < 24 h). Dot gris sans glow + texte légèrement atténué + le « il y
+   a N min » inline après le nom du PDF. */
+.fm-row-activity-offline {
+  color: #6b7280;
+}
+.fm-row-activity-offline .fm-row-activity-dot {
+  background: #6b7280;
+  box-shadow: none;
+}
+.fm-row-activity-time {
+  /* Inline avec le verbe et le nom du PDF, juste plus discret. */
+  opacity: 0.85;
+}
+
+.fm-row-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.fm-btn-primary {
+  padding: 6px 12px;
+  background: var(--accent);
+  color: #000;
+  font-weight: 700;
+  font-size: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s;
+}
+.fm-btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+.fm-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.fm-btn-secondary {
+  padding: 6px 12px;
+  background: #1e2535;
+  color: #d1d5db;
+  font-weight: 600;
+  font-size: 12px;
+  border: 1px solid #2a3347;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s;
+}
+.fm-btn-secondary:hover:not(:disabled) { background: #252d3f; color: #fff; }
+.fm-btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.fm-btn-danger {
+  padding: 6px 12px;
+  background: transparent;
+  color: #f87171;
+  font-weight: 600;
+  font-size: 12px;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s;
+}
+.fm-btn-danger:hover:not(:disabled) { background: rgba(248, 113, 113, 0.1); }
+.fm-btn-danger:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.fm-add {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fm-add-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.fm-add-input {
+  background: #1e2535;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  padding: 11px 12px;
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  width: 100%;
+}
+.fm-add-input:focus { border-color: var(--accent); }
+
+.fm-add-btn {
+  padding: 12px;
+  background: var(--accent);
+  color: #000;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s;
+}
+.fm-add-btn:hover:not(:disabled) { background: var(--accent-hover); }
+.fm-add-btn:disabled {
+  background: rgba(var(--accent-rgb), 0.18);
+  color: rgba(var(--accent-rgb), 0.55);
+  cursor: not-allowed;
+}
+
+.fm-add-hint {
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ─── Mode clair ─── */
+[data-theme="light"] .fm-overlay { background: rgba(0,0,0,0.3); }
+[data-theme="light"] .fm-card { background: #ffffff; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+[data-theme="light"] .fm-header { border-bottom-color: #e5e7eb; }
+[data-theme="light"] .fm-title { color: #0d1117; }
+[data-theme="light"] .fm-close { background: #f0f1f5; color: #6b7280; }
+[data-theme="light"] .fm-close:hover { background: #e5e7eb; color: #0d1117; }
+[data-theme="light"] .fm-tabs { border-bottom-color: #e5e7eb; }
+[data-theme="light"] .fm-tab { color: #6b7280; }
+[data-theme="light"] .fm-row { background: #f0f1f5; border-color: #d1d5db; }
+[data-theme="light"] .fm-row-name { color: #0d1117; }
+[data-theme="light"] .fm-row-email { color: #6b7280; }
+[data-theme="light"] .fm-section-label { color: #9ca3af; }
+[data-theme="light"] .fm-add-input { background: #ffffff; border-color: #d1d5db; color: #0d1117; }
+[data-theme="light"] .fm-btn-secondary { background: #f0f1f5; border-color: #d1d5db; color: #1f2937; }
+[data-theme="light"] .fm-btn-secondary:hover:not(:disabled) { background: #e5e7eb; color: #0d1117; }
+[data-theme="light"] .fm-row-activity { color: #6b7280; }
+[data-theme="light"] .fm-row-activity-doc { background: rgba(0,0,0,0.05); color: #1f2937; }
+[data-theme="light"] .fm-row-activity-offline { color: #9ca3af; }
+[data-theme="light"] .fm-row-activity-offline .fm-row-activity-dot { background: #9ca3af; }
+
+/* ─── Bloc avatar + identité cliquable ───
+   Quand FriendRow reçoit onOpenProfile (onglet « Amis »), ce bloc devient
+   cliquable pour ouvrir la vue profil. Le hover applique un fond très
+   léger et passe le nom en accent pour signaler l'affordance. */
+.fm-row-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.fm-row-main-clickable {
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 4px;
+  margin: -4px;
+  outline: none;
+  transition: background 0.15s;
+}
+.fm-row-main-clickable:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.fm-row-main-clickable:hover .fm-row-name {
+  color: var(--accent);
+}
+.fm-row-main-clickable:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+[data-theme="light"] .fm-row-main-clickable:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* ─── Vue profil d'un ami (style ProfileModal) ───
+   Quand profileFriend est non-null, le body de FriendsModal affiche cette
+   vue qui réplique pixel-par-pixel le layout de ProfileModal.jsx (.pm-*) :
+   hero avatar+identité à gauche, cartes stats groupées, section À propos.
+   Préfixe .fm-pm-* pour ne pas entrer en conflit avec .pm-* (qui sont
+   injectées dans un <style> inline par ProfileModal). Adaptations :
+   pas de mode édition (lecture seule), pas de bouton crayon, et un bouton
+   ← Retour aux amis pour revenir à la liste. */
+.fm-pm-view {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 4px 0 8px;
+}
+.fm-pm-back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-left: -4px;
+  transition: background 0.15s, color 0.15s;
+}
+.fm-pm-back:hover {
+  background: #1e2535;
+  color: #fff;
+}
+[data-theme="light"] .fm-pm-back { color: #6b7280; }
+[data-theme="light"] .fm-pm-back:hover { background: #f0f1f5; color: #0d1117; }
+
+/* Hero — copie de pm-hero (avatar 72px à gauche + nom/email/badges à
+   droite). Layout horizontal contrairement à l'ancienne vue centrée. */
+.fm-pm-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.fm-pm-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(var(--accent-rgb), 0.13);
+  border: 2px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+.fm-pm-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.fm-pm-avatar-initials {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.fm-pm-hero-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.fm-pm-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fm-pm-email {
+  font-size: 13px;
+  color: #9ca3af;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+[data-theme="light"] .fm-pm-name { color: #0d1117; }
+[data-theme="light"] .fm-pm-email { color: #6b7280; }
+
+/* Badges — placeholder « Badges à venir » (on n'expose pas le rôle/owner
+   d'un autre user via la table profiles pour l'instant). Style identique
+   à pm-badge-pending (dashed border + italic). */
+.fm-pm-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.fm-pm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+.fm-pm-badge-pending {
+  background: rgba(255, 255, 255, 0.04);
+  color: #6b7280;
+  border: 1px dashed #2a3347;
+  font-style: italic;
+}
+[data-theme="light"] .fm-pm-badge-pending {
+  background: #f5f5f5;
+  border-color: #e5e7eb;
+  color: #9ca3af;
+}
+
+/* Badges de rôle — mirror exact de pm-badge-role-* dans ProfileModal.jsx
+   (qui injecte ses styles inline). Une variante de couleur par catégorie
+   pour identification visuelle immédiate. Border 1px (pas dashed comme
+   pending), pas d'italique — c'est de la donnée réelle. */
+.fm-pm-badge-role-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+.fm-pm-badge-role-personnel {
+  background: rgba(59, 130, 246, 0.13);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+}
+[data-theme="light"] .fm-pm-badge-role-personnel {
+  background: rgba(59, 130, 246, 0.08);
+  color: #1d4ed8;
+  border-color: rgba(59, 130, 246, 0.25);
+}
+.fm-pm-badge-role-travail {
+  background: rgba(245, 158, 11, 0.13);
+  color: #fcd34d;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+[data-theme="light"] .fm-pm-badge-role-travail {
+  background: rgba(245, 158, 11, 0.10);
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.30);
+}
+.fm-pm-badge-role-ecole {
+  background: rgba(168, 85, 247, 0.13);
+  color: #d8b4fe;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+}
+[data-theme="light"] .fm-pm-badge-role-ecole {
+  background: rgba(168, 85, 247, 0.08);
+  color: #7e22ce;
+  border-color: rgba(168, 85, 247, 0.30);
+}
+.fm-pm-badge-role-autre {
+  background: rgba(156, 163, 175, 0.13);
+  color: #d1d5db;
+  border: 1px solid rgba(156, 163, 175, 0.35);
+}
+[data-theme="light"] .fm-pm-badge-role-autre {
+  background: rgba(156, 163, 175, 0.10);
+  color: #4b5563;
+  border-color: rgba(156, 163, 175, 0.30);
+}
+
+/* Badge Owner — mirror de pm-badge-owner. Or shimmer pour le distinguer
+   immédiatement des badges de rôle ordinaires. Source de vérité côté JS :
+   isOwnerFromProfile() (OWNER_EMAILS hardcodé OU profiles.is_owner). */
+.fm-pm-badge-owner {
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.20), rgba(245, 158, 11, 0.20));
+  color: #fde68a;
+  border: 1px solid rgba(250, 204, 21, 0.45);
+  box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.10);
+}
+[data-theme="light"] .fm-pm-badge-owner {
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.15), rgba(245, 158, 11, 0.18));
+  color: #92400e;
+  border-color: rgba(245, 158, 11, 0.45);
+}
+
+/* Cartes stats — copie de pm-stats : un container groupé avec 2 rows
+   séparées par une bordure subtile. Icône carrée 36px à gauche, label
+   uppercase + valeur à droite. */
+.fm-pm-stats {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid #2a3347;
+  border-radius: 10px;
+  overflow: hidden;
+}
+[data-theme="light"] .fm-pm-stats {
+  background: #fafafa;
+  border-color: #e5e7eb;
+}
+.fm-pm-stat-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+}
+.fm-pm-stat-row + .fm-pm-stat-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+[data-theme="light"] .fm-pm-stat-row + .fm-pm-stat-row {
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+.fm-pm-stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(var(--accent-rgb), 0.13);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.fm-pm-stat-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.fm-pm-stat-label {
+  font-size: 10px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+.fm-pm-stat-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+[data-theme="light"] .fm-pm-stat-value { color: #0d1117; }
+.fm-pm-stat-pending {
+  font-size: 10px;
+  color: #6b7280;
+  font-style: italic;
+  font-weight: 400;
+}
+.fm-pm-stat-doc {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #e7ecf5;
+  overflow-wrap: anywhere;
+}
+[data-theme="light"] .fm-pm-stat-doc {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1f2937;
+}
+
+/* Section « À propos » — équivalent de pm-notes-empty. Lecture seule, pas
+   de textarea (on n'a pas accès au user_metadata.about d'un autre user). */
+.fm-pm-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fm-pm-notes-label {
+  font-size: 10px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  padding: 0 4px;
+}
+.fm-pm-notes-empty {
+  padding: 16px;
+  border: 1px dashed #2a3347;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #6b7280;
+  font-style: italic;
+  line-height: 1.5;
+}
+[data-theme="light"] .fm-pm-notes-empty {
+  border-color: #e5e7eb;
+  color: #9ca3af;
+}
+
+/* Bio affichée — copie de pm-notes-display. Bordure unie (vs dashed du
+   placeholder), pas d'italique, white-space: pre-wrap pour préserver les
+   sauts de ligne saisis par l'utilisateur dans son ProfileModal. */
+.fm-pm-notes-display {
+  padding: 14px 16px;
+  border: 1px solid #2a3347;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #e5e7eb;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: rgba(255, 255, 255, 0.02);
+}
+[data-theme="light"] .fm-pm-notes-display {
+  border-color: #e5e7eb;
+  background: #fafafa;
+  color: #0d1117;
+}
+
+/* Actions — Discuter / Retirer / Bloquer en bas, alignés à droite (suit
+   la convention des cards Notion ; cohérent avec les actions d'une row). */
+.fm-pm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+.fm-pm-action-btn {
+  padding: 9px 18px;
+  font-size: 13px;
+  border-radius: 8px;
+}

@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.toast-host {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9999;
+  /* Le conteneur lui-même ne capte pas les clics — seuls les toasts
+     individuels (pointer-events:auto) le font. Évite que la zone
+     bottom-right soit « morte » sous l'app entre deux toasts. */
+  pointer-events: none;
+  font-family: 'Inter', sans-serif;
+}
+
+.toast {
+  pointer-events: auto;
+  min-width: 260px;
+  max-width: 420px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #d1d5db;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  animation: toastSlide 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+@keyframes toastSlide {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.toast-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.toast-text {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.toast-action {
+  background: transparent;
+  border: 1px solid #2a3347;
+  border-radius: 6px;
+  padding: 5px 10px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.toast-action:hover {
+  background: rgba(var(--accent-rgb), 0.13);
+  border-color: var(--accent);
+}
+
+.toast-close {
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.toast-close:hover {
+  color: #fff;
+  background: #2a3347;
+}
+
+/* Variantes par type — bordure gauche colorée + couleur de l'icône.
+   Le fond reste neutre pour rester discret. */
+.toast-success { border-left: 3px solid #22c55e; }
+.toast-success .toast-icon { color: #22c55e; }
+
+.toast-info { border-left: 3px solid var(--accent); }
+.toast-info .toast-icon { color: var(--accent); }
+
+.toast-error { border-left: 3px solid #ef4444; }
+.toast-error .toast-icon { color: #ef4444; }
+
+/* ─── Mode clair ─── */
+[data-theme="light"] .toast {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #1f2937;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+[data-theme="light"] .toast-close { color: #6b7280; }
+[data-theme="light"] .toast-close:hover { color: #0d1117; background: #f0f1f5; }
+[data-theme="light"] .toast-action { border-color: #d1d5db; }

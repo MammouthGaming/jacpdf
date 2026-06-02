@@ -1,0 +1,522 @@
+/* App Store JacSuite (Phase 4) — onglet plein écran. Thème sombre aligné
+   sur le lanceur (JacLauncher.css) : fond noir + halos colorés, cartes en
+   verre dépoli. */
+.jac-appstore {
+	position: absolute;
+	inset: 0;
+	overflow: auto;
+	background:
+		radial-gradient(1200px 600px at 15% 0%, rgba(99, 102, 241, 0.16), transparent 60%),
+		radial-gradient(900px 500px at 100% 100%, rgba(244, 114, 182, 0.12), transparent 60%),
+		#000;
+	color: #f5f5f7;
+	font-family: 'Inter', sans-serif;
+	padding: 40px 32px 64px;
+}
+.jac-appstore__inner {
+	width: 100%;
+	max-width: 1100px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 28px;
+}
+.jac-appstore__header {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+.jac-appstore__title {
+	font-size: clamp(28px, 4vw, 40px);
+	font-weight: 800;
+	letter-spacing: -0.03em;
+	margin: 0;
+	color: #fff;
+}
+.jac-appstore__subtitle {
+	margin: 0;
+	color: rgba(245, 245, 247, 0.65);
+	font-size: 15px;
+	max-width: 640px;
+}
+.jac-appstore__search {
+	position: relative;
+	display: flex;
+	align-items: center;
+	max-width: 420px;
+}
+.jac-appstore__search svg {
+	position: absolute;
+	left: 14px;
+	color: rgba(245, 245, 247, 0.4);
+	pointer-events: none;
+}
+.jac-appstore__search-input {
+	width: 100%;
+	padding: 11px 14px 11px 40px;
+	border-radius: 12px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	background: rgba(255, 255, 255, 0.05);
+	color: #fff;
+	font-size: 14px;
+	font-family: 'Inter', sans-serif;
+	outline: none;
+	transition: border-color 160ms ease, background 160ms ease;
+}
+.jac-appstore__search-input:focus {
+	border-color: rgba(129, 140, 248, 0.6);
+	background: rgba(255, 255, 255, 0.07);
+}
+.jac-appstore__filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.jac-appstore__filter {
+	padding: 7px 14px;
+	border-radius: 999px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	background: rgba(255, 255, 255, 0.04);
+	color: rgba(245, 245, 247, 0.7);
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	font-family: 'Inter', sans-serif;
+	transition: all 140ms ease;
+}
+.jac-appstore__filter:hover {
+	border-color: rgba(255, 255, 255, 0.2);
+	color: #fff;
+}
+.jac-appstore__filter--active {
+	background: #fff;
+	color: #000;
+	border-color: #fff;
+}
+.jac-appstore__empty {
+	padding: 48px 0;
+	text-align: center;
+	color: rgba(245, 245, 247, 0.5);
+	font-size: 15px;
+}
+.jac-appstore__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	gap: 16px;
+}
+.jac-appstore-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 20px;
+	border-radius: 18px;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	background: rgba(255, 255, 255, 0.04);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+.jac-appstore-card:hover {
+	transform: translateY(-3px);
+	border-color: rgba(255, 255, 255, 0.16);
+	background: rgba(255, 255, 255, 0.06);
+	box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+}
+.jac-appstore-card__top {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 10px;
+}
+.jac-appstore-card__icon {
+	width: 48px;
+	height: 48px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+.jac-appstore-card__icon img {
+	width: 48px;
+	height: 48px;
+	object-fit: contain;
+	pointer-events: none;
+	user-select: none;
+	filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.32));
+}
+.jac-appstore-card__emoji {
+	display: none;
+	align-items: center;
+	justify-content: center;
+	width: 48px;
+	height: 48px;
+	font-size: 32px;
+	line-height: 1;
+}
+.jac-appstore-card__badges {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 6px;
+}
+.jac-appstore-badge {
+	font-size: 10px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	padding: 3px 8px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.12);
+	color: rgba(255, 255, 255, 0.85);
+	white-space: nowrap;
+}
+.jac-appstore-badge--beta {
+	background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+	color: #fff;
+}
+.jac-appstore-badge--alpha {
+	background: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+	color: #fff;
+}
+.jac-appstore-badge--soon {
+	background: rgba(255, 255, 255, 0.12);
+	color: rgba(255, 255, 255, 0.7);
+}
+.jac-appstore-badge--premium {
+	background: rgba(234, 179, 8, 0.16);
+	color: #fde68a;
+	text-transform: none;
+	letter-spacing: 0;
+}
+.jac-appstore-card__name {
+	font-size: 18px;
+	font-weight: 700;
+	margin: 0;
+	color: #fff;
+}
+.jac-appstore-card__tagline {
+	margin: 0;
+	font-size: 13px;
+	color: rgba(245, 245, 247, 0.6);
+	flex: 1 1 auto;
+}
+.jac-appstore-card__actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 6px;
+}
+.jac-appstore-card__open {
+	flex: 1 1 auto;
+	padding: 9px 12px;
+	border-radius: 10px;
+	border: none;
+	background: var(--accent, #6366f1);
+	color: #000;
+	font-size: 13px;
+	font-weight: 700;
+	cursor: pointer;
+	font-family: 'Inter', sans-serif;
+	transition: opacity 140ms ease;
+}
+.jac-appstore-card__open:hover:not(:disabled) {
+	opacity: 0.85;
+}
+.jac-appstore-card__open:disabled {
+	background: rgba(255, 255, 255, 0.08);
+	color: rgba(245, 245, 247, 0.4);
+	cursor: not-allowed;
+}
+.jac-appstore-card__pin {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 9px 12px;
+	border-radius: 10px;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	background: transparent;
+	color: rgba(245, 245, 247, 0.75);
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	font-family: 'Inter', sans-serif;
+	transition: all 140ms ease;
+}
+.jac-appstore-card__pin:hover {
+	border-color: rgba(255, 255, 255, 0.25);
+	color: #fff;
+}
+.jac-appstore-card__pin--active {
+	background: rgba(129, 140, 248, 0.15);
+	border-color: rgba(129, 140, 248, 0.5);
+	color: #c7d2fe;
+}
+.jac-appstore-card__pin svg {
+	flex-shrink: 0;
+}
+
+/* Carte cliquable → ouvre la fiche détail. */
+.jac-appstore-card {
+	cursor: pointer;
+}
+
+.jac-appstore-badge--stable {
+	background: rgba(52, 211, 153, 0.16);
+	color: #6ee7b7;
+}
+
+/* ─────────── Fiche détail (clic sur une tuile) ─────────── */
+.jac-appstore-detail__back {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	align-self: flex-start;
+	padding: 8px 14px;
+	border-radius: 999px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	background: rgba(255, 255, 255, 0.04);
+	color: rgba(245, 245, 247, 0.8);
+	font-size: 13px;
+	font-weight: 600;
+	font-family: 'Inter', sans-serif;
+	cursor: pointer;
+	transition: all 140ms ease;
+}
+.jac-appstore-detail__back:hover {
+	border-color: rgba(255, 255, 255, 0.22);
+	color: #fff;
+}
+.jac-appstore-detail__hero {
+	display: flex;
+	gap: 24px;
+	align-items: flex-start;
+	padding: 28px;
+	border-radius: 22px;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	background: rgba(255, 255, 255, 0.04);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+}
+.jac-appstore-detail__icon {
+	width: 88px;
+	height: 88px;
+	flex-shrink: 0;
+}
+.jac-appstore-detail__icon img {
+	width: 88px;
+	height: 88px;
+	object-fit: contain;
+	pointer-events: none;
+	user-select: none;
+	filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.4));
+}
+.jac-appstore-detail__icon .jac-appstore-card__emoji {
+	width: 88px;
+	height: 88px;
+	font-size: 60px;
+}
+.jac-appstore-detail__head {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 0;
+}
+.jac-appstore-detail__name {
+	margin: 0;
+	font-size: 30px;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	color: #fff;
+}
+.jac-appstore-detail__meta {
+	margin: 0;
+	font-size: 13px;
+	font-weight: 600;
+	color: rgba(245, 245, 247, 0.55);
+}
+.jac-appstore-detail__tagline {
+	margin: 0;
+	font-size: 15px;
+	color: rgba(245, 245, 247, 0.75);
+}
+.jac-appstore-detail__badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 2px;
+}
+.jac-appstore-detail__actions {
+	display: flex;
+	gap: 10px;
+	margin-top: 10px;
+	max-width: 360px;
+}
+.jac-appstore-detail__section {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+.jac-appstore-detail__h2 {
+	margin: 0;
+	font-size: 18px;
+	font-weight: 700;
+	color: #fff;
+}
+.jac-appstore-detail__desc {
+	margin: 0;
+	font-size: 15px;
+	line-height: 1.6;
+	color: rgba(245, 245, 247, 0.78);
+	max-width: 760px;
+	white-space: pre-line;
+}
+.jac-appstore-detail__info {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 1px;
+	background: rgba(255, 255, 255, 0.06);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 16px;
+	overflow: hidden;
+}
+.jac-appstore-detail__info-item {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 16px 18px;
+	background: #050505;
+}
+.jac-appstore-detail__info-label {
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: rgba(245, 245, 247, 0.45);
+}
+.jac-appstore-detail__info-value {
+	font-size: 15px;
+	font-weight: 600;
+	color: #f5f5f7;
+}
+@media (max-width: 640px) {
+	.jac-appstore-detail__hero {
+		flex-direction: column;
+	}
+}
+
+/* ─────────── Barre d'outils : filtres par abonnement + tri ─────────── */
+.jac-appstore__toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+.jac-appstore__filters--plan {
+	flex: 1 1 auto;
+}
+.jac-appstore__sort {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	color: rgba(245, 245, 247, 0.6);
+	font-size: 13px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+/* Menu de tri custom (remplace le <select> natif). */
+.jac-appstore__sort-menu {
+	position: relative;
+}
+.jac-appstore__sort-trigger {
+	display: inline-flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	min-width: 172px;
+	padding: 7px 12px;
+	border-radius: 999px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	background: rgba(255, 255, 255, 0.04);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 600;
+	font-family: 'Inter', sans-serif;
+	cursor: pointer;
+	outline: none;
+	transition: border-color 140ms ease, background 140ms ease;
+}
+.jac-appstore__sort-trigger:hover {
+	border-color: rgba(255, 255, 255, 0.22);
+	background: rgba(255, 255, 255, 0.06);
+}
+.jac-appstore__sort-trigger--open {
+	border-color: rgba(129, 140, 248, 0.6);
+	background: rgba(255, 255, 255, 0.06);
+}
+.jac-appstore__sort-caret {
+	flex-shrink: 0;
+	color: rgba(245, 245, 247, 0.55);
+	transition: transform 160ms ease;
+}
+.jac-appstore__sort-trigger--open .jac-appstore__sort-caret {
+	transform: rotate(180deg);
+}
+.jac-appstore__sort-list {
+	position: absolute;
+	top: calc(100% + 6px);
+	right: 0;
+	z-index: 20;
+	min-width: 204px;
+	margin: 0;
+	padding: 6px;
+	list-style: none;
+	border-radius: 14px;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	background: rgba(20, 20, 22, 0.98);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	box-shadow: 0 18px 48px rgba(0, 0, 0, 0.5);
+	animation: jac-appstore-sort-pop 140ms ease;
+}
+@keyframes jac-appstore-sort-pop {
+	from { opacity: 0; transform: translateY(-4px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+.jac-appstore__sort-option {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	width: 100%;
+	padding: 9px 12px;
+	border: none;
+	border-radius: 9px;
+	background: transparent;
+	color: rgba(245, 245, 247, 0.8);
+	font-size: 13px;
+	font-weight: 600;
+	font-family: 'Inter', sans-serif;
+	text-align: left;
+	cursor: pointer;
+	transition: background 120ms ease, color 120ms ease;
+}
+.jac-appstore__sort-option:hover {
+	background: rgba(255, 255, 255, 0.08);
+	color: #fff;
+}
+.jac-appstore__sort-option--active {
+	color: #c7d2fe;
+}
+.jac-appstore__sort-option svg {
+	flex-shrink: 0;
+	color: #818cf8;
+}
+@media (max-width: 640px) {
+	.jac-appstore__toolbar {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.jac-appstore__sort {
+		justify-content: space-between;
+	}
+}

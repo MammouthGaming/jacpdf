@@ -1,0 +1,219 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.pgm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+
+.pgm-menu {
+  position: fixed;
+  transform: translateX(-50%);
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 14px;
+  padding: 6px;
+  min-width: 210px;
+  max-height: 440px;
+  /* Flex column : header fixe (.pgm-sticky-top) + zone scrollable (.pgm-list).
+     overflow:hidden ici évite tout débordement, c'est .pgm-list qui scrolle. */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 100;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  animation: pgmPop 0.15s ease;
+}
+
+/* Zone scrollable : ne contient QUE la liste de pages. Le bouton
+   « Réinitialiser » est en dehors et reste donc immobile. */
+.pgm-list {
+  flex: 1;
+  min-height: 0; /* indispensable pour que le flex-item puisse shrink + scroll */
+  overflow-y: auto;
+}
+
+.pgm-list::-webkit-scrollbar { width: 4px; }
+.pgm-list::-webkit-scrollbar-track { background: transparent; }
+.pgm-list::-webkit-scrollbar-thumb { background: #2a3347; border-radius: 2px; }
+
+@keyframes pgmPop {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.97); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+.pgm-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.pgm-item.active .pgm-page-btn {
+  background: transparent;
+  color: #fff;
+  font-weight: 700;
+}
+
+.pgm-item.active:hover .pgm-page-btn {
+  background: #1e2535;
+}
+
+.pgm-page-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  color: #d1d5db;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 9px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.pgm-item:not(.active) .pgm-page-btn:hover {
+  background: #1e2535;
+  color: var(--accent);
+}
+
+/* Petit indicateur : numéro original de la page (PDF) quand l'ordre a été changé.
+   Affiché à côté du label « Page X » seulement si la position visible diffère
+   du numéro de page PDF (donc après un drag & drop ou une suppression). */
+.pgm-orig-page {
+  font-size: 9px;
+  color: #6b7280;
+  margin-left: 5px;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.pgm-item.active .pgm-orig-page {
+  color: #9ca3af;
+}
+
+.pgm-reset-divider {
+  height: 1px;
+  background: #2a3347;
+  margin: 4px 8px;
+}
+
+/* Wrapper du bouton « Réinitialiser » : reste fixe en haut du menu car
+   placé en dehors de la zone scrollable .pgm-list. flex-shrink:0 pour qu'il
+   ne soit jamais compressé même quand la liste est très longue. */
+.pgm-sticky-top {
+  flex-shrink: 0;
+}
+
+/* ── Pilule editable « Page X / Y » en haut du menu ── */
+.pgm-pill-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 10px 6px;
+}
+
+.pgm-pill-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #9ca3af;
+  font-family: 'Inter', sans-serif;
+}
+
+.pgm-pill-input {
+  width: 52px;
+  text-align: center;
+  padding: 6px 8px;
+  background: #0f1420;
+  border: 2px solid #2a3347;
+  border-radius: 9px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.pgm-pill-input:focus,
+.pgm-pill-input.focused {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.pgm-pill-input::-webkit-outer-spin-button,
+.pgm-pill-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.pgm-pill-total {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Coche de la page courante (style capture de reference) */
+.pgm-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #e5e7eb;
+}
+
+/* ── Bas du menu : navigation premiere / derniere page ── */
+.pgm-sticky-bottom {
+  flex-shrink: 0;
+}
+
+.pgm-nav-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: transparent;
+  border: none;
+  color: #d1d5db;
+  font-size: 13.5px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.pgm-nav-btn svg { flex-shrink: 0; color: #9ca3af; transition: color 0.15s; }
+
+.pgm-nav-btn:hover:not(:disabled) { background: #1e2535; color: var(--accent); }
+.pgm-nav-btn:hover:not(:disabled) svg { color: var(--accent); }
+
+.pgm-nav-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* ─── Mode clair ─── */
+[data-theme="light"] .pgm-menu { background: #ffffff; border-color: #d1d5db; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+[data-theme="light"] .pgm-page-btn { color: #1f2937; }
+[data-theme="light"] .pgm-item:not(.active) .pgm-page-btn:hover { background: #f0f1f5; color: var(--accent); }
+[data-theme="light"] .pgm-orig-page { color: #6b7280; }
+[data-theme="light"] .pgm-list::-webkit-scrollbar-thumb { background: #d1d5db; }
+[data-theme="light"] .pgm-reset-divider { background: #d1d5db; }
+[data-theme="light"] .pgm-pill-label { color: #4b5563; }
+[data-theme="light"] .pgm-pill-input { background: #f0f1f5; border-color: #d1d5db; color: #0d1117; }
+[data-theme="light"] .pgm-pill-total { color: #9ca3af; }
+[data-theme="light"] .pgm-check { color: #1f2937; }
+[data-theme="light"] .pgm-nav-btn { color: #1f2937; }
+[data-theme="light"] .pgm-nav-btn svg { color: #6b7280; }
+[data-theme="light"] .pgm-nav-btn:hover:not(:disabled) { background: #f0f1f5; color: var(--accent); }
+[data-theme="light"] .pgm-nav-btn:hover:not(:disabled) svg { color: var(--accent); }
+[data-theme="light"] .pgm-item.active .pgm-page-btn { color: #0d1117; }
+[data-theme="light"] .pgm-item.active:hover .pgm-page-btn { background: #f0f1f5; }
+[data-theme="light"] .pgm-item.active .pgm-orig-page { color: #6b7280; }

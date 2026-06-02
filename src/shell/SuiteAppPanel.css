@@ -1,0 +1,107 @@
+/* Panneau ancré style Microsoft Edge : collé au rail droit (52px), pleine hauteur. */
+.suite-apppanel {
+	position: fixed;
+	/* Aligné sous la tab bar, comme le rail. */
+	top: var(--jacpdf-tabbar-h, 38px);
+	bottom: 0;
+	right: 52px;
+	width: 340px;
+	max-width: calc(100vw - 52px);
+	background: #0d1117;
+	border-left: 1px solid #2a3347;
+	box-shadow: -12px 0 28px rgba(0, 0, 0, 0.32);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	z-index: 38;
+	animation: suite-apppanel-slide 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* Épinglé : le contenu est poussé (padding géré par SuiteShell), pas d'ombre. */
+.suite-apppanel[data-pinned="true"] {
+	box-shadow: none;
+}
+@keyframes suite-apppanel-slide {
+	from { transform: translateX(20px); opacity: 0; }
+	to { transform: translateX(0); opacity: 1; }
+}
+
+/* Poignée de redimensionnement sur le bord gauche du panneau. */
+.suite-apppanel__resizer {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: -3px;
+	width: 7px;
+	cursor: ew-resize;
+	z-index: 2;
+	transition: background .14s ease;
+}
+.suite-apppanel__resizer:hover { background: rgba(57, 255, 20, 0.25); }
+
+.suite-apppanel__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 8px 8px 8px 12px;
+	background: #161b27;
+	border-bottom: 1px solid #2a3347;
+	flex: 0 0 auto;
+}
+.suite-apppanel__title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #e5e7eb;
+	font-family: Inter, sans-serif;
+	min-width: 0;
+}
+.suite-apppanel__title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.suite-apppanel__title img { width: 18px; height: 18px; object-fit: contain; flex: 0 0 auto; }
+
+.suite-apppanel__actions { display: flex; align-items: center; gap: 2px; flex: 0 0 auto; }
+.suite-apppanel__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border: none;
+	border-radius: 7px;
+	background: transparent;
+	color: #9ca3af;
+	cursor: pointer;
+	transition: background .14s ease, color .14s ease;
+}
+.suite-apppanel__icon:hover { background: rgba(124, 138, 160, 0.16); color: #fff; }
+.suite-apppanel__icon--on { color: var(--accent, #39FF14); }
+
+.suite-apppanel__body {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow: auto;
+	position: relative;
+}
+
+[data-theme="light"] .suite-apppanel { background: #fff; border-left-color: #d8dbe2; }
+[data-theme="light"] .suite-apppanel__header { background: #f3f4f6; border-bottom-color: #d8dbe2; }
+[data-theme="light"] .suite-apppanel__title { color: #111827; }
+
+/* Variante : panneau ancré à GAUCHE (rail à gauche). */
+.suite-apppanel[data-side="left"] {
+	right: auto;
+	left: 52px;
+	border-left: none;
+	border-right: 1px solid #2a3347;
+	box-shadow: 12px 0 28px rgba(0, 0, 0, 0.32);
+	animation-name: suite-apppanel-slide-left;
+}
+.suite-apppanel[data-side="left"][data-pinned="true"] { box-shadow: none; }
+.suite-apppanel[data-side="left"] .suite-apppanel__resizer { left: auto; right: -3px; }
+@keyframes suite-apppanel-slide-left {
+	from { transform: translateX(-20px); opacity: 0; }
+	to { transform: translateX(0); opacity: 1; }
+}
+[data-theme="light"] .suite-apppanel[data-side="left"] { border-right-color: #d8dbe2; }

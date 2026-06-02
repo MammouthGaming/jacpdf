@@ -1,0 +1,686 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* Accueil JacDoc — mirror visuel de l'accueil JacPDF (cf.
+   src/apps/jacpdf/pages/home/HomeContent.css) mais namespacé .jacdoc-home-*
+   pour éviter toute fuite de style entre les deux pages. Couleurs accent =
+   variables globales --accent / --accent-rgb (vert néon JacSuite). */
+
+.jacdoc-home-bg {
+  /* Accent = couleur de marque JacDoc (bleu du logo). Redéfini localement :
+     tout ce qui utilise var(--accent) / var(--accent-rgb) dans l'accueil
+     (logo, focus, FAB, sidebar, drag, icônes récentes) prend la couleur du
+     logo au lieu du vert JacSuite global. */
+  --accent: #3b82f6;
+  --accent-rgb: 59, 130, 246;
+  --accent-hover: #2563eb;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 40px 40px;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  overflow: hidden auto;
+  box-sizing: border-box;
+}
+
+/* ─── Top actions ─── */
+.jacdoc-home-top-actions {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+}
+.jacdoc-home-top-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  background: #161b27;
+  border: none;
+  border-radius: 50%;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+.jacdoc-home-top-btn:hover {
+  background: #1e2535;
+  color: #fff;
+}
+.jacdoc-home-top-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 0 0 2px #000;
+  pointer-events: none;
+}
+.jacdoc-home-profile-btn {
+  padding: 0;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+.jacdoc-home-profile-btn:hover {
+  background: rgba(var(--accent-rgb), 0.12);
+}
+.jacdoc-home-profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.jacdoc-home-profile-initial {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--accent-rgb), 0.14);
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 800;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ─── Menu Applications (9 dots, style Google Apps) ─── */
+.jacdoc-home-apps-wrapper { position: relative; display: inline-block; }
+.jacdoc-home-apps-btn.is-active {
+  background: rgba(var(--accent-rgb), 0.18);
+  color: var(--accent);
+}
+.jacdoc-home-apps-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: transparent;
+}
+.jacdoc-home-apps-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 41;
+  min-width: 320px;
+  padding: 18px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 16px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  font-family: 'Inter', sans-serif;
+  animation: jacdocAppsIn 0.16s ease-out;
+}
+@keyframes jacdocAppsIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.jacdoc-home-apps-menu::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  right: 16px;
+  width: 12px;
+  height: 12px;
+  background: #161b27;
+  border-top: 1px solid #2a3347;
+  border-left: 1px solid #2a3347;
+  transform: rotate(45deg);
+}
+.jacdoc-home-apps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.jacdoc-home-apps-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.18s, transform 0.12s;
+  outline: none;
+}
+.jacdoc-home-apps-tile:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-1px);
+}
+.jacdoc-home-apps-tile:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.jacdoc-home-apps-tile-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.jacdoc-home-apps-tile:hover .jacdoc-home-apps-tile-icon {
+  transform: scale(1.04);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+}
+.jacdoc-home-apps-tile-icon-classroom {
+  background: var(--accent);
+  color: #000;
+}
+.jacdoc-home-apps-tile-icon img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Variantes par app — même palette que le launcher et l'accueil JacPDF. */
+.jacdoc-home-apps-tile-icon-jacpdf,
+.jacdoc-home-apps-tile-icon-jacdoc,
+.jacdoc-home-apps-tile-icon-jacslide,
+.jacdoc-home-apps-tile-icon-jacnote,
+.jacdoc-home-apps-tile-icon-jacpaint,
+.jacdoc-home-apps-tile-icon-jactache,
+.jacdoc-home-apps-tile-icon-jaccalendrier {
+  color: #fff;
+  font-size: 30px;
+  line-height: 1;
+}
+.jacdoc-home-apps-tile-icon-jacpdf {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.92), rgba(220, 38, 38, 0.92));
+}
+.jacdoc-home-apps-tile-icon-jacdoc {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.92), rgba(37, 99, 235, 0.92));
+}
+.jacdoc-home-apps-tile-icon-jacslide {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.92), rgba(234, 88, 12, 0.92));
+}
+.jacdoc-home-apps-tile-icon-jacnote {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.92), rgba(22, 163, 74, 0.92));
+}
+.jacdoc-home-apps-tile-icon-jacpaint {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.92), rgba(147, 51, 234, 0.92));
+}
+.jacdoc-home-apps-tile-icon-jactache {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.92), rgba(202, 138, 4, 0.92));
+}
+.jacdoc-home-apps-tile-icon-jaccalendrier {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.92), rgba(8, 145, 178, 0.92));
+}
+
+/* Badge « Bientôt » — chip en haut-droite des tuiles JacSlide / JacPaint. */
+.jacdoc-home-apps-tile { position: relative; }
+.jacdoc-home-apps-tile-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.88);
+  pointer-events: none;
+}
+[data-theme="light"] .jacdoc-home-apps-tile-badge {
+  background: rgba(0, 0, 0, 0.08);
+  color: #4b5563;
+}
+.jacdoc-home-apps-tile-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e7ecf5;
+  letter-spacing: -0.1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 88px;
+}
+
+/* ─── Hero ─── */
+.jacdoc-home-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 48px;
+}
+.jacdoc-home-logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.jacdoc-home-logo-text {
+  font-size: 48px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -2px;
+}
+.jacdoc-home-logo-green { color: var(--accent); }
+.jacdoc-home-subtitle {
+  font-size: 15px;
+  color: #6b7280;
+}
+
+/* ─── Grid des actions principales ─── */
+.jacdoc-home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  max-width: 900px;
+  margin-bottom: 40px;
+}
+.jacdoc-home-card {
+  background: #161b27;
+  border: none;
+  border-radius: 16px;
+  padding: 36px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  text-align: center;
+  font-family: inherit;
+}
+.jacdoc-home-card:hover {
+  background: #1e2535;
+  transform: translateY(-2px);
+}
+.jacdoc-home-card:active { transform: translateY(0); }
+.jacdoc-home-card-icon {
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.jacdoc-home-card-icon img,
+.jacdoc-home-recent-icon img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+.jacdoc-home-card-icon img.jacdoc-home-drive-logo {
+  width: 64px;
+  height: 64px;
+  transform: scale(1.35);
+  object-fit: contain;
+}
+.jacdoc-home-logo-img {
+  width: 48px;
+  height: 64px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+.jacdoc-home-card-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+}
+.jacdoc-home-card-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* ─── Section documents récents ─── */
+.jacdoc-home-recent-section {
+  width: 100%;
+  max-width: 900px;
+}
+
+/* Espacement entre les sections empilées (Activité des amis + Récents) —
+   quel que soit leur ordre (réorganisables par drag-drop). Sans ça, quand
+   on inverse les deux, elles se collent l'une à l'autre. */
+.faf-section + .jacdoc-home-recent-section,
+.jacdoc-home-recent-section + .faf-section {
+  margin-top: 32px;
+}
+.jacdoc-home-recent-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.jacdoc-home-recent-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+.jacdoc-home-recent-title svg { color: #9ca3af; }
+
+.jacdoc-home-recent-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.jacdoc-home-recent-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.jacdoc-home-recent-search-icon {
+  position: absolute;
+  left: 10px;
+  color: #6b7280;
+  pointer-events: none;
+}
+.jacdoc-home-recent-search {
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  padding: 8px 30px 8px 32px;
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  width: 200px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.jacdoc-home-recent-search::placeholder { color: #4b5563; }
+.jacdoc-home-recent-search:focus {
+  border-color: var(--accent);
+  background: #1e2535;
+}
+.jacdoc-home-recent-search-clear {
+  position: absolute;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+.jacdoc-home-recent-search-clear:hover {
+  background: #2a3347;
+  color: #fff;
+}
+.jacdoc-home-clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #3d1515;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: #f87171;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.jacdoc-home-clear-btn:hover {
+  background: #4d1a1a;
+}
+.jacdoc-home-recent-filter-select {
+  width: 180px;
+  flex-shrink: 0;
+}
+
+.jacdoc-home-recent-empty {
+  background: #161b27;
+  border-radius: 12px;
+  padding: 36px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #6b7280;
+  font-size: 13px;
+  text-align: center;
+}
+.jacdoc-home-empty-icon { font-size: 20px; }
+
+.jacdoc-home-recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.jacdoc-home-recent-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #161b27;
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  outline: none;
+}
+.jacdoc-home-recent-item:hover {
+  background: #1e2535;
+  transform: translateX(2px);
+}
+.jacdoc-home-recent-item:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.jacdoc-home-recent-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(var(--accent-rgb), 0.13);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.jacdoc-home-recent-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.jacdoc-home-recent-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.jacdoc-home-recent-info {
+  font-size: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.jacdoc-home-recent-remove {
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+.jacdoc-home-recent-remove:hover {
+  background: #3d1515;
+  color: #f87171;
+}
+
+/* ─── Mode clair ─── */
+[data-theme="light"] .jacdoc-home-bg { background: #f5f6f8; }
+[data-theme="light"] .jacdoc-home-top-btn {
+  background: #ffffff;
+  color: #6b7280;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+[data-theme="light"] .jacdoc-home-top-btn:hover {
+  background: #f0f1f5;
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-home-top-badge { box-shadow: 0 0 0 2px #f5f6f8; }
+[data-theme="light"] .jacdoc-home-logo-text { color: #0d1117; }
+[data-theme="light"] .jacdoc-home-subtitle { color: #6b7280; }
+[data-theme="light"] .jacdoc-home-card {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .jacdoc-home-card:hover { background: #f0f1f5; }
+[data-theme="light"] .jacdoc-home-card-icon,
+[data-theme="light"] .jacdoc-home-card-title { color: #0d1117; }
+[data-theme="light"] .jacdoc-home-card-subtitle { color: #6b7280; }
+[data-theme="light"] .jacdoc-home-recent-title { color: #0d1117; }
+[data-theme="light"] .jacdoc-home-recent-title svg { color: #6b7280; }
+[data-theme="light"] .jacdoc-home-recent-search,
+[data-theme="light"] .jacdoc-home-recent-empty {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-home-recent-search::placeholder { color: #9ca3af; }
+[data-theme="light"] .jacdoc-home-recent-search:focus { background: #f0f1f5; }
+[data-theme="light"] .jacdoc-home-recent-search-icon { color: #9ca3af; }
+[data-theme="light"] .jacdoc-home-recent-item {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .jacdoc-home-recent-item:hover { background: #f0f1f5; }
+[data-theme="light"] .jacdoc-home-recent-name { color: #0d1117; }
+[data-theme="light"] .jacdoc-home-apps-menu {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+}
+[data-theme="light"] .jacdoc-home-apps-menu::before {
+  background: #ffffff;
+  border-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-home-apps-tile:hover { background: #f0f1f5; }
+[data-theme="light"] .jacdoc-home-apps-tile-label { color: #0d1117; }
+[data-theme="light"] .jacdoc-home-apps-btn.is-active {
+  background: rgba(57, 255, 20, 0.18);
+  color: #128000;
+}
+
+/* ─── Édition de l'accueil : sidebar EditSidebar + mode réorganisation ───
+   Le FAB (.home-edit-fab) et la sidebar (.es-sidebar) sont stylés par
+   EditSidebar.css (importé via le composant partagé). Ici on gère seulement
+   le décalage « push-left » de la home quand la sidebar est ouverte + le
+   feedback visuel du drag-drop, namespacés .jacdoc-home-*. */
+
+/* Animation du décalage quand la sidebar s'ouvre. */
+.jacdoc-home-bg { transition: padding-right 0.25s ease; }
+
+/* Sidebar ouverte : la home est POUSSÉE vers la gauche (style Chrome side
+   panel) via padding-right animé au lieu d'être recouverte. */
+.jacdoc-home-bg.jacdoc-home-bg-with-sidebar {
+  padding-right: min(420px, 90vw);
+}
+
+/* Les boutons du haut glissent vers la gauche pour rester visibles à côté
+   de la sidebar (380px + 20px de gap). */
+.jacdoc-home-top-actions { transition: right 0.25s ease; }
+.jacdoc-home-bg-with-sidebar .jacdoc-home-top-actions { right: 400px; }
+
+/* ─── Drag-drop : réorganiser les éléments directement sur la page ─── */
+.jacdoc-home-top-btn[draggable="true"],
+.jacdoc-home-card[draggable="true"],
+.faf-section[draggable="true"],
+.jacdoc-home-recent-section[draggable="true"] {
+  cursor: grab;
+}
+.jacdoc-home-top-btn[draggable="true"]:active,
+.jacdoc-home-card[draggable="true"]:active,
+.faf-section[draggable="true"]:active,
+.jacdoc-home-recent-section[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+/* Item en cours de drag. */
+.jacdoc-home-top-btn.is-dragging,
+.jacdoc-home-card.is-dragging,
+.faf-section.is-dragging,
+.jacdoc-home-recent-section.is-dragging {
+  opacity: 0.4;
+}
+
+/* Cible survolée par un drop. */
+.jacdoc-home-top-btn.is-drag-over,
+.jacdoc-home-card.is-drag-over,
+.faf-section.is-drag-over,
+.jacdoc-home-recent-section.is-drag-over {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* Mode réorganisation actif : anneau pointillé d'accent autour de chaque
+   élément draggable. .jacdoc-home-bg-drag-mode est ajouté sur .jacdoc-home-bg
+   quand homeVisibility.dragMode === true. */
+.jacdoc-home-bg-drag-mode .jacdoc-home-top-btn[draggable="true"],
+.jacdoc-home-bg-drag-mode .jacdoc-home-card[draggable="true"],
+.jacdoc-home-bg-drag-mode .faf-section[draggable="true"],
+.jacdoc-home-bg-drag-mode .jacdoc-home-recent-section[draggable="true"] {
+  outline: 2px dashed rgba(var(--accent-rgb), 0.45);
+  outline-offset: 4px;
+}
+
+/* ─── FAB édition : position fixed + suit la sidebar (comme JacPDF) ───
+   Le FAB de base (.home-edit-fab) est en position: absolute dans
+   EditSidebar.css → il resterait collé au bord droit et passerait SOUS la
+   sidebar. On le repasse en fixed (accroché au viewport) puis on le décale
+   vers la gauche quand la sidebar est ouverte, exactement comme l'accueil
+   JacPDF. HomeContent.css est importé APRÈS EditSidebar.css (l'import du
+   composant EditSidebar précède l'import du CSS) → l'override gagne. */
+.home-edit-fab {
+  position: fixed;
+  transition: right 0.25s ease, transform 0.15s ease, background 0.2s, box-shadow 0.2s;
+}
+.jacdoc-home-bg-with-sidebar .home-edit-fab {
+  right: min(404px, calc(90vw + 4px));
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 640px) {
+  .jacdoc-home-bg { padding: 40px 20px 60px; }
+  .jacdoc-home-logo-text { font-size: 36px; }
+  .jacdoc-home-grid { grid-template-columns: 1fr; }
+}

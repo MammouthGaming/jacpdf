@@ -1,0 +1,472 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;700&display=swap');
+
+/* Position commune — le variant ('classic' = flottante en bas, 'topbar' =
+   collée sous la topbar style Kami) est appliqué via .style-classic /
+   .style-topbar (cf. formatBarStyleStore + Apparence > Barre de
+   formatage). */
+.fbar-wrapper {
+  position: fixed;
+  left: 50%;
+  transform: translateX(calc(-50% + var(--fbar-slide-x, 0px)));
+  z-index: 500;
+  pointer-events: auto;
+  touch-action: none;
+}
+.fbar-wrapper.style-classic {
+  bottom: 24px;
+  top: auto;
+  animation: fbarIn 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fbar-wrapper.style-topbar {
+  top: 96px;
+  bottom: auto;
+  animation: fbarInTop 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes fbarIn {
+  from { opacity: 0; transform: translateX(calc(-50% + var(--fbar-slide-x, 0px))) translateY(12px) scale(0.96); }
+  to   { opacity: 1; transform: translateX(calc(-50% + var(--fbar-slide-x, 0px))) translateY(0) scale(1); }
+}
+@keyframes fbarInTop {
+  from { opacity: 0; transform: translateX(calc(-50% + var(--fbar-slide-x, 0px))) translateY(-12px) scale(0.96); }
+  to   { opacity: 1; transform: translateX(calc(-50% + var(--fbar-slide-x, 0px))) translateY(0) scale(1); }
+}
+
+.fbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 18px;
+  padding: 6px 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(var(--accent-rgb), 0.06);
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+  cursor: grab;
+  user-select: none;
+}
+.fbar:active {
+  cursor: grabbing;
+}
+
+.fbar-drag {
+  color: #374151;
+  cursor: grab;
+  padding: 0 6px 0 2px;
+  font-size: 14px;
+  letter-spacing: 1px;
+  user-select: none;
+}
+
+.fbar-divider {
+  width: 1px;
+  height: 20px;
+  background: #2a3347;
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.fbar-select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.fbar-select {
+  background: transparent;
+  border: none;
+  color: #d1d5db;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 4px 20px 4px 8px;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.fbar-select:hover { background: #1e2535; }
+.fbar-select option { background: #161b27; color: #d1d5db; }
+
+.fbar-select-arrow {
+  position: absolute;
+  right: 4px;
+  pointer-events: none;
+  color: #4b5563;
+}
+
+.fbar-btn {
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.fbar-btn:hover { background: #1e2535; color: #fff; }
+.fbar-btn.active { background: rgba(var(--accent-rgb), 0.13); color: var(--accent); }
+
+.fbar-color-btn {
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0;
+  transition: background 0.15s;
+  position: relative;
+}
+
+.fbar-color-btn:hover { background: #1e2535; }
+
+.fbar-color-letter {
+  font-size: 14px;
+  font-weight: 700;
+  color: #d1d5db;
+  line-height: 1;
+  font-family: 'Inter', sans-serif;
+}
+
+.fbar-color-bar {
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.fbar-color-input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+}
+
+/* ─── Mode clair ─── */
+[data-theme="light"] .fbar { background: #ffffff; border-color: #d1d5db; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+[data-theme="light"] .fbar-drag { color: #9ca3af; }
+[data-theme="light"] .fbar-divider { background: #d1d5db; }
+[data-theme="light"] .fbar-select { color: #1f2937; }
+[data-theme="light"] .fbar-select:hover { background: #f0f1f5; }
+[data-theme="light"] .fbar-select option { background: #ffffff; color: #1f2937; }
+[data-theme="light"] .fbar-select-arrow { color: #9ca3af; }
+[data-theme="light"] .fbar-btn { color: #4b5563; }
+[data-theme="light"] .fbar-btn:hover { background: #f0f1f5; color: #0d1117; }
+[data-theme="light"] .fbar-color-btn:hover { background: #f0f1f5; }
+[data-theme="light"] .fbar-color-letter { color: #1f2937; }
+
+/* ─── SizeSelect partagé, adapté au contexte FormatBar ───
+   On écrit les overrides en dessous des règles globales `.tb-size-select`
+   définies dans Toolbar.css. La spécificité `.fbar .tb-size-select` gagne. */
+.fbar .tb-size-select {
+  width: auto;
+  height: 30px;
+  padding: 0 10px;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #d1d5db;
+  border-radius: 8px;
+}
+.fbar .tb-size-select:hover:not(.disabled),
+.fbar .tb-size-select.open { background-color: #1e2535; }
+.fbar .tb-size-select .tb-size-arrow { color: #4b5563; }
+.fbar .fbar-font-select { min-width: 130px; justify-content: space-between; }
+.fbar .fbar-size-select { min-width: 56px; }
+.fbar .fbar-lh-select   { min-width: 72px; }
+
+[data-theme="light"] .fbar .tb-size-select { color: #1f2937; }
+[data-theme="light"] .fbar .tb-size-select:hover:not(.disabled),
+[data-theme="light"] .fbar .tb-size-select.open { background-color: #f0f1f5; }
+[data-theme="light"] .fbar .tb-size-select .tb-size-arrow { color: #9ca3af; }
+
+/* ─── Emoji picker popup ───
+   Position en CSS pur : .fbar-emoji-host (position:relative) wrap le
+   bouton trigger ; le popup en position:absolute s'ancre dessus. On
+   évite ainsi le piou-piou position:fixed dans un parent transformé :
+   .fbar-wrapper a translateX(-50%) qui crée un containing block pour
+   les position:fixed descendants. */
+.fbar-emoji-host {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.fbar-emoji-picker {
+  position: absolute;
+  right: 0;
+  z-index: 500;
+  width: 320px;
+  max-height: 280px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  padding: 8px;
+  overflow-y: auto;
+  font-family: 'Inter', sans-serif;
+  animation: fbarEmojiIn 0.14s ease-out;
+}
+/* Variants : popup au-dessus du bouton en classic (FormatBar en bas du
+   viewport), en dessous en topbar (FormatBar collée à la topbar). 100%
+   exact pour que le popup TOUCHE le bouton sans gap visible. */
+.fbar-wrapper.style-classic .fbar-emoji-picker { bottom: 100%; }
+.fbar-wrapper.style-topbar .fbar-emoji-picker { top: 100%; }
+@keyframes fbarEmojiIn {
+  from { opacity: 0; transform: translateY(4px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.fbar-emoji-cat-title {
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 600;
+  padding: 6px 4px 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.fbar-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+}
+.fbar-emoji-cell {
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 0;
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.12s;
+}
+.fbar-emoji-cell:hover { background: #1e2535; }
+
+[data-theme="light"] .fbar-emoji-picker {
+  background: #ffffff;
+  border-color: #d1d5db;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+[data-theme="light"] .fbar-emoji-cat-title { color: #6b7280; }
+[data-theme="light"] .fbar-emoji-cell:hover { background: #f0f1f5; }
+
+/* ─── EquationBar (mode équation) ───
+   Réutilise les classes .fbar et .fbar-divider de la FormatBar standard ;
+   les éléments spécifiques au mode équation sont préfixés .fbar-eq-. */
+.fbar-eq-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #d1d5db;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+.fbar-eq-letter-underline {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #d1d5db;
+  text-decoration: underline;
+  text-decoration-color: #d1d5db;
+  text-underline-offset: 2px;
+}
+.fbar-eq-letter-hatched {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #d1d5db;
+  background: repeating-linear-gradient(45deg, transparent 0, transparent 2px, rgba(255,255,255,0.20) 2px, rgba(255,255,255,0.20) 4px);
+  padding: 1px 3px;
+  border-radius: 3px;
+}
+.fbar-eq-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #d1d5db;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  height: 32px;
+  padding: 0 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.fbar-eq-size:hover { background: #1e2535; }
+.fbar-eq-pi {
+  font-family: 'Times New Roman', serif;
+  font-size: 18px;
+  font-style: italic;
+  color: #d1d5db;
+}
+
+[data-theme="light"] .fbar-eq-label { color: #1f2937; }
+[data-theme="light"] .fbar-eq-letter-underline { color: #1f2937; text-decoration-color: #1f2937; }
+[data-theme="light"] .fbar-eq-letter-hatched {
+  color: #1f2937;
+  background: repeating-linear-gradient(45deg, transparent 0, transparent 2px, rgba(0,0,0,0.20) 2px, rgba(0,0,0,0.20) 4px);
+}
+[data-theme="light"] .fbar-eq-size { color: #1f2937; }
+[data-theme="light"] .fbar-eq-size:hover { background: #f0f1f5; }
+[data-theme="light"] .fbar-eq-pi { color: #1f2937; }
+
+/* ─── Math symbols picker (popup déclenché par π dans EquationBar) ───
+   Même technique de positionnement que .fbar-emoji-picker : ancré en
+   absolu sur .fbar-eq-symbol-host (qui wrap le bouton trigger) pour
+   bypass le piou-piou position:fixed dans .fbar-wrapper transformé. */
+.fbar-eq-symbol-host {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.fbar-eq-symbol-picker {
+  position: absolute;
+  right: 0;
+  width: 380px;
+  max-height: 400px;
+  z-index: 500;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  padding: 8px;
+  overflow-y: auto;
+  font-family: 'Inter', sans-serif;
+  animation: fbarEmojiIn 0.14s ease-out;
+}
+.fbar-wrapper.style-classic .fbar-eq-symbol-picker { bottom: calc(100% + 8px); }
+.fbar-wrapper.style-topbar  .fbar-eq-symbol-picker { top: calc(100% + 8px); }
+
+.fbar-eq-symbol-search-wrap {
+  position: sticky;
+  top: -8px;
+  margin: -8px -8px 8px;
+  padding: 8px;
+  background: #161b27;
+  border-bottom: 1px solid #2a3347;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 1;
+}
+.fbar-eq-symbol-search-icon {
+  color: #6b7280;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+.fbar-eq-symbol-search {
+  flex: 1;
+  background: #0f1320;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  color: #d1d5db;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  padding: 6px 10px;
+  outline: none;
+}
+.fbar-eq-symbol-search:focus { border-color: var(--accent, #6366f1); }
+.fbar-eq-symbol-search::placeholder { color: #6b7280; }
+
+.fbar-eq-symbol-cat-title {
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 600;
+  padding: 6px 4px 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.fbar-eq-symbol-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+}
+.fbar-eq-symbol-cell {
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 0;
+  font-family: 'Times New Roman', serif;
+  font-size: 18px;
+  color: #d1d5db;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.12s;
+}
+.fbar-eq-symbol-cell:hover { background: #1e2535; }
+.fbar-eq-symbol-empty {
+  text-align: center;
+  color: #6b7280;
+  font-size: 13px;
+  padding: 24px 12px;
+}
+
+[data-theme="light"] .fbar-eq-symbol-picker {
+  background: #ffffff;
+  border-color: #d1d5db;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+[data-theme="light"] .fbar-eq-symbol-search-wrap {
+  background: #ffffff;
+  border-bottom-color: #d1d5db;
+}
+[data-theme="light"] .fbar-eq-symbol-search {
+  background: #f8f9fb;
+  border-color: #d1d5db;
+  color: #1f2937;
+}
+[data-theme="light"] .fbar-eq-symbol-cell { color: #1f2937; }
+[data-theme="light"] .fbar-eq-symbol-cell:hover { background: #f0f1f5; }
+[data-theme="light"] .fbar-eq-symbol-empty { color: #9ca3af; }
+
+/* ─── Templates math (à la Kami) ───
+   Rangée en haut du picker, en vert, qui contient les symboles
+   structurés (indice, fraction, racines). Cachée quand l'utilisateur
+   tape une recherche pour laisser place aux résultats filtrés. */
+.fbar-eq-symbol-templates {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  padding: 4px 0 8px;
+  border-bottom: 1px solid #2a3347;
+  margin-bottom: 4px;
+}
+.fbar-eq-symbol-template-cell {
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 0;
+  font-family: 'Times New Roman', serif;
+  font-size: 18px;
+  color: #9bd84c;
+  cursor: pointer;
+  line-height: 1.2;
+  transition: background 0.12s;
+}
+.fbar-eq-symbol-template-cell:hover { background: #1e2535; }
+
+[data-theme="light"] .fbar-eq-symbol-templates { border-bottom-color: #d1d5db; }
+[data-theme="light"] .fbar-eq-symbol-template-cell { color: #16a34a; }
+[data-theme="light"] .fbar-eq-symbol-template-cell:hover { background: #f0f1f5; }

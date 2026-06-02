@@ -1,0 +1,583 @@
+/* Spotlight JacSuite — styles UI (étapes 1–3).
+   Thème sombre aligné sur le reste de la suite (#0d1117 / accent néon). */
+
+.jac-spotlight {
+	position: fixed;
+	inset: 0;
+	z-index: 9999;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	padding-top: 14vh;
+	background: rgba(5, 8, 14, 0.55);
+	-webkit-backdrop-filter: blur(4px);
+	backdrop-filter: blur(4px);
+	animation: jac-spotlight-fade 200ms ease;
+}
+
+@keyframes jac-spotlight-fade {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+/* Dock façon Spotlight Apple : largeur fixe partagée entre la barre (qui
+   rétrécit) et les boutons ronds. Quand les boutons apparaissent, ils
+   « remplacent » la partie droite de la barre au lieu de déborder à côté. */
+.jac-spotlight__dock {
+	position: relative;
+	width: min(640px, calc(100vw - 32px));
+}
+
+.jac-spotlight__panel {
+	width: 100%;
+	max-height: 60vh;
+	/* Rétrécissement fluide quand les ronds apparaissent (façon Apple). */
+	transition: width 280ms cubic-bezier(0.22, 1, 0.36, 1);
+	display: flex;
+	flex-direction: column;
+	background: #161b27;
+	border: 1px solid #2a3347;
+	border-radius: 14px;
+	box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+	/* visible (et non hidden) pour que le menu « ••• » puisse déborder
+	   sous la barre au lieu d'être rogné à l'intérieur du panneau. */
+	overflow: visible;
+	animation: jac-spotlight-pop 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* La liste garde son propre clip arrondi (le panneau ne clippe plus). */
+.jac-spotlight__results {
+	border-bottom-left-radius: 14px;
+	border-bottom-right-radius: 14px;
+}
+
+@keyframes jac-spotlight-pop {
+	0% { opacity: 0; transform: translateY(-14px) scale(0.94); }
+	60% { opacity: 1; transform: translateY(2px) scale(1.01); }
+	100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Quand les ronds sont visibles, la barre rétrécit pour libérer la place à
+   droite (les ronds y sont positionnés en absolu, par-dessus l'espace libéré). */
+.jac-spotlight__dock--active .jac-spotlight__panel {
+	width: calc(100% - 224px);
+}
+
+/* ── Barre de recherche ── */
+.jac-spotlight__search {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 14px 16px;
+}
+
+.jac-spotlight__search-icon {
+	color: #6b7689;
+	flex: 0 0 auto;
+}
+
+.jac-spotlight__input {
+	flex: 1 1 auto;
+	background: transparent;
+	border: none;
+	outline: none;
+	color: #f3f4f6;
+	font-size: 16px;
+	font-family: inherit;
+}
+
+.jac-spotlight__input::placeholder {
+	color: #6b7689;
+}
+
+.jac-spotlight__esc {
+	flex: 0 0 auto;
+	font-size: 11px;
+	color: #9ca3af;
+	background: #0d1117;
+	border: 1px solid #2a3347;
+	border-radius: 6px;
+	padding: 2px 7px;
+}
+
+/* Jeton de catégorie active dans la barre (le « scope » façon Apple :
+   apparaît quand on choisit une catégorie, les ronds ayant disparu). */
+/* Icône de catégorie active : REMPLACE la loupe (façon Apple). Cliquable
+   pour retirer le filtre et revenir à la loupe. */
+.jac-spotlight__search-scope {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	border: none;
+	background: transparent;
+	color: #39FF14;
+	cursor: pointer;
+	animation: jac-spotlight-cat-in 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.jac-spotlight__search-scope svg {
+	width: 18px;
+	height: 18px;
+}
+
+body.animations-off .jac-spotlight__search-scope {
+	animation: none;
+}
+
+/* Bouton « ••• » à droite de la barre : options de la catégorie active
+   (vue liste/grille pour Applications & Fichiers, effacer pour le presse-papier). */
+.jac-spotlight__menu-wrap {
+	position: relative;
+	flex: 0 0 auto;
+	display: inline-flex;
+}
+
+.jac-spotlight__more {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	color: #8b94a7;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 7px;
+	cursor: pointer;
+	transition: background 140ms ease, color 140ms ease;
+}
+
+.jac-spotlight__more:hover {
+	color: #f3f4f6;
+	background: rgba(124, 138, 160, 0.16);
+}
+
+.jac-spotlight__menu {
+	position: absolute;
+	top: calc(100% + 8px);
+	right: 0;
+	z-index: 5;
+	min-width: 180px;
+	padding: 6px;
+	background: #1b2130;
+	border: 1px solid #2a3347;
+	border-radius: 10px;
+	box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+	animation: jac-spotlight-cat-in 160ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.jac-spotlight__menu-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	padding: 8px 10px;
+	font-size: 13px;
+	font-family: inherit;
+	text-align: left;
+	color: #e5e9f0;
+	background: transparent;
+	border: none;
+	border-radius: 7px;
+	cursor: pointer;
+}
+
+.jac-spotlight__menu-item::before {
+	content: '✓';
+	width: 12px;
+	font-size: 12px;
+	opacity: 0;
+}
+
+.jac-spotlight__menu-item--on::before {
+	opacity: 1;
+	color: #39FF14;
+}
+
+.jac-spotlight__menu-item--on {
+	color: #39FF14;
+}
+
+.jac-spotlight__menu-item:hover {
+	background: rgba(124, 138, 160, 0.16);
+}
+
+body.animations-off .jac-spotlight__menu {
+	animation: none;
+}
+
+/* Vue grille (Applications & Fichiers) : tuiles icône + libellé dessous,
+   façon Spotlight Apple. */
+.jac-spotlight__results--grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+	gap: 6px;
+}
+
+.jac-spotlight__results--grid .jac-spotlight__item {
+	flex-direction: column;
+	gap: 8px;
+	padding: 12px 8px;
+	text-align: center;
+}
+
+.jac-spotlight__results--grid .jac-spotlight__item-icon {
+	width: 44px;
+	height: 44px;
+	font-size: 26px;
+}
+
+.jac-spotlight__results--grid .jac-spotlight__item-text {
+	align-items: center;
+	width: 100%;
+}
+
+.jac-spotlight__results--grid .jac-spotlight__item-label {
+	white-space: normal;
+	font-size: 12px;
+	font-weight: 500;
+}
+
+.jac-spotlight__results--grid .jac-spotlight__item-sub,
+.jac-spotlight__results--grid .jac-spotlight__item-tag {
+	display: none;
+}
+
+body.animations-off .jac-spotlight__scope {
+	animation: none;
+}
+
+/* ── Sous-catégories (chips sous la barre) — Applications & Fichiers ── */
+.jac-spotlight__subcats {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 0 12px 12px;
+	overflow-x: auto;
+	scrollbar-width: none;
+}
+
+.jac-spotlight__subcats::-webkit-scrollbar {
+	display: none;
+}
+
+.jac-spotlight__subcat {
+	flex: 0 0 auto;
+	padding: 5px 12px;
+	font-size: 12px;
+	font-family: inherit;
+	font-weight: 500;
+	color: #c5ccd8;
+	background: rgba(124, 138, 160, 0.1);
+	border: 1px solid transparent;
+	border-radius: 999px;
+	cursor: pointer;
+	transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+
+.jac-spotlight__subcat:hover {
+	background: rgba(124, 138, 160, 0.2);
+	color: #f3f4f6;
+}
+
+.jac-spotlight__subcat--active {
+	color: #0d1117;
+	background: #39FF14;
+	border-color: #39FF14;
+}
+
+/* ── Liste des résultats ── */
+.jac-spotlight__results {
+	list-style: none;
+	margin: 0;
+	padding: 6px;
+	overflow-y: auto;
+	flex: 1 1 auto;
+	/* Séparateur porté par la liste : il disparaît quand la liste est masquée. */
+	border-top: 1px solid #1e2535;
+}
+
+.jac-spotlight__empty {
+	padding: 24px 16px;
+	text-align: center;
+	color: #6b7689;
+	font-size: 14px;
+	/* En vue grille, occupe toute la rangée au lieu de se coincer dans une
+	   seule colonne étroite (sinon le texte s'enroule à gauche). */
+	grid-column: 1 / -1;
+}
+
+.jac-spotlight__item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 12px;
+	border-radius: 9px;
+	cursor: pointer;
+	user-select: none;
+}
+
+.jac-spotlight__item--active {
+	background: rgba(57, 255, 20, 0.1);
+	box-shadow: inset 0 0 0 1px rgba(57, 255, 20, 0.35);
+}
+
+.jac-spotlight__item-icon {
+	flex: 0 0 auto;
+	width: 30px;
+	height: 30px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 18px;
+	color: #c5ccd8;
+	background: #0d1117;
+	border: 1px solid #232b3b;
+	border-radius: 8px;
+}
+
+/* Pictogrammes SVG (trait fin) à la place des emojis : suivent la taille
+   d'icône (plus grande en vue grille). */
+.jac-spotlight__item-icon svg {
+	width: 1.1em;
+	height: 1.1em;
+}
+
+/* Vrai logo .svg de l'app (au lieu d'un emoji) : remplit la pastille en
+   gardant ses proportions. Dimensionné en em pour suivre la taille d'icône
+   plus grande en vue grille. */
+.jac-spotlight__item-logo {
+	width: 1.4em;
+	height: 1.4em;
+	object-fit: contain;
+	display: block;
+}
+
+.jac-spotlight__item-text {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.jac-spotlight__item-label {
+	color: #f3f4f6;
+	font-size: 14px;
+	font-weight: 600;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.jac-spotlight__item-sub {
+	color: #8b94a7;
+	font-size: 12px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.jac-spotlight__item-tag {
+	flex: 0 0 auto;
+	font-size: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #8b94a7;
+	background: #0d1117;
+	border: 1px solid #232b3b;
+	border-radius: 5px;
+	padding: 2px 6px;
+}
+
+/* ── Boutons de catégories RONDS (façon Spotlight Apple : à droite de la
+   barre, révélés au mouvement de la souris). ── */
+.jac-spotlight__cats {
+	position: absolute;
+	top: 0;
+	right: 0;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	/* Aligne la rangée de ronds sur la hauteur de la barre de recherche
+	   (la barre rétrécit en douceur pour libérer cette place à droite). */
+	height: 50px;
+	animation: jac-spotlight-cats 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes jac-spotlight-cats {
+	from { opacity: 0; transform: translateX(-10px); }
+	to { opacity: 1; transform: translateX(0); }
+}
+
+.jac-spotlight__cat {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 46px;
+	height: 46px;
+	padding: 0;
+	font-family: inherit;
+	color: #c5ccd8;
+	background: rgba(22, 27, 39, 0.92);
+	border: 1px solid #2a3347;
+	border-radius: 50%;
+	cursor: pointer;
+	-webkit-backdrop-filter: blur(8px);
+	backdrop-filter: blur(8px);
+	box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+	transition: background 140ms ease, border-color 140ms ease, color 140ms ease,
+		transform 140ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 140ms ease;
+	/* Entrée en cascade : le délai est posé en inline via animationDelay. */
+	animation: jac-spotlight-cat-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes jac-spotlight-cat-in {
+	from { opacity: 0; transform: translateX(-8px) scale(0.8); }
+	to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.jac-spotlight__cat:hover {
+	background: #1f2738;
+	color: #f3f4f6;
+	transform: translateY(-2px) scale(1.08);
+	box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+}
+
+.jac-spotlight__cat:active {
+	transform: translateY(0) scale(0.94);
+}
+
+.jac-spotlight__cat--active {
+	color: #0d1117;
+	background: #39FF14;
+	border-color: #39FF14;
+	box-shadow: 0 0 0 3px rgba(57, 255, 20, 0.2), 0 8px 24px rgba(57, 255, 20, 0.3);
+	animation: jac-spotlight-cat-pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes jac-spotlight-cat-pop {
+	0% { transform: scale(1); }
+	45% { transform: scale(1.16); }
+	100% { transform: scale(1); }
+}
+
+.jac-spotlight__cat-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 0;
+	transition: transform 160ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.jac-spotlight__cat:hover .jac-spotlight__cat-icon {
+	transform: scale(1.18) rotate(-6deg);
+}
+
+.jac-spotlight__cat--active .jac-spotlight__cat-icon {
+	transform: scale(1.12);
+}
+
+body.animations-off .jac-spotlight__cats,
+body.animations-off .jac-spotlight__cat,
+body.animations-off .jac-spotlight__cat--active {
+	animation: none;
+}
+
+body.animations-off .jac-spotlight__cat,
+body.animations-off .jac-spotlight__cat:hover,
+body.animations-off .jac-spotlight__cat:active,
+body.animations-off .jac-spotlight__cat:hover .jac-spotlight__cat-icon {
+	transform: none;
+	box-shadow: none;
+}
+
+/* ── Tags color-codés par type de résultat ── */
+.jac-spotlight__item-tag[data-tag="app"] {
+	color: #39FF14;
+	border-color: rgba(57, 255, 20, 0.4);
+	background: rgba(57, 255, 20, 0.08);
+}
+
+.jac-spotlight__item-tag[data-tag="action"] {
+	color: #c084fc;
+	border-color: rgba(192, 132, 252, 0.4);
+	background: rgba(192, 132, 252, 0.08);
+}
+
+.jac-spotlight__item-tag[data-tag="calc"] {
+	color: #fbbf24;
+	border-color: rgba(251, 191, 36, 0.4);
+	background: rgba(251, 191, 36, 0.08);
+}
+
+.jac-spotlight__item-tag[data-tag="weather"] {
+	color: #38bdf8;
+	border-color: rgba(56, 189, 248, 0.4);
+	background: rgba(56, 189, 248, 0.08);
+}
+
+.jac-spotlight__item-tag[data-tag="pdf"],
+.jac-spotlight__item-tag[data-tag="jacdoc"] {
+	color: #94a3b8;
+	border-color: rgba(148, 163, 184, 0.35);
+	background: rgba(148, 163, 184, 0.07);
+}
+
+.jac-spotlight__item-tag[data-tag="clipboard"] {
+	color: #f472b6;
+	border-color: rgba(244, 114, 182, 0.4);
+	background: rgba(244, 114, 182, 0.08);
+}
+
+/* ── Lignes "intelligentes" (calcul / météo) : fond légèrement accentué
+   + chiffres à chasse fixe pour un rendu net des résultats. ── */
+.jac-spotlight__item[data-type="calc"],
+.jac-spotlight__item[data-type="weather"] {
+	background: linear-gradient(90deg, rgba(57, 255, 20, 0.06), transparent 70%);
+}
+
+.jac-spotlight__item[data-type="calc"] .jac-spotlight__item-label,
+.jac-spotlight__item[data-type="weather"] .jac-spotlight__item-label {
+	font-variant-numeric: tabular-nums;
+}
+
+/* L'état actif reste prioritaire sur le fond des lignes intelligentes. */
+.jac-spotlight__item[data-type="calc"].jac-spotlight__item--active,
+.jac-spotlight__item[data-type="weather"].jac-spotlight__item--active {
+	background: rgba(57, 255, 20, 0.1);
+}
+
+/* ── Pied de page (aide raccourcis) ── */
+.jac-spotlight__footer {
+	display: flex;
+	gap: 16px;
+	padding: 9px 14px;
+	border-top: 1px solid #1e2535;
+	color: #6b7689;
+	font-size: 11px;
+}
+
+.jac-spotlight__footer kbd {
+	display: inline-block;
+	min-width: 16px;
+	text-align: center;
+	font-size: 10px;
+	color: #9ca3af;
+	background: #0d1117;
+	border: 1px solid #2a3347;
+	border-radius: 5px;
+	padding: 1px 5px;
+	margin-right: 3px;
+}
+
+/* Coupe les animations quand le mode perf / reduced-motion est actif
+   (cf. body.animations-off posé par App.jsx). */
+body.animations-off .jac-spotlight,
+body.animations-off .jac-spotlight__panel {
+	animation: none;
+}
+
+body.animations-off .jac-spotlight__panel {
+	transition: none;
+}

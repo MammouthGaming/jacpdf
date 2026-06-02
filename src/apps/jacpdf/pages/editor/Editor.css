@@ -1,0 +1,1278 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.editor-root {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+  position: relative;
+  --comments-sidebar-width: min(260px, calc(100% - 56px));
+  --comments-rail-width: 56px;
+}
+
+/* ── TOP BAR ── */
+/* Une seule barre pleine largeur (plus d'îlôts flottants).
+   On garde position:absolute pour ne pas casser le top:60px de
+   .editor-comments-panel / .editor-comments-edge-hotspot ni le
+   padding-top du .editor-canvas. */
+.editor-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  background: #161b27;
+  border-bottom: 1px solid #2a3347;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  z-index: 10;
+}
+
+.topbar-left,
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.topbar-left {
+  flex: 1 1 auto;
+  min-width: 0;
+  /* Laisse le menu de sauvegarde sortir sous la topbar.
+     Les textes longs sont déjà coupés dans .topbar-source / .topbar-filename,
+     donc on ne doit pas cacher tout le groupe gauche ici. */
+  overflow: visible;
+}
+.topbar-right {
+  flex: 0 0 auto;
+  justify-content: flex-end;
+}
+.topbar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Logo et groupes ne sont plus des îlôts : fond transparent, pas de border,
+   coins légèrement arrondis pour le hover seulement. */
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 10px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.3px;
+  transition: background 0.2s;
+}
+.topbar-logo:hover { background: #1e2535; }
+.topbar-logo-img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+  pointer-events: none;
+  user-select: none;
+}
+.logo-green { color: var(--accent); }
+
+.topbar-undo-redo,
+.topbar-right-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+}
+.topbar-right-group {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.topbar-icon-btn {
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.topbar-icon-btn:hover { background: #1e2535; color: #fff; }
+
+/* Export n'est plus le bouton vert plein : style icône neutre comme Kami. */
+.topbar-export-btn {
+  background: transparent;
+  color: #6b7280;
+}
+.topbar-export-btn:hover {
+  background: #1e2535;
+  color: #fff;
+}
+
+/* Bouton Partager toujours visible, avec texte + accent comme Kami. */
+.topbar-share-btn {
+  height: 30px;
+  padding: 0 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: rgba(var(--accent-rgb), 0.10);
+  border: 1px solid rgba(var(--accent-rgb), 0.34);
+  border-radius: 10px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.topbar-share-btn svg { flex-shrink: 0; }
+.topbar-share-btn:hover:not(:disabled) {
+  background: rgba(var(--accent-rgb), 0.18);
+  border-color: rgba(var(--accent-rgb), 0.52);
+  color: var(--accent);
+}
+.topbar-share-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.topbar-settings-btn {
+  flex-shrink: 0;
+}
+.topbar-profile-btn {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+}
+.topbar-profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.topbar-profile-initial {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--accent-rgb), 0.14);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+  font-family: 'Inter', sans-serif;
+}
+.topbar-profile-btn:hover {
+  background: rgba(var(--accent-rgb), 0.12);
+}
+
+/* Popup affichée quand on clique Partager sur un PDF local.
+   Le partage a besoin d'un document cloud stable : on propose donc Google
+   Drive ou JacPDF Cloud avant d'ouvrir la vraie ShareModal. */
+.local-share-upload-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.58);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+.local-share-upload-card {
+  position: relative;
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 16px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  padding: 24px;
+  color: #e5e7eb;
+  font-family: 'Inter', sans-serif;
+  animation: topbar-more-pop 0.16s cubic-bezier(0.2, 0, 0, 1);
+}
+.local-share-upload-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: #1e2535;
+  color: #9ca3af;
+  cursor: pointer;
+}
+.local-share-upload-close:hover {
+  background: #252d3f;
+  color: #fff;
+}
+.local-share-upload-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(var(--accent-rgb), 0.12);
+  border: 1px solid rgba(var(--accent-rgb), 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 21px;
+  margin-bottom: 14px;
+}
+.local-share-upload-card h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+}
+.local-share-upload-card p {
+  margin: 0 0 18px;
+  color: #9ca3af;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.local-share-upload-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.local-share-upload-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #2a3347;
+  background: #1e2535;
+  color: #e5e7eb;
+  text-align: left;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+.local-share-upload-option:hover:not(:disabled) {
+  border-color: rgba(96, 165, 250, 0.55);
+  background: #252d3f;
+}
+.local-share-upload-option:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+.local-share-upload-option-accent:hover:not(:disabled) {
+  border-color: rgba(var(--accent-rgb), 0.55);
+}
+.local-share-upload-option-icon {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.local-share-upload-option strong {
+  display: block;
+  font-size: 13px;
+  color: #fff;
+}
+.local-share-upload-option small {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: #6b7280;
+}
+.local-share-upload-hint {
+  margin-top: 14px;
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+[data-theme="light"] .local-share-upload-overlay {
+  background: rgba(0, 0, 0, 0.32);
+}
+[data-theme="light"] .local-share-upload-card {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  color: #1f2937;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2);
+}
+[data-theme="light"] .local-share-upload-card h2,
+[data-theme="light"] .local-share-upload-option strong {
+  color: #0d1117;
+}
+[data-theme="light"] .local-share-upload-card p {
+  color: #4b5563;
+}
+[data-theme="light"] .local-share-upload-close,
+[data-theme="light"] .local-share-upload-option {
+  background: #f5f6f8;
+  border-color: #d1d5db;
+}
+[data-theme="light"] .local-share-upload-close:hover,
+[data-theme="light"] .local-share-upload-option:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+[data-theme="light"] .local-share-upload-option small,
+[data-theme="light"] .local-share-upload-hint {
+  color: #6b7280;
+}
+
+/* Mode compact comme Kami (quand la fenêtre devient étroite) :
+   Gauche : logo seulement → séparateur → icône sauvegarde.
+   Droite : undo/redo → séparateur → ⋯ → Partager → Paramètres. */
+.editor-topbar.topbar-ultra-compact .topbar-logo-text,
+.editor-topbar.topbar-ultra-compact .topbar-dev-badge,
+.editor-topbar.topbar-ultra-compact .topbar-source,
+.editor-topbar.topbar-ultra-compact .topbar-breadcrumb-sep,
+.editor-topbar.topbar-ultra-compact .topbar-filename,
+.editor-topbar.topbar-ultra-compact .topbar-role-badge,
+.editor-topbar.topbar-ultra-compact .topbar-save-separator {
+  display: none !important;
+}
+
+/* À droite, on enlève seulement la présence + son séparateur.
+   On garde Annuler/Rétablir, ⋯, Partager et Paramètres comme Kami. */
+.editor-topbar.topbar-ultra-compact .topbar-right > :first-child,
+.editor-topbar.topbar-ultra-compact .topbar-right > :first-child + .topbar-separator {
+  display: none;
+}
+.editor-topbar.topbar-ultra-compact .topbar-right {
+  gap: 6px;
+}
+.editor-topbar.topbar-ultra-compact .topbar-right-group,
+.editor-topbar.topbar-ultra-compact .topbar-share-btn,
+.editor-topbar.topbar-ultra-compact .topbar-settings-btn {
+  flex-shrink: 0;
+}
+.editor-topbar.topbar-ultra-compact .topbar-left {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.editor-topbar.topbar-ultra-compact .topbar-logo {
+  padding-right: 8px;
+}
+
+/* Séparateur vertical fin entre les groupes de la topbar (ex. Annuler/Rétablir
+   ↔ Exporter/Outils/Vue/Partager/Paramètres). Style discret pour ne pas
+   alourdir la barre. */
+.topbar-separator {
+  width: 1px;
+  height: 20px;
+  background: #2a3347;
+  margin: 0 6px;
+  flex-shrink: 0;
+}
+[data-theme="light"] .topbar-separator { background: #d1d5db; }
+
+.topbar-filename {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 4px 12px;
+  color: #d1d5db;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s, border-color 0.2s;
+  max-width: 420px;
+  min-width: 80px;
+  flex: 0 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.topbar-filename:hover { background: #1e2535; }
+.topbar-filename svg { color: #4b5563; flex-shrink: 0; }
+.topbar-filename-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-overflow: clip;
+  white-space: nowrap;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overscroll-behavior-inline: contain;
+  cursor: grab;
+  user-select: none;
+}
+.topbar-filename-text::-webkit-scrollbar {
+  display: none;
+}
+.topbar-filename-text:active {
+  cursor: grabbing;
+}
+
+.topbar-filename-editing {
+  background: #1e2535;
+  border-color: var(--accent);
+  cursor: text;
+  gap: 6px;
+}
+.topbar-filename-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  padding: 0;
+  margin: 0;
+  width: 220px;
+  min-width: 0;
+  max-width: 100%;
+  caret-color: var(--accent);
+}
+.topbar-filename-ext {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  flex-shrink: 0;
+}
+
+.topbar-download {
+  width: 30px;
+  height: 30px;
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  color: #000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.topbar-download:hover { background: var(--accent-hover); }
+
+.topbar-more-btn.active {
+  background: #1e2535;
+  color: #fff;
+}
+.topbar-more-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+  z-index: 80;
+  animation: editorSearchPop 0.12s ease-out;
+}
+.topbar-more-menu .topbar-more-item {
+  flex-shrink: 0;
+}
+.topbar-more-menu .topbar-download.topbar-more-item {
+  width: 30px;
+  height: 30px;
+}
+
+/* Badge « source du document » à droite du nom de fichier (Finition 1.5).
+   Inspiré de Kami : montre d'un coup d'œil si le PDF vient de l'ordinateur
+   ou de Google Drive (avec son logo + dossier parent). */
+.topbar-source {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  margin-left: 4px;
+  background: transparent;
+  border: 1px solid #2a3347;
+  border-radius: 7px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+  max-width: 210px;
+  min-width: 0;
+  flex: 0 1 auto;
+  overflow: hidden;
+  cursor: default;
+  user-select: none;
+}
+.topbar-source svg { flex-shrink: 0; }
+.topbar-source-logo {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+  pointer-events: none;
+  user-select: none;
+}
+.topbar-source-label  {
+  flex: 0 1 auto;
+  min-width: 0;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.topbar-source-sep    { color: #6b7280; margin: 0 2px; flex-shrink: 0; }
+.topbar-source-folder {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 110px;
+}
+
+/* ── MAIN AREA ── */
+.editor-main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  transition: margin-left 0.28s cubic-bezier(0.2, 0, 0, 1);
+}
+.editor-root.comments-panel-open .editor-main {
+  margin-left: calc(var(--comments-sidebar-width) + var(--comments-rail-width));
+}
+
+/* ── CANVAS ── */
+.editor-canvas {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: auto;
+  background: #000;
+  /* padding-top = hauteur topbar (44) + marge interne (24) = 68 */
+  padding: 68px 24px 24px;
+  position: relative;
+}
+
+.text-click-overlay {
+  position: absolute;
+  inset: 0;
+  cursor: crosshair;
+  z-index: 5;
+}
+
+.editor-two-page-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.editor-page-wrapper {
+  box-shadow: 0 4px 40px rgba(0,0,0,0.6);
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.editor-page-wrapper canvas { display: block; }
+
+/* ── PRESENTATION MODE ── */
+.presentation-root {
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+.presentation-canvas {
+  display: flex;
+  align-items: safe center;
+  justify-content: safe center;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  cursor: grab;
+}
+.presentation-canvas:active { cursor: grabbing; }
+
+.presentation-zoom,
+.presentation-nav {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: #161b27cc;
+  border: 1px solid #2a3347;
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+  z-index: 1001;
+  font-family: 'Inter', sans-serif;
+}
+.presentation-zoom {
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px;
+}
+.presentation-nav {
+  bottom: 24px;
+  right: 24px;
+  gap: 8px;
+  padding: 6px 8px;
+}
+.presentation-zoom-btn,
+.presentation-btn {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.presentation-zoom-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+}
+.presentation-btn {
+  width: 38px;
+  height: 38px;
+  background: #1e2535;
+  border-radius: 12px;
+  color: #fff;
+}
+.presentation-zoom-btn:hover { background: #1e2535; color: #fff; }
+.presentation-btn:hover:not(:disabled) { background: #2a3347; }
+.presentation-btn:disabled { opacity: 0.3; cursor: default; }
+.presentation-zoom-value,
+.presentation-page {
+  font-size: 13px;
+  font-weight: 600;
+  color: #d1d5db;
+  min-width: 48px;
+  text-align: center;
+}
+.presentation-zoom-divider {
+  width: 1px;
+  height: 18px;
+  background: #2a3347;
+  margin: 0 4px;
+}
+.presentation-zoom-fit {
+  background: transparent;
+  border: none;
+  color: #d1d5db;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  padding: 6px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.presentation-zoom-fit:hover { background: #1e2535; color: var(--accent); }
+.presentation-canvas .editor-page-wrapper {
+  margin-bottom: 0;
+  box-shadow: none;
+}
+.presentation-exit {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  background: #161b27cc;
+  border: 1px solid #2a3347;
+  border-radius: 10px;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  transition: color 0.2s;
+}
+.presentation-exit:hover { color: #fff; }
+
+/* ── ZOOM ── */
+.editor-zoom {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 20px;
+  padding: 4px;
+  z-index: 10;
+}
+.zoom-pages,
+.zoom-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #d1d5db;
+  min-width: 36px;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+}
+.zoom-value { min-width: 44px; }
+.zoom-divider {
+  width: 1px;
+  height: 18px;
+  background: #2a3347;
+  margin: 0 2px;
+}
+.zoom-btn {
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.zoom-btn:hover { background: #1e2535; color: #fff; }
+
+/* ── MULTI-PDF TABS ──
+   Toutes les règles tabbar / tab / tab-pane / editor-app-root ont été
+   promues vers `src/shell/SuiteShell.css` (Phase 5). Le shell est
+   maintenant générique (jacpdf + jacdoc + jacnote + launcher) — son CSS
+   vit à côté de SuiteShell.jsx, pas dans Editor.css. SuiteShell.jsx
+   importe SuiteShell.css ; les composants TabBar / EditorInstance
+   restent inchangés (les classes `editor-*` n'ont pas été renommées
+   pour éviter de casser la persistance et le markup existant). */
+
+/* ── Barre de recherche ── */
+.editor-search {
+  position: absolute;
+  top: 54px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 14px;
+  padding: 6px 8px 6px 12px;
+  z-index: 12;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  font-family: 'Inter', sans-serif;
+  animation: editorSearchPop 0.15s ease;
+}
+@keyframes editorSearchPop {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.editor-search > svg { color: #6b7280; flex-shrink: 0; }
+.editor-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  width: 220px;
+  padding: 6px 0;
+  caret-color: var(--accent);
+}
+.editor-search-input::placeholder { color: #6b7280; }
+.editor-search-count {
+  font-size: 12px;
+  font-weight: 500;
+  color: #9ca3af;
+  min-width: 56px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.editor-search-btn,
+.editor-search-close {
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.editor-search-btn:hover:not(:disabled),
+.editor-search-close:hover { background: #1e2535; color: #fff; }
+.editor-search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.editor-search-close { margin-left: 2px; }
+
+/* ── OCR overlay ── */
+.editor-ocr-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  font-family: 'Inter', sans-serif;
+  animation: editorOcrFade 0.18s ease;
+}
+@keyframes editorOcrFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.editor-ocr-modal {
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 16px;
+  padding: 28px 32px;
+  min-width: 340px;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+.editor-ocr-spinner {
+  width: 38px;
+  height: 38px;
+  border: 3px solid #2a3347;
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: editorOcrSpin 0.9s linear infinite;
+  margin-bottom: 4px;
+}
+@keyframes editorOcrSpin {
+  to { transform: rotate(360deg); }
+}
+.editor-ocr-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+.editor-ocr-status {
+  font-size: 13px;
+  font-weight: 500;
+  color: #9ca3af;
+  font-variant-numeric: tabular-nums;
+}
+.editor-ocr-progress {
+  width: 100%;
+  height: 6px;
+  background: #1e2535;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.editor-ocr-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.25s ease;
+}
+.editor-ocr-hint {
+  font-size: 11px;
+  color: #6b7280;
+  text-align: center;
+  line-height: 1.45;
+  margin-top: 8px;
+}
+
+/* ── Couche texte pdf.js + recherche ── */
+.pdf-text-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  line-height: 1;
+  pointer-events: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  user-select: text;
+  -webkit-user-select: text;
+  --pdf-text-pe: auto;
+}
+.pdf-text-layer span,
+.pdf-text-layer br {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0 0;
+  pointer-events: var(--pdf-text-pe, auto);
+}
+.pdf-text-layer ::selection {
+  background: rgba(46, 255, 110, 0.35);
+  color: transparent;
+}
+.pdf-text-layer ::-moz-selection {
+  background: rgba(46, 255, 110, 0.35);
+  color: transparent;
+}
+.pdf-search-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+.pdf-search-mark {
+  position: absolute;
+  background: rgba(255, 220, 0, 0.45);
+  border-radius: 2px;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+/* ── Notes/commentaires en marge ── */
+.editor-comments-edge-hotspot {
+  position: absolute;
+  top: 44px;
+  bottom: 0;
+  left: 0;
+  width: 14px;
+  z-index: 81;
+  cursor: pointer;
+}
+.editor-comments-edge-hotspot::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2px;
+  height: 100%;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.16s ease;
+}
+.editor-comments-edge-hotspot:hover::after {
+  opacity: 1;
+}
+.editor-root.comments-panel-open .editor-comments-edge-hotspot {
+  pointer-events: none;
+}
+.editor-comments-panel {
+  position: absolute;
+  top: 44px;
+  bottom: 0;
+  left: 0;
+  width: var(--comments-sidebar-width);
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  background: #05070b;
+  border: none;
+  border-right: 1px solid #2a3347;
+  border-radius: 0;
+  box-shadow: none;
+  z-index: 80;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.2, 0, 0, 1);
+  will-change: transform;
+  pointer-events: none;
+}
+.editor-comments-panel.open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+.comments-panel-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid #2a3347;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.comments-panel-title {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+.comments-panel-subtitle {
+  margin-top: 2px;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 500;
+}
+.comments-panel-close {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.comments-panel-close:hover {
+  background: #1e2535;
+  color: #fff;
+}
+.comments-panel-list {
+  padding: 8px;
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.comments-panel-empty {
+  color: #9ca3af;
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 10px;
+}
+.comment-card {
+  background: #1e2535;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.comment-card.active {
+  border-color: var(--accent);
+  background: #202b3e;
+}
+.comment-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #9ca3af;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.comment-card-top button {
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 18px;
+}
+.comment-card-top button:hover {
+  background: #2a3347;
+  color: #fff;
+}
+.comment-card textarea {
+  width: 100%;
+  min-height: 58px;
+  resize: vertical;
+  background: #111827;
+  border: 1px solid #2a3347;
+  border-radius: 9px;
+  color: #fff;
+  outline: none;
+  padding: 7px 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+}
+.comment-card textarea:focus { border-color: var(--accent); }
+.comment-card textarea::placeholder { color: #6b7280; }
+
+.pdf-comment-anchor {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  transform: translate(-50%, -50%);
+  border: 2px solid #0d1117;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #0d1117;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 35;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.35);
+  padding: 0;
+}
+.pdf-comment-anchor.active {
+  outline: 3px solid rgba(46, 255, 110, 0.35);
+  box-shadow: 0 0 0 2px #fff, 0 6px 18px rgba(0,0,0,0.45);
+}
+
+/* La toolbar suit la sidebar des commentaires quand elle s'ouvre/se ferme.
+   Ne s'applique qu'en position par défaut : si l'utilisateur a traîné la
+   barre ailleurs, des `left`/`top` inline overridenènt ces règles. */
+.editor-root.comments-panel-open .toolbar-vertical {
+  left: calc(16px + var(--comments-sidebar-width) + var(--comments-rail-width));
+}
+.editor-root.comments-panel-open .toolbar-horizontal {
+  left: calc(50% + (var(--comments-sidebar-width) + var(--comments-rail-width)) / 2);
+}
+
+/* ─── Mode clair ─── */
+[data-theme="light"] .editor-root,
+[data-theme="light"] .editor-canvas { background: #f5f6f8; }
+/* .editor-app-root mode clair → promu vers SuiteShell.css */
+[data-theme="light"] .editor-topbar {
+  background: #ffffff;
+  border-bottom-color: #d1d5db;
+}
+[data-theme="light"] .topbar-logo,
+[data-theme="light"] .topbar-undo-redo,
+[data-theme="light"] .topbar-filename,
+[data-theme="light"] .topbar-right-group {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+[data-theme="light"] .editor-zoom {
+  background: #ffffff;
+  border-color: #d1d5db;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .topbar-logo,
+[data-theme="light"] .zoom-pages,
+[data-theme="light"] .zoom-value { color: #0d1117; }
+[data-theme="light"] .topbar-logo:hover,
+[data-theme="light"] .topbar-filename:hover,
+[data-theme="light"] .topbar-icon-btn:hover,
+[data-theme="light"] .zoom-btn:hover { background: #f0f1f5; color: #0d1117; }
+[data-theme="light"] .topbar-icon-btn,
+[data-theme="light"] .zoom-btn { color: #4b5563; }
+[data-theme="light"] .topbar-share-btn {
+  background: rgba(34, 197, 94, 0.10);
+  border-color: rgba(34, 197, 94, 0.34);
+  color: #16a34a;
+}
+[data-theme="light"] .topbar-share-btn:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 0.18);
+  border-color: rgba(34, 197, 94, 0.52);
+  color: #15803d;
+}
+[data-theme="light"] .topbar-filename,
+[data-theme="light"] .topbar-filename-input { color: #1f2937; }
+[data-theme="light"] .topbar-source {
+  border-color: #d1d5db;
+  color: #4b5563;
+}
+[data-theme="light"] .topbar-source-sep    { color: #9ca3af; }
+[data-theme="light"] .topbar-source-folder { color: #1f2937; }
+[data-theme="light"] .editor-page-wrapper { box-shadow: 0 4px 24px rgba(0,0,0,0.12); }
+/* Mode clair des onglets : promu vers SuiteShell.css. */
+
+[data-theme="light"] .editor-search,
+[data-theme="light"] .editor-comments-panel,
+[data-theme="light"] .editor-ocr-modal {
+  background: #ffffff;
+  border-color: #d1d5db;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+[data-theme="light"] .editor-search-input,
+[data-theme="light"] .comments-panel-title,
+[data-theme="light"] .editor-ocr-title { color: #0d1117; }
+[data-theme="light"] .editor-search-count,
+[data-theme="light"] .editor-ocr-status { color: #4b5563; }
+[data-theme="light"] .editor-search-btn,
+[data-theme="light"] .editor-search-close { color: #4b5563; }
+[data-theme="light"] .editor-search-btn:hover:not(:disabled),
+[data-theme="light"] .editor-search-close:hover { background: #f0f1f5; color: #0d1117; }
+
+[data-theme="light"] .pdf-text-layer ::selection { background: rgba(0, 100, 255, 0.25); color: transparent; }
+[data-theme="light"] .pdf-text-layer ::-moz-selection { background: rgba(0, 100, 255, 0.25); color: transparent; }
+[data-theme="light"] .pdf-search-mark { background: rgba(255, 220, 0, 0.55); }
+
+[data-theme="light"] .comments-panel-header { border-bottom-color: #e5e7eb; }
+[data-theme="light"] .comment-card { background: #f8fafc; }
+[data-theme="light"] .comment-card.active { background: #f0fff4; }
+[data-theme="light"] .comment-card textarea {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #0d1117;
+}
+
+/* ── Indicateur mémoire (Lot 7 — étape 5) ── */
+.mem-indicator {
+  position: fixed;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #161b27cc;
+  border: 1px solid #2a3347;
+  border-radius: 10px;
+  padding: 6px 10px;
+  color: #9ca3af;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  z-index: 11;
+  backdrop-filter: blur(8px);
+  font-variant-numeric: tabular-nums;
+  pointer-events: auto;
+  user-select: none;
+}
+.mem-indicator-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+  flex-shrink: 0;
+}
+.mem-indicator-label { color: #6b7280; }
+.mem-indicator-value { color: #d1d5db; }
+.mem-indicator-sep { color: #4b5563; }
+
+[data-theme="light"] .mem-indicator {
+  background: #ffffffcc;
+  border-color: #d1d5db;
+  color: #4b5563;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .mem-indicator-label { color: #9ca3af; }
+[data-theme="light"] .mem-indicator-value { color: #1f2937; }
+[data-theme="light"] .mem-indicator-sep { color: #d1d5db; }

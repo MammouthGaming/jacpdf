@@ -1,0 +1,5 @@
+/* JacNote/index.css
+ * Tous les styles de JacNote ont été déplacés vers JacNote.css.
+ * Conservé vide pour la compatibilité ascendante des imports.
+ * Chargé indirectement via `import './JacNote.css'` dans JacNoteApp.jsx.
+ */

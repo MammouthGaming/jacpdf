@@ -1,10 +1,59 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>jacpdf</title>
+    <link rel="icon" type="image/svg+xml" href="/logo/JacSuite.svg" />
+    <link rel="apple-touch-icon" href="/icons/jacsuite-192.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0d1117" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="JacSuite" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="description" content="Suite bureautique JacSuite — JacDoc, JacPDF, JacTâche, JacCalendrier, JacSlide, JacNote." />
+
+    <!-- Manifest PWA (item 5 du plan) -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Google Fonts — toutes les familles dispo dans le sélecteur FormatBar.
+         Une seule URL combinée pour minimiser les RTT. Les variants gras /
+         italique / gras-italique sont demandés pour les familles qui les
+         supportent (cf. ital,wght@...). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Comic+Neue:ital,wght@0,400;0,700;1,400;1,700&family=Concert+One&family=Dancing+Script:wght@400;700&family=Indie+Flower&family=Kameron:wght@400;700&family=Kreon:wght@400;700&family=Lexend:wght@400;700&family=Londrina+Outline&family=Merriweather:ital,wght@0,400;0,700;1,400;1,700&family=Montserrat:ital,wght@0,400;0,700;1,400;1,700&family=Mulish:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans+Condensed:wght@300;700&family=Oswald:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Playwrite+US+Modern&family=Playwrite+US+Trad&family=Poiret+One&family=Poppins:ital,wght@0,400;0,700;1,400;1,700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=PT+Sans+Narrow:wght@400;700&family=Quicksand:wght@400;700&family=Raleway+Dots&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&family=Roboto+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Short+Stack&family=Sniglet:wght@400;800&family=Teachers:ital,wght@0,400;0,700;1,400;1,700&family=Titillium+Web:ital,wght@0,400;0,700;1,400;1,700&family=Ubuntu:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    />
+
+    <!-- OpenDyslexic (hors Google Fonts) — servi depuis le repo officiel
+         antijingoist/opendyslexic via le CDN jsdelivr. -->
+    <style>
+      @font-face {
+        font-family: 'Open Dyslexic';
+        src: url('https://cdn.jsdelivr.net/gh/antijingoist/opendyslexic/compiled/OpenDyslexic-Regular.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Open Dyslexic';
+        src: url('https://cdn.jsdelivr.net/gh/antijingoist/opendyslexic/compiled/OpenDyslexic-Bold.otf') format('opentype');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Open Dyslexic';
+        src: url('https://cdn.jsdelivr.net/gh/antijingoist/opendyslexic/compiled/OpenDyslexic-Italic.otf') format('opentype');
+        font-weight: 400;
+        font-style: italic;
+        font-display: swap;
+      }
+    </style>
+
+    <title>JacSuite</title>
   </head>
   <body>
     <div id="root"></div>

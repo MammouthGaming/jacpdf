@@ -1,0 +1,179 @@
+/* ============================================
+   JacdocDriveFilePicker — popup Google Drive JacDoc
+   Style aligné sur le DriveFilePicker JacPDF.
+   Classes: .jdd-* + compat .dfp-* dans le JSX
+   ============================================ */
+
+.jdd-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: jdd-fade-in 0.18s ease-out;
+  font-family: 'Inter', sans-serif;
+}
+
+@keyframes jdd-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.jdd-modal {
+  width: min(560px, 92vw);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #2a3347;
+  border-radius: 12px;
+  background: #161b27;
+  color: #e5e7eb;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: jdd-slide-up 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes jdd-slide-up {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.jdd-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #2a3347;
+  flex-shrink: 0;
+}
+
+.jdd-header > div {
+  min-width: 0;
+}
+
+.jdd-header h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.jdd-header p {
+  margin: 4px 0 0;
+  color: #9ca3af;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.jdd-close {
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.jdd-close:hover {
+  background: #1e2535;
+  color: #ffffff;
+}
+
+.jdd-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.jdd-empty p {
+  margin: 0;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.jdd-empty small {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.jdd-primary {
+  width: fit-content;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent, #39FF14);
+  color: #000;
+  padding: 10px 18px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.jdd-primary:hover {
+  background: var(--accent-hover, #2bcc11);
+}
+
+.jdd-primary:active {
+  transform: scale(0.98);
+}
+
+/* Compat : si le composant garde aussi les classes dfp-*, ce fichier reste
+   autonome même si DriveFilePicker.css JacPDF n'est pas importé ou pas copié. */
+.dfp-overlay.jdd-overlay,
+.dfp-modal.jdd-modal,
+.dfp-header.jdd-header,
+.dfp-empty.jdd-empty {
+  box-sizing: border-box;
+}
+
+.dfp-close.jdd-close,
+.dfp-btn-primary.jdd-primary {
+  font-family: inherit;
+}
+
+@media (max-width: 600px) {
+  .jdd-modal {
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+}
+
+[data-theme="light"] .jdd-modal {
+  background: #ffffff;
+  border-color: #d1d5db;
+}
+
+[data-theme="light"] .jdd-header {
+  border-bottom-color: #e5e7eb;
+}
+
+[data-theme="light"] .jdd-header h2 {
+  color: #0d1117;
+}
+
+[data-theme="light"] .jdd-header p,
+[data-theme="light"] .jdd-close,
+[data-theme="light"] .jdd-empty p {
+  color: #4b5563;
+}
+
+[data-theme="light"] .jdd-close:hover {
+  background: #f0f1f5;
+  color: #0d1117;
+}

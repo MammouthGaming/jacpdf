@@ -1,0 +1,211 @@
+/* ============================================================
+   FriendActivityFeed — section « Activité des amis » sur HomeContent
+   ============================================================ */
+
+.faf-section {
+  width: 100%;
+  max-width: 900px;
+  margin-bottom: 32px;
+}
+
+.faf-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.faf-header svg { color: #9ca3af; }
+
+.faf-empty {
+  background: #161b27;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.faf-empty span {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.faf-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.faf-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #161b27;
+  border-radius: 12px;
+  padding: 10px 14px;
+  transition: background 0.2s;
+}
+.faf-item:hover { background: #1e2535; }
+
+/* Avatar circulaire avec dot vert en bas-droite (style Kami / Spotify online).
+   overflow:visible pour que le dot dépasse légèrement du cercle ; sinon il
+   serait coupé par le border-radius:50% du conteneur. */
+.faf-avatar {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  flex-shrink: 0;
+}
+.faf-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+.faf-avatar-initials {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Dot vert online — anneau de séparation assorti au fond du card pour
+   le distinguer visuellement (sinon il se confondrait au hover). */
+.faf-online-dot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #39FF14;
+  box-shadow: 0 0 0 2px #161b27;
+}
+.faf-item:hover .faf-online-dot {
+  box-shadow: 0 0 0 2px #1e2535;
+}
+
+/* Phase 5.1 — Activité passée (ami plus en ligne mais row gardée jusqu'à
+   24 h pour afficher « a édité X · il y a 5 min »). Dot gris sans glow,
+   nom de l'ami légèrement atténué pour le distinguer d'une activité live. */
+.faf-online-dot-offline {
+  background: #6b7280;
+}
+.faf-item-offline .faf-name {
+  opacity: 0.85;
+}
+
+.faf-content {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #e7ecf5;
+  /* Permet le wrap d'un nom de doc très long sans casser le layout. */
+  overflow-wrap: break-word;
+}
+.faf-name {
+  font-weight: 600;
+  color: #fff;
+}
+.faf-action {
+  color: #9ca3af;
+}
+.faf-doc {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #e7ecf5;
+}
+
+.faf-time {
+  font-size: 11px;
+  color: #6b7280;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Light theme overrides
+   ============================================================ */
+
+[data-theme="light"] .faf-header { color: #0d1117; }
+[data-theme="light"] .faf-header svg { color: #6b7280; }
+
+[data-theme="light"] .faf-item,
+[data-theme="light"] .faf-empty {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .faf-item:hover { background: #f0f1f5; }
+[data-theme="light"] .faf-empty span { color: #9ca3af; }
+
+[data-theme="light"] .faf-content { color: #1f2937; }
+[data-theme="light"] .faf-name { color: #0d1117; }
+[data-theme="light"] .faf-action { color: #6b7280; }
+[data-theme="light"] .faf-doc {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1f2937;
+}
+
+[data-theme="light"] .faf-online-dot { box-shadow: 0 0 0 2px #ffffff; }
+[data-theme="light"] .faf-item:hover .faf-online-dot {
+  box-shadow: 0 0 0 2px #f0f1f5;
+}
+[data-theme="light"] .faf-online-dot-offline { background: #9ca3af; }
+
+/* ============================================================
+   Affordances cliquables (Phase 6 — accueil interactif)
+   ============================================================
+   Quand FriendActivityFeed reçoit onOpenProfile / onOpenFile, le nom de
+   l'ami et le nom du PDF deviennent cliquables. On marque visuellement
+   ces zones avec cursor:pointer + un effet hover (couleur d'accent)
+   pour signaler l'affordance — sans changer le layout (pas de bordure,
+   pas de padding) pour rester discret. */
+
+.faf-name-clickable {
+  cursor: pointer;
+  outline: none;
+  border-radius: 3px;
+  transition: color 0.15s;
+}
+.faf-name-clickable:hover {
+  color: var(--accent);
+}
+.faf-name-clickable:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.faf-doc-clickable {
+  cursor: pointer;
+  outline: none;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+}
+.faf-doc-clickable:hover {
+  background: rgba(var(--accent-rgb), 0.18);
+  color: var(--accent);
+}
+.faf-doc-clickable:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.faf-doc-clickable:active {
+  transform: scale(0.97);
+}
+
+[data-theme="light"] .faf-doc-clickable:hover {
+  background: rgba(var(--accent-rgb), 0.13);
+  color: var(--accent);
+}

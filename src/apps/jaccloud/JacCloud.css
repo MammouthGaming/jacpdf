@@ -1,0 +1,1445 @@
+.jaccloud {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #0f1420;
+  color: #e5e7eb;
+  font-family: Inter, sans-serif;
+}
+
+/* ----- Top bar (style Google Drive) ----- */
+.jaccloud__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  flex-shrink: 0;
+  padding: 0 16px;
+  border-bottom: 1px solid #2a3347;
+  background: #0c111b;
+}
+
+.jaccloud__topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.jaccloud__topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.jaccloud__topbtn {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #d1d5db;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.jaccloud__topbtn:hover {
+  background: #1e2535;
+  color: #fff;
+}
+
+.jaccloud__topbadge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.jaccloud__profile-btn {
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #2a3347;
+}
+
+.jaccloud__profile-btn:hover {
+  background: transparent;
+}
+
+.jaccloud__profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.jaccloud__profile-initial {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ----- Menu « Applications » (grille 9 points) ----- */
+.jaccloud__topbtn.is-active {
+  background: #1e2535;
+  color: #fff;
+}
+
+.jaccloud__apps-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.jaccloud__apps-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.jaccloud__apps-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  width: 300px;
+  padding: 12px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+.jaccloud__apps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.jaccloud__apps-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 6px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #d1d5db;
+  font-family: Inter, sans-serif;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.jaccloud__apps-tile:hover {
+  background: #1e2535;
+}
+
+.jaccloud__apps-tile-icon {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jaccloud__apps-tile-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.jaccloud__apps-tile-label {
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.jaccloud__apps-tile-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 1px 5px;
+  border-radius: 9999px;
+  background: #2a3347;
+  color: #9ca3af;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+/* ----- Corps : sidebar + contenu ----- */
+.jaccloud__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+/* ----- Sidebar (style Google Drive) ----- */
+.jaccloud__sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 10px;
+  border-right: 1px solid #2a3347;
+  background: #0c111b;
+  overflow-y: auto;
+}
+
+.jaccloud__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px 8px;
+}
+
+.jaccloud__logo-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.jaccloud__logo-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.jaccloud__new {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  align-self: flex-start;
+  padding: 12px 20px 12px 16px;
+  margin-bottom: 8px;
+  border: 1px solid #2a3347;
+  border-radius: 16px;
+  background: #161b27;
+  color: #e5e7eb;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.jaccloud__new:hover:not(:disabled) {
+  background: #1e2535;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+}
+
+.jaccloud__new:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.jaccloud__new.is-open {
+  background: #1e2535;
+}
+
+/* ----- Menu « Nouveau » (style Google Drive) ----- */
+.jaccloud__new-wrapper {
+  position: relative;
+  align-self: flex-start;
+  margin-bottom: 8px;
+}
+
+.jaccloud__new-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.jaccloud__new-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 50;
+  min-width: 250px;
+  padding: 8px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+.jaccloud__new-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #e5e7eb;
+  font-size: 14px;
+  font-family: Inter, sans-serif;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.jaccloud__new-item:hover {
+  background: #1e2535;
+}
+
+.jaccloud__new-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #d1d5db;
+}
+
+.jaccloud__new-item-icon svg {
+  display: block;
+}
+
+.jaccloud__new-sep {
+  height: 1px;
+  background: #2a3347;
+  margin: 6px 4px;
+}
+
+.jaccloud__new-plus {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.jaccloud__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.jaccloud__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 9px 14px;
+  border: none;
+  border-radius: 9999px;
+  background: transparent;
+  color: #d1d5db;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.jaccloud__nav-item:hover:not(.is-disabled):not(.is-active) {
+  background: #161b27;
+}
+
+.jaccloud__nav-item.is-active {
+  background: #143452;
+  color: #bfe0ff;
+  font-weight: 600;
+}
+
+.jaccloud__nav-item.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.jaccloud__nav-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+
+.jaccloud__nav-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jaccloud__nav-count {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.jaccloud__nav-item.is-active .jaccloud__nav-count {
+  color: #bfe0ff;
+}
+
+.jaccloud__nav-sep {
+  height: 1px;
+  background: #2a3347;
+  margin: 8px 12px;
+}
+
+.jaccloud__nav-heading {
+  padding: 4px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+/* Titre « Applications » repliable (flèche à gauche). */
+.jaccloud__nav-heading-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family: Inter, sans-serif;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.jaccloud__nav-heading-btn:hover {
+  color: #9ca3af;
+}
+
+.jaccloud__nav-heading-caret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-90deg);
+  transition: transform 0.15s ease;
+}
+
+.jaccloud__nav-heading-caret.is-open {
+  transform: rotate(0deg);
+}
+
+.jaccloud__nav-heading-caret svg {
+  display: block;
+}
+
+.jaccloud__storage {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font-family: Inter, sans-serif;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.jaccloud__storage:hover {
+  background: #161b27;
+}
+
+.jaccloud__storage.is-active {
+  background: #143452;
+  border-color: #39507a;
+}
+
+.jaccloud__storage-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #d1d5db;
+  margin-bottom: 10px;
+}
+
+.jaccloud__storage-bar {
+  height: 6px;
+  border-radius: 9999px;
+  background: #2a3347;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.jaccloud__storage-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #38bdf8, var(--accent, #0EA5E9));
+  transition: width 0.3s ease;
+}
+
+.jaccloud__storage-label {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* ----- Accueil (style Google Drive « Bienvenue ») ----- */
+.jaccloud__home {
+  display: flex;
+  flex-direction: column;
+}
+
+.jaccloud__home-title {
+  margin: 8px 0 24px;
+  text-align: center;
+  font-size: 26px;
+  font-weight: 400;
+  color: #f3f4f6;
+}
+
+.jaccloud__home-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto 16px;
+}
+
+.jaccloud__home-search-icon {
+  position: absolute;
+  left: 16px;
+  display: flex;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.jaccloud__home-search-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 16px 12px 46px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 9999px;
+  color: #fff;
+  font-size: 15px;
+  font-family: Inter, sans-serif;
+  outline: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.jaccloud__home-search-input:focus {
+  background: #1e2535;
+  border-color: var(--accent, #0EA5E9);
+}
+
+.jaccloud__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.jaccloud__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid #2a3347;
+  border-radius: 9999px;
+  background: transparent;
+  color: #d1d5db;
+  font-size: 13px;
+  font-family: Inter, sans-serif;
+  cursor: pointer;
+}
+
+.jaccloud__chip:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ----- Filtres de l'accueil (menus déroulants custom) ----- */
+.jaccloud__filter {
+  position: relative;
+  display: inline-flex;
+}
+
+.jaccloud__chip:hover {
+  background: #161b27;
+  border-color: #39507a;
+}
+
+.jaccloud__chip.is-active {
+  background: #143452;
+  border-color: #39507a;
+  color: #bfe0ff;
+}
+
+.jaccloud__chip.is-open {
+  border-color: #39507a;
+}
+
+.jaccloud__filter-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.jaccloud__filter-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 50;
+  min-width: 200px;
+  padding: 6px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+.jaccloud__filter-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #d1d5db;
+  font-size: 13px;
+  font-family: Inter, sans-serif;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.jaccloud__filter-opt:hover {
+  background: #1e2535;
+  color: #fff;
+}
+
+.jaccloud__filter-opt.is-selected {
+  color: #bfe0ff;
+}
+
+.jaccloud__filter-check {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent, #0EA5E9);
+}
+
+.jaccloud__filter-check svg {
+  display: block;
+}
+
+.jaccloud__filter-opt-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.jaccloud__chip-caret {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.jaccloud__sugg {
+  margin-bottom: 28px;
+}
+
+.jaccloud__sugg-head {
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.jaccloud__folder-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.jaccloud__folder-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #2a3347;
+  border-radius: 12px;
+  background: #161b27;
+  color: #e5e7eb;
+  font-family: Inter, sans-serif;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.jaccloud__folder-card:hover {
+  background: #1e2535;
+  border-color: #39507a;
+}
+
+.jaccloud__folder-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.jaccloud__folder-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.jaccloud__folder-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jaccloud__folder-sub {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.jaccloud__file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.jaccloud__file-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #2a3347;
+  border-radius: 12px;
+  background: #161b27;
+  color: #e5e7eb;
+  font-family: Inter, sans-serif;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.jaccloud__file-card:hover {
+  background: #1e2535;
+  border-color: #39507a;
+}
+
+.jaccloud__file-card--readonly {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.jaccloud__file-card--readonly:hover {
+  background: #161b27;
+  border-color: #2a3347;
+}
+
+.jaccloud__file-card-icon {
+  font-size: 26px;
+}
+
+.jaccloud__file-card-name {
+  font-size: 14px;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jaccloud__file-card-sub {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* ----- Vue « Espace de stockage » ----- */
+.jaccloud__storageview {
+  display: flex;
+  flex-direction: column;
+}
+
+.jaccloud__storageview-bar {
+  display: flex;
+  width: 100%;
+  height: 12px;
+  margin: 4px 0 12px;
+  border-radius: 9999px;
+  background: #2a3347;
+  overflow: hidden;
+}
+
+.jaccloud__storageview-seg {
+  height: 100%;
+}
+
+.jaccloud__storageview-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.jaccloud__storageview-legenditem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.jaccloud__storageview-dot {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.jaccloud__sizelist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.jaccloud__sizerow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #1c2433;
+}
+
+.jaccloud__sizerow--head {
+  border-bottom: 1px solid #2a3347;
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.jaccloud__sizerow.is-openable {
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.jaccloud__sizerow.is-openable:hover {
+  background: #1e2535;
+}
+
+.jaccloud__sizecell-name {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #e5e7eb;
+}
+
+.jaccloud__sizecell-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.jaccloud__sizecell-size {
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #9ca3af;
+  text-align: right;
+}
+
+/* Bouton étoile (favori) dans les listes — doré si actif, atténué sinon. */
+.jaccloud__starbtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+.jaccloud__sizerow:hover .jaccloud__starbtn { opacity: 1; }
+.jaccloud__starbtn:hover { background: #243049; color: #fff; }
+.jaccloud__starbtn.is-starred { opacity: 1; color: #f5c518; }
+.jaccloud__starbtn svg { display: block; }
+.jaccloud__sizecell-star { flex-shrink: 0; width: 30px; }
+
+/* Corbeille : actions par ligne (restaurer / supprimer définitivement). */
+.jaccloud__sizecell-trashactions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 72px;
+  justify-content: flex-end;
+}
+
+.jaccloud__trashbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.jaccloud__trashbtn:hover {
+  background: #243049;
+  color: #fff;
+}
+
+.jaccloud__trashbtn--danger:hover {
+  background: #2a1115;
+  color: #fecaca;
+}
+
+.jaccloud__trashbtn svg {
+  display: block;
+}
+
+/* En-tête : groupe d'actions (ex. « Vider la corbeille » + actualiser). */
+.jaccloud__header-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.jaccloud__emptytrash {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid #7c2d2d;
+  border-radius: 8px;
+  background: #2a1115;
+  color: #fecaca;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: Inter, sans-serif;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.jaccloud__emptytrash:hover {
+  background: #3a1518;
+  color: #fee2e2;
+}
+
+.jaccloud__emptytrash svg {
+  display: block;
+}
+
+/* ----- Zone principale ----- */
+.jaccloud__main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.jaccloud__inner {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+.jaccloud__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.jaccloud__brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.jaccloud__brand-icon {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.jaccloud__title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.jaccloud__subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.jaccloud__refresh {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #2a3347;
+  background: #161b27;
+  color: #d1d5db;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.jaccloud__refresh:hover {
+  background: #1e2535;
+  color: #fff;
+}
+
+.jaccloud__stats {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.jaccloud__stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 10px;
+}
+
+.jaccloud__stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.jaccloud__stat-label {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.jaccloud__search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  margin-bottom: 24px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-family: Inter, sans-serif;
+  outline: none;
+}
+
+.jaccloud__search:focus {
+  border-color: var(--accent, #0EA5E9);
+}
+
+.jaccloud__empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 14px;
+  background: #161b27;
+  border: 1px dashed #2a3347;
+  border-radius: 10px;
+}
+
+.jaccloud__empty--error {
+  color: #fecaca;
+  border-color: #7c2d2d;
+  background: #2a1115;
+}
+
+.jaccloud__group {
+  margin-bottom: 24px;
+}
+
+.jaccloud__group-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px 10px;
+  border-bottom: 1px solid #2a3347;
+  margin-bottom: 8px;
+}
+
+.jaccloud__group-icon {
+  font-size: 18px;
+}
+
+.jaccloud__group-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.jaccloud__group-meta {
+  margin-left: auto;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.jaccloud__files {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.jaccloud__file {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #131825;
+  border: 1px solid transparent;
+}
+
+.jaccloud__file[role='button'] {
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.jaccloud__file[role='button']:hover {
+  background: #1e2535;
+  border-color: #2a3347;
+}
+
+.jaccloud__file--readonly {
+  opacity: 0.7;
+}
+
+.jaccloud__file-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.jaccloud__file-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #e5e7eb;
+}
+
+.jaccloud__file-size {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* ----- Icônes SVG / logos d'app (remplacent les anciens emojis) ----- */
+.jaccloud__logo-img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  display: block;
+}
+
+.jaccloud__appicon {
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.jaccloud__nav-icon,
+.jaccloud__storage-icon,
+.jaccloud__folder-icon,
+.jaccloud__file-card-icon,
+.jaccloud__sizecell-icon,
+.jaccloud__group-icon,
+.jaccloud__file-icon,
+.jaccloud__new-plus,
+.jaccloud__chip-caret,
+.jaccloud__refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jaccloud__nav-icon svg,
+.jaccloud__storage-icon svg,
+.jaccloud__folder-icon svg,
+.jaccloud__file-card-icon svg,
+.jaccloud__sizecell-icon svg,
+.jaccloud__group-icon svg,
+.jaccloud__file-icon svg,
+.jaccloud__new-plus svg,
+.jaccloud__chip-caret svg,
+.jaccloud__refresh svg {
+  display: block;
+}
+
+/* ----- Menu d'actions par fichier (⋮) ----- */
+.jaccloud__rowmenu {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+}
+
+.jaccloud__rowmenu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.jaccloud__rowmenu-btn:hover,
+.jaccloud__rowmenu-btn.is-open {
+  background: #243049;
+  color: #fff;
+}
+
+.jaccloud__rowmenu-btn svg {
+  display: block;
+}
+
+.jaccloud__rowmenu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.jaccloud__rowmenu-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 50;
+  min-width: 190px;
+  padding: 6px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+.jaccloud__rowmenu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #e5e7eb;
+  font-size: 13px;
+  font-family: Inter, sans-serif;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.jaccloud__rowmenu-item:hover {
+  background: #1e2535;
+}
+
+.jaccloud__rowmenu-item--danger {
+  color: #f87171;
+}
+
+.jaccloud__rowmenu-item--danger:hover {
+  background: #2a1115;
+  color: #fecaca;
+}
+
+.jaccloud__rowmenu-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+}
+
+.jaccloud__rowmenu-icon svg {
+  display: block;
+}
+
+.jaccloud__rowmenu-sep {
+  height: 1px;
+  background: #2a3347;
+  margin: 6px 4px;
+}
+
+/* ----- Dialogues (renommer / supprimer / nouveau dossier) ----- */
+.jaccloud__dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.jaccloud__dialog {
+  width: 100%;
+  max-width: 420px;
+  padding: 22px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 14px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.6);
+}
+
+.jaccloud__dialog-title {
+  margin: 0 0 14px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.jaccloud__dialog-text {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.jaccloud__dialog-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  background: #0f1420;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-family: Inter, sans-serif;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.jaccloud__dialog-input:focus {
+  border-color: var(--accent, #0EA5E9);
+}
+
+.jaccloud__dialog-error {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #fecaca;
+}
+
+.jaccloud__dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.jaccloud__dialog-btn {
+  padding: 9px 16px;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  background: #1e2535;
+  color: #e5e7eb;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: Inter, sans-serif;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.jaccloud__dialog-btn:hover:not(:disabled) {
+  background: #243049;
+}
+
+.jaccloud__dialog-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.jaccloud__dialog-btn--primary {
+  background: #143452;
+  border-color: #39507a;
+  color: #bfe0ff;
+}
+
+.jaccloud__dialog-btn--primary:hover:not(:disabled) {
+  background: #1b4a73;
+}
+
+.jaccloud__dialog-btn--danger {
+  background: #7c2d2d;
+  border-color: #a23b3b;
+  color: #fee2e2;
+}
+
+.jaccloud__dialog-btn--danger:hover:not(:disabled) {
+  background: #9a3838;
+}
+
+/* ----- Toast de succès ----- */
+.jaccloud__toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  z-index: 70;
+  max-width: 92%;
+  padding: 12px 18px;
+  background: #1b2233;
+  border: 1px solid #39507a;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  color: #e5e7eb;
+  font-size: 13px;
+}

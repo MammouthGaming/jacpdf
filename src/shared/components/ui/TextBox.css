@@ -1,0 +1,366 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.textbox {
+  position: absolute;
+  cursor: move;
+  user-select: none;
+  /* touch-action: none — sur tactile, empêche le navigateur d'interpréter le
+     drag d'une textbox comme un scroll de la page (Lot 4). Sans ça, après
+     pointerdown le browser fire pointercancel et le drag ne marche pas. */
+  touch-action: none;
+  /* Pas de min en CSS — gérés en JS (autoSize + resize handlers) et scalés
+     selon le zoom pour rester 80×40 px visuels peu importe le niveau de zoom.
+     Un min en CSS bloquait la box à 80 PDF pt même quand on créait à 40 PDF pt
+     (zoom 200%) → la box poppait à 2× sa taille visuelle initiale. */
+  /* Pas de padding sur le wrapper : la border 10px transparente fait
+     déjà la zone de grab, ajouter un padding par-dessus crée juste un
+     vide visible entre la bordure verte (outline) et le textarea. */
+  padding: 0;
+  /* CRUCIAL : on utilise une vraie border (et pas outline) à cause de
+     la hit area. outline est peint EN DEHORS de la box et les clics
+     dessus passent à travers vers le PDF en dessous — c'est pour ça
+     que cliquer sur le contour vert ne déclenchait jamais le drag.
+     Une border fait partie de la box, donc les 10px verts sont
+     aussi une zone cliquable qui déclenche handleDrag sur le wrapper.
+     10px = poignée de drag bien grasse, on peut grabber le contour
+     sans avoir à viser pile-poil le 1px de contour. */
+  border: 10px solid transparent;
+  border-radius: 2px;
+  /* border-box pour que width/minHeight inline (= dimensions totales)
+     incluent la border + le padding, et que le textarea border-box à
+     width:100% reste à l'intérieur du wrapper sans déborder dans la
+     zone de drag. */
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+  z-index: 10;
+}
+
+.textbox.selected,
+.textbox:hover {
+  /* On garde la border 10px transparente (zone de grab invisible)
+     et on dessine la bordure visible 2px via outline avec un offset
+     négatif pour qu'elle se place à l'intérieur, au ras du contenu.
+     Résultat : visuellement identique à avant (fin trait vert 2px),
+     mais la poignée de drag fait toujours 10px de large autour.
+
+     Hover : quand une textbox n'est pas sélectionnée, son contour
+     apparaît au survol pour signaler clairement la zone cliquable /
+     déplaçable, style Kami. */
+  outline: 2px solid var(--accent);
+  outline-offset: -10px;
+}
+
+.textbox-content {
+  padding: 6px 8px;
+  min-height: 0;
+  box-sizing: border-box;
+  word-break: break-word;
+  white-space: pre-wrap;
+  cursor: text;
+  user-select: text;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* contentEditable div remplaçant le textarea — supporte le texte enrichi
+   (B/I/U/S/sub/sup par sélection via document.execCommand). Mêmes
+   contraintes de layout que .textbox-textarea : absolute + inset:0 pour
+   ne pas pousser le wrapper. */
+.textbox-editable {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 6px 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: inherit;
+  cursor: text;
+  user-select: text;
+  display: block;
+  word-break: break-word;
+  overflow: hidden;
+  white-space: pre-wrap;
+}
+
+/* Mode autoSize : pas de wrap (la box grandit horizontalement avec le
+   texte le plus long). Bascule à pre-wrap par défaut quand autoSize=false. */
+.textbox-editable.no-wrap {
+  white-space: pre;
+}
+
+/* Bulletproof reset : neutralise tout outline/border/box-shadow que le
+   browser pourrait dessiner sur le contentEditable focus ou ses
+   descendants. Chrome/Firefox dessinent parfois une focus-ring sur les
+   <div> auto-insérés (après un Enter dans contentEditable) ou un cadre
+   de spell-check, malgré outline:none de base — d'où le bug « box dans
+   la box » visible à l'édition. */
+.textbox-editable:focus,
+.textbox-editable:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+.textbox-editable *,
+.textbox-editable *:focus,
+.textbox-editable *:focus-visible {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+.textbox-editable div,
+.textbox-editable p {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/* Listes ordonnées / à puces : style explicite pour que les markers « 1. »,
+   « 2. », « • » soient toujours visibles même si un reset global de l'app
+   les avait cachés. padding-left assez grand pour que les markers ne soient
+   pas clip par overflow:hidden de l'éditable. */
+.textbox-editable ol {
+  list-style: decimal outside;
+  padding-left: 28px;
+  margin: 0;
+}
+.textbox-editable ul {
+  list-style: disc outside;
+  padding-left: 28px;
+  margin: 0;
+}
+.textbox-editable li {
+  display: list-item;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── Slots éditables des templates math (cf. MATH_TEMPLATES dans
+   FormatBar.jsx) ───
+   Visuel gris pour signaler "ici tu peux taper" à la Kami. Le ZWSP à
+   l'intérieur du span donne une position de caret valide quand le slot
+   est vide ; dès que l'utilisateur tape, le texte apparaît à côté du
+   ZWSP. min-width/min-height assurent que le rectangle gris reste
+   visible même quand le slot ne contient que le ZWSP (donc visuellement
+   vide). vertical-align:baseline pour ne pas casser l'alignement avec
+   le texte autour, notamment dans les <sub>/<sup> des fractions.
+
+   IMPORTANT : on cible [data-math-slot] (selector d'attribut) plutôt que
+   .math-slot (selector de classe) parce que execCommand('insertHTML')
+   dans Chrome STRIPPE les attributs `class` (sanitizer interne) mais
+   PRÉSERVE les attributs `data-*`. Avec un selector de classe les slots
+   restaient invisibles à l'édition.
+
+   Couvre les deux modes :
+   - .textbox-editable : pendant l'édition (contentEditable)
+   - .textbox-content : en lecture (rendu via dangerouslySetInnerHTML).
+   Ce neutralise aussi la règle .textbox-editable * { background:
+   transparent !important; } définie plus haut, qui sinon écraserait
+   notre fond gris. !important nécessaire pour gagner contre l'autre. */
+.textbox-editable [data-math-slot],
+.textbox-content [data-math-slot] {
+  display: inline-block !important;
+  min-width: 14px;
+  min-height: 1em;
+  background: rgba(150, 150, 150, 0.28) !important;
+  border-radius: 3px;
+  padding: 0 3px;
+  margin: 0 1px;
+  vertical-align: baseline;
+}
+
+/* En thème clair, on éclaircit le gris pour qu'il reste discret sur fond
+   blanc tout en étant visible. */
+[data-theme="light"] .textbox-editable [data-math-slot],
+[data-theme="light"] .textbox-content [data-math-slot] {
+  background: rgba(75, 85, 99, 0.18) !important;
+}
+
+/* ─── Fraction empilée (template "frac-stacked" du picker math) ───
+   Structure HTML produite par le template :
+     <span data-math-fraction="wrap">
+       <span data-math-slot="new">[ZWSP]</span>     ← numérateur
+       <span data-math-fraction="bar"></span>       ← barre
+       <span data-math-slot="new">[ZWSP]</span>     ← dénominateur
+     </span>
+
+   On utilise inline-flex direction:column pour stacker les 3 enfants
+   verticalement. align-items:stretch garantit que la barre et les slots
+   ont tous la même largeur (= largeur intrinsèque du plus large slot).
+   vertical-align:middle aligne la fraction au milieu de la ligne de
+   texte autour, comme le ferait MathJax/KaTeX.
+
+   On cible [data-math-fraction] (attribute selector) pour la même raison
+   que les slots : Chrome strippe les classes via insertHTML mais
+   préserve les attributs data-*. !important nécessaire pour battre la
+   règle .textbox-editable * { background: transparent !important }. */
+.textbox-editable [data-math-fraction="wrap"],
+.textbox-content [data-math-fraction="wrap"] {
+  display: inline-flex !important;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  vertical-align: middle;
+  margin: 0 2px;
+  font-size: 0.9em;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.textbox-editable [data-math-fraction="bar"],
+.textbox-content [data-math-fraction="bar"] {
+  display: block !important;
+  height: 0;
+  border-top: 1px solid currentColor;
+  margin: 1px 0;
+  background: transparent !important;
+}
+
+/* Slots à l'intérieur d'une fraction empilée : on force display:block
+   (au lieu du inline-block global) pour qu'ils s'empilent dans le flex
+   colonne au lieu de s'aligner horizontalement. La spécificité (1
+   classe + 2 attrs = 0,3,0) bat le selector global (0,2,0). */
+.textbox-editable [data-math-fraction="wrap"] [data-math-slot],
+.textbox-content [data-math-fraction="wrap"] [data-math-slot] {
+  display: block !important;
+  margin: 0 auto !important;
+  min-width: 1em !important;
+  text-align: center;
+}
+
+/* Sub/sup en taille réduite — explicite pour cohérence cross-browser. */
+.textbox-editable sub,
+.textbox-content sub { font-size: 0.7em; vertical-align: sub; }
+.textbox-editable sup,
+.textbox-content sup { font-size: 0.7em; vertical-align: super; }
+
+.textbox-textarea {
+  /* position: absolute + inset: 0 = le textarea remplit EXACTEMENT la zone
+     interne du wrapper (padding-box = contenu, car wrapper n'a pas de padding,
+     juste la border 10px transparente). Crucial : en étant absolute, il est
+     retiré du flow normal → il ne peut PAS pousser le wrapper, peu importe
+     son contenu, son scrollHeight, ou un min-height user-agent du navigateur.
+     Avec height: 100% + normal flow, certains navigateurs laissaient le
+     contenu intrinsèque du textarea affecter la résolution → pendant un
+     resize TR en mode édition, le bas ne restait pas ancré. */
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  padding: 6px 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: inherit;
+  cursor: text;
+  display: block;
+}
+
+/* Handles */
+.textbox .tb-handle,
+.textbox .tb-handle-rotate-area,
+.textbox .tb-rotate-resize {
+  opacity: 0;
+  pointer-events: none;
+  transition: none;
+}
+
+.textbox.selected .tb-handle,
+.textbox.selected .tb-handle-rotate-area,
+.textbox.selected .tb-rotate-resize,
+.textbox:hover .tb-handle,
+.textbox:hover .tb-handle-rotate-area,
+.textbox:hover .tb-rotate-resize {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tb-handle {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+}
+
+/* Delete — top left */
+.tb-handle-delete {
+  top: -11px;
+  left: -11px;
+  background: #e74c3c;
+  border: 2px solid #fff;
+  color: #fff;
+}
+.tb-handle-delete:hover { background: #c0392b; }
+
+/* Resize top-right */
+.tb-handle-tr {
+  top: -11px;
+  right: -11px;
+  background: var(--accent);
+  border: 2px solid #fff;
+  color: #000;
+  cursor: nesw-resize;
+}
+
+/* Resize bottom-right */
+.tb-handle-br {
+  bottom: -11px;
+  right: -11px;
+  background: var(--accent);
+  border: 2px solid #fff;
+  color: #000;
+  cursor: nwse-resize;
+}
+
+/* Rotation circle — top-right quadrant hidden (overlaps textbox) */
+.tb-handle-rotate-area {
+  position: absolute;
+  bottom: -30px;
+  left: -30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2.5px solid var(--accent);
+  background: rgba(var(--accent-rgb), 0.07);
+  box-shadow: 0 0 14px rgba(var(--accent-rgb), 0.33);
+  cursor: grab;
+  z-index: 15;
+  clip-path: polygon(0% 0%, 50% 0%, 50% 50%, 100% 50%, 100% 100%, 0% 100%);
+}
+
+.tb-handle-rotate-area:active { cursor: grabbing; }
+
+/* Resize icon at center of circle = corner of textbox */
+.tb-rotate-resize {
+  position: absolute;
+  top: calc(50% - 10px);
+  left: calc(50% - 10px);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: nwse-resize;
+  z-index: 25;
+}
+
+/* ─── Mode clair ─── */
+[data-theme="light"] .tb-handle-delete { border-color: #ffffff; }
+[data-theme="light"] .tb-handle-tr,
+[data-theme="light"] .tb-handle-br { border-color: #ffffff; }

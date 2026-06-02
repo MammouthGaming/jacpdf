@@ -1,0 +1,113 @@
+.jdp-wrap {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+}
+
+/* Quand la pile devient un bouton (clic = ouvre la sidebar Collaborateurs),
+   on neutralise le chrome <button> par défaut tout en gardant le pointeur
+   et un léger hover pour signaler l’interactivité (calque JacPDF). */
+button.jdp-wrap.is-button {
+  border: none;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+/* Pas de cadre/halo autour de la pile : on garde uniquement le pointer
+   pour signaler l’interactivité (calque JacPDF — la pile reste à plat,
+   même au survol et au focus clavier). */
+button.jdp-wrap.is-button:focus { outline: none; }
+button.jdp-wrap.is-button:focus-visible { outline: none; }
+
+.jdp-avatar {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  margin-left: -7px;
+  border: 2px solid rgba(2, 6, 23, 0.95);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(57, 255, 20, 0.22), rgba(124, 92, 255, 0.24));
+  color: #e5e7eb;
+  font-size: 11px;
+  font-weight: 900;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+  overflow: visible;
+}
+
+/* Pastille « actif » calque JacPDF : petit point vert en bas à droite
+   de l’avatar pour signaler que le collaborateur est connecté.
+   Exclue de `.jdp-extra` (pastille +N) et de `.is-offline` (collaborateurs
+   qui ont accès mais ne sont pas connectés → on garde l'avatar visible
+   mais sans point vert, calque Google Docs). */
+.jdp-avatar:not(.jdp-extra):not(.is-offline)::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #22c55e;
+  border: 2px solid rgba(2, 6, 23, 0.95);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.55);
+  pointer-events: none;
+}
+
+/* Variante hors ligne : on garde la place dans la pile et la photo /
+   initiale, mais on désature légèrement et on retire le glow vert. Le
+   point vert n'est même pas rendu (cf. sélecteur ::after au-dessus). */
+.jdp-avatar.is-offline {
+  filter: grayscale(0.55);
+  opacity: 0.7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+}
+
+.jdp-avatar img {
+  border-radius: 999px;
+}
+
+.jdp-avatar:first-child {
+  margin-left: 0;
+}
+
+.jdp-avatar > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* On garde la photo à l’intérieur du cercle malgré overflow:visible (nécessaire
+   pour laisser déborder le point vert). */
+.jdp-avatar {
+  isolation: isolate;
+}
+
+.jdp-avatar > img,
+.jdp-avatar > span {
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.jdp-extra {
+  background: rgba(15, 23, 42, 0.96);
+  color: #b9ffb0;
+}
+
+.jacdoc-presence-floating {
+  position: fixed;
+  top: calc(var(--jacpdf-tabbar-h, 38px) + 54px);
+  right: 132px;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.jacdoc-presence-floating .jdp-wrap {
+  pointer-events: auto;
+}

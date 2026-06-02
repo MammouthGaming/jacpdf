@@ -1,3 +1,69 @@
+:root {
+  /* Couleur d'accent pilotée par accentColorStore (src/ stores/ui/accentColorStore.js).
+     Le picker dans Paramètres / Full Settings appelle accentColorStore.set(color),
+     qui re-set ces variables sur document.documentElement. Tout le CSS qui
+     utilise var(--accent) / var(--accent-hover) suit donc instantanément.
+     Default = néon JacPDF #39FF14 (= vert du logo). */
+  --accent: #39FF14;
+  --accent-hover: #2DD60F;
+  --accent-rgb: 57, 255, 20;
+
+  /* Variables de thème (mode sombre par défaut). Le themeStore pose
+     data-theme="dark|light" sur <html> ; les overrides plus bas re-définissent
+     ces variables pour le mode clair. Tout composant qui utilise ces vars
+     suit automatiquement le changement de thème. */
+  --bg-app: #0d1117;
+  --bg-surface: #161b27;
+  --bg-surface-2: #1e2535;
+  --bg-surface-3: #2a3347;
+  --border: #1e2535;
+  --border-strong: #2a3347;
+  --text-primary: #ffffff;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --text-faint: #6b7280;
+  --text-dim: #4b5563;
+  --overlay: rgba(0, 0, 0, 0.6);
+
+  /* Échelle d'espacement — pilotée par densityStore (data-density sur <html>).
+     Valeurs par défaut = mode 'comfortable'. Le mode 'compact' réduit
+     l'échelle d'environ 25 % et la taille de base de 1 px pour densifier
+     l'UI sans casser les composants existants. Les composants qui veulent
+     suivre la densité utilisent var(--space-2) … var(--space-5). */
+  --ui-font-size: 14px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+}
+
+:root[data-density="compact"] {
+  --ui-font-size: 13px;
+  --space-1: 3px;
+  --space-2: 6px;
+  --space-3: 9px;
+  --space-4: 12px;
+  --space-5: 15px;
+  --space-6: 18px;
+}
+
+:root[data-theme="light"] {
+  --bg-app: #f5f6f8;
+  --bg-surface: #ffffff;
+  --bg-surface-2: #eef0f4;
+  --bg-surface-3: #dde1e8;
+  --border: #e1e4ea;
+  --border-strong: #c8cdd6;
+  --text-primary: #0d1117;
+  --text-secondary: #1f2533;
+  --text-muted: #4b5563;
+  --text-faint: #6b7280;
+  --text-dim: #9ca3af;
+  --overlay: rgba(15, 23, 42, 0.45);
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -8,4 +74,135 @@ html, body, #root {
   width: 100%;
   height: 100%;
   min-height: 100vh;
+  background: var(--bg-app);
+  overscroll-behavior: none;
+}
+
+html {
+  overflow: hidden;
+}
+
+body {
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: var(--ui-font-size);
+}
+
+/* =====================================================================
+   Densité globale — mode 'compact'
+   ---------------------------------------------------------------------
+   Le store `densityStore` pose data-density="compact|comfortable" sur <html>.
+   En mode compact, on resserre les principales surfaces UI (modale
+   Paramètres, topbars, tabbars, sidebars d'app, home, launcher) sans
+   toucher à la logique des composants. Les composants qui veulent suivre
+   la densité de manière plus fine peuvent aussi utiliser var(--space-*).
+   ===================================================================== */
+
+/* --- Modale Paramètres --- */
+:root[data-density="compact"] .fsm-section {
+  padding: 18px 20px 22px;
+}
+:root[data-density="compact"] .fsm-field,
+:root[data-density="compact"] .fsm-toggle-row {
+  margin-bottom: 10px;
+}
+:root[data-density="compact"] .fsm-divider {
+  margin: 12px 0;
+}
+:root[data-density="compact"] .fsm-section-title {
+  font-size: 18px;
+}
+:root[data-density="compact"] .fsm-section-sub {
+  margin-bottom: 14px;
+}
+:root[data-density="compact"] .fsm-sidebar-item,
+:root[data-density="compact"] .fsm-cat-item {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+:root[data-density="compact"] .fsm-header {
+  padding: 10px 14px;
+}
+:root[data-density="compact"] .fsm-title {
+  font-size: 16px;
+}
+
+/* --- Topbars d'apps (PDF / Doc / Tâche / Calendrier / Note / Suite) --- */
+:root[data-density="compact"] .topbar,
+:root[data-density="compact"] .editor-topbar,
+:root[data-density="compact"] .jacdoc-topbar,
+:root[data-density="compact"] .jactache-topbar,
+:root[data-density="compact"] .jaccalendrier-topbar,
+:root[data-density="compact"] .jacnote-topbar,
+:root[data-density="compact"] .suite-topbar {
+  min-height: 40px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+/* --- Tabbars (onglets de l'éditeur PDF, Suite shell) --- */
+:root[data-density="compact"] .editor-tabbar,
+:root[data-density="compact"] .tabbar,
+:root[data-density="compact"] .suite-tabbar {
+  min-height: 28px;
+  font-size: 12px;
+}
+:root[data-density="compact"] .editor-tab,
+:root[data-density="compact"] .tabbar-tab,
+:root[data-density="compact"] .suite-tab {
+  padding-top: 2px;
+  padding-bottom: 2px;
+  min-height: 26px;
+}
+
+/* --- Sidebars d'apps --- */
+:root[data-density="compact"] .jactache-sidebar,
+:root[data-density="compact"] .jaccalendrier-sidebar,
+:root[data-density="compact"] .jacdoc-sidebar,
+:root[data-density="compact"] .jacnote-sidebar {
+  font-size: 12px;
+}
+:root[data-density="compact"] .jactache-sidebar__item,
+:root[data-density="compact"] .jaccalendrier-sidebar__item,
+:root[data-density="compact"] .jacdoc-sidebar__item,
+:root[data-density="compact"] .jacnote-sidebar__item {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  min-height: 26px;
+}
+
+/* --- Home pages (PDF home, JacDoc home) --- */
+:root[data-density="compact"] .home-content,
+:root[data-density="compact"] .jacdoc-home {
+  padding: 16px;
+}
+:root[data-density="compact"] .home-card,
+:root[data-density="compact"] .jacdoc-home-card {
+  padding: 12px;
+}
+:root[data-density="compact"] .home-recent-search,
+:root[data-density="compact"] .jacdoc-home-recent-search {
+  padding: 6px 10px;
+}
+
+/* --- Launcher --- */
+:root[data-density="compact"] .jac-launcher {
+  padding: 16px;
+}
+:root[data-density="compact"] .jac-launcher__title {
+  margin-bottom: 12px;
+}
+:root[data-density="compact"] .jac-launcher__tile {
+  padding: 14px;
+}
+
+/* --- Toolbar PDF (boutons légèrement plus petits) --- */
+:root[data-density="compact"] .tb-btn,
+:root[data-density="compact"] .topbar-icon-btn {
+  width: 30px;
+  height: 30px;
 }

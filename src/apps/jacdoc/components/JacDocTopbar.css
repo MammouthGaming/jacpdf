@@ -1,0 +1,704 @@
+/* ── Topbar : logo + nom doc (haut-gauche), menus (sous le logo),
+   actions droite (commentaires / partager / paramètres) alignées
+   sur la même ligne que le logo à gauche ─────── */
+.jacdoc-editor-topbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 4px 16px;
+  padding: 8px 16px;
+  background: var(--jacdoc-panel);
+  border-bottom: 1px solid var(--jacdoc-border);
+  flex-shrink: 0;
+  z-index: 11;
+}
+.jacdoc-editor-topbar-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+}
+.jacdoc-editor-brand-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+}
+.jacdoc-editor-topbar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-height: 36px;
+}
+.jacdoc-editor-comments-btn,
+.jacdoc-editor-history-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--jacdoc-fg-dim);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+}
+.jacdoc-editor-comments-btn:hover,
+.jacdoc-editor-history-btn:hover {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+  border-color: var(--jacdoc-border);
+}
+.jacdoc-editor-comments-btn:active,
+.jacdoc-editor-history-btn:active { transform: scale(0.94); }
+.jacdoc-editor-comments-btn.is-active,
+.jacdoc-editor-history-btn.is-active {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+  border-color: var(--jacdoc-border);
+}
+[data-theme="light"] .jacdoc-editor-comments-btn,
+[data-theme="light"] .jacdoc-editor-history-btn { color: #5f6368; }
+[data-theme="light"] .jacdoc-editor-comments-btn:hover,
+[data-theme="light"] .jacdoc-editor-history-btn:hover {
+  background: #f0f1f5; color: #0d1117; border-color: #e5e7eb;
+}
+.jacdoc-editor-share-btn {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(var(--jacdoc-accent-rgb), 0.35);
+  background: rgba(var(--jacdoc-accent-rgb), 0.14);
+  color: var(--jacdoc-accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+}
+.jacdoc-editor-share-btn:hover {
+  background: rgba(var(--jacdoc-accent-rgb), 0.22);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.55);
+}
+.jacdoc-editor-share-btn:active { transform: scale(0.97); }
+[data-theme="light"] .jacdoc-editor-share-btn {
+  background: rgba(var(--jacdoc-accent-rgb), 0.12);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.45);
+  color: #0a7a05;
+}
+[data-theme="light"] .jacdoc-editor-share-btn:hover {
+  background: rgba(var(--jacdoc-accent-rgb), 0.2);
+}
+.jacdoc-editor-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+  user-select: none;
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: inherit;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+.jacdoc-editor-brand:hover:not(:disabled) {
+  background: var(--jacdoc-panel-hover);
+  border-color: var(--jacdoc-border);
+}
+.jacdoc-editor-brand:active:not(:disabled) { transform: scale(0.97); }
+.jacdoc-editor-brand:disabled { cursor: default; }
+[data-theme="light"] .jacdoc-editor-brand:hover:not(:disabled) {
+  background: #f0f1f5;
+  border-color: #e5e7eb;
+}
+.jacdoc-editor-brand-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(var(--jacdoc-accent-rgb), 0.14);
+  color: var(--jacdoc-accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.jacdoc-editor-brand-icon svg { display: block; }
+.jacdoc-editor-brand-icon img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+.jacdoc-editor-doc-sep {
+  color: var(--jacdoc-border);
+  font-size: 14px;
+  line-height: 1;
+  user-select: none;
+  flex-shrink: 0;
+}
+.jacdoc-editor-doc-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--jacdoc-fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  max-width: 460px;
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: inherit;
+  text-align: left;
+  cursor: text;
+  transition: background 0.15s, border-color 0.15s;
+}
+.jacdoc-editor-doc-name:hover:not(:disabled) {
+  background: var(--jacdoc-panel-hover);
+  border-color: var(--jacdoc-border);
+}
+.jacdoc-editor-doc-name:disabled {
+  cursor: default;
+}
+.jacdoc-editor-doc-name-input {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--jacdoc-fg);
+  background: var(--jacdoc-panel-hover);
+  border: 1px solid rgba(var(--jacdoc-accent-rgb), 0.55);
+  border-radius: 6px;
+  padding: 3px 8px;
+  outline: none;
+  min-width: 200px;
+  max-width: 460px;
+  box-shadow: 0 0 0 3px rgba(var(--jacdoc-accent-rgb), 0.12);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.jacdoc-editor-doc-name-input:focus {
+  border-color: var(--jacdoc-accent);
+  box-shadow: 0 0 0 3px rgba(var(--jacdoc-accent-rgb), 0.2);
+}
+[data-theme="light"] .jacdoc-editor-doc-name:hover:not(:disabled) {
+  background: #f0f1f5;
+  border-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-editor-doc-name-input {
+  background: #ffffff;
+  color: #0d1117;
+}
+.jacdoc-editor-save-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 8px;
+  flex-shrink: 0;
+  color: var(--jacdoc-fg-dim);
+  font-size: 12px;
+  font-weight: 500;
+  /* Promu en <button> pour ouvrir le popover de sauvegarde (calque JacPDF). */
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.2s, background 0.15s, border-color 0.15s;
+}
+.jacdoc-editor-save-indicator:hover,
+.jacdoc-editor-save-indicator.is-open {
+  background: var(--jacdoc-panel-hover);
+  border-color: var(--jacdoc-border);
+  color: var(--jacdoc-fg);
+}
+[data-theme="light"] .jacdoc-editor-save-indicator:hover,
+[data-theme="light"] .jacdoc-editor-save-indicator.is-open {
+  background: #f0f1f5;
+  border-color: #e5e7eb;
+  color: #0d1117;
+}
+.jacdoc-editor-save-indicator svg { flex-shrink: 0; }
+.jacdoc-editor-save-label {
+  white-space: nowrap;
+  letter-spacing: 0.1px;
+}
+.jacdoc-editor-save-indicator.is-saved  { color: var(--jacdoc-fg-dim); }
+.jacdoc-editor-save-indicator.is-saving { color: var(--jacdoc-fg-dim); }
+.jacdoc-editor-save-indicator.is-error  { color: #f87171; }
+.jacdoc-editor-save-indicator.is-saving svg {
+  animation: jacdoc-spin 1s linear infinite;
+}
+.jacdoc-editor-readonly-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 9px;
+  border: 1px solid rgba(250, 204, 21, 0.3);
+  border-radius: 999px;
+  background: rgba(250, 204, 21, 0.1);
+  color: #fde68a;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+[data-theme="light"] .jacdoc-editor-save-indicator.is-saved  { color: #5f6368; }
+[data-theme="light"] .jacdoc-editor-save-indicator.is-saving { color: #5f6368; }
+[data-theme="light"] .jacdoc-editor-save-indicator.is-error  { color: #dc2626; }
+@keyframes jacdoc-spin {
+  to { transform: rotate(360deg); }
+}
+.jacdoc-editor-brand-text {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--jacdoc-fg);
+}
+.jacdoc-editor-brand-accent { color: var(--jacdoc-accent); }
+
+.jacdoc-editor-settings-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--jacdoc-fg-dim);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.18s;
+}
+.jacdoc-editor-settings-btn:hover {
+  background: var(--jacdoc-panel);
+  color: var(--jacdoc-fg);
+  border-color: var(--jacdoc-border);
+}
+.jacdoc-editor-settings-btn:hover svg { transform: rotate(35deg); }
+.jacdoc-editor-settings-btn svg { transition: transform 0.3s ease; }
+.jacdoc-editor-settings-btn:active { transform: scale(0.94); }
+
+.jacdoc-editor-profile-btn {
+  padding: 0;
+  overflow: hidden;
+}
+.jacdoc-editor-profile-btn:hover { transform: none; }
+.jacdoc-editor-profile-img,
+.jacdoc-editor-profile-initial {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  object-fit: cover;
+  background: rgba(var(--jacdoc-accent-rgb), 0.14);
+  color: var(--jacdoc-accent);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  text-transform: uppercase;
+  user-select: none;
+  border: 1px solid rgba(var(--jacdoc-accent-rgb), 0.35);
+  transition: border-color 0.15s, background 0.15s;
+}
+.jacdoc-editor-profile-btn:hover .jacdoc-editor-profile-img,
+.jacdoc-editor-profile-btn:hover .jacdoc-editor-profile-initial {
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.6);
+  background: rgba(var(--jacdoc-accent-rgb), 0.22);
+}
+[data-theme="light"] .jacdoc-editor-profile-img,
+[data-theme="light"] .jacdoc-editor-profile-initial {
+  background: rgba(var(--jacdoc-accent-rgb), 0.16);
+  color: #0a7a05;
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.4);
+}
+
+[data-theme="light"] .jacdoc-editor-topbar {
+  background: #ffffff;
+  border-bottom-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-editor-brand-text { color: #0d1117; }
+[data-theme="light"] .jacdoc-editor-settings-btn { color: #5f6368; }
+[data-theme="light"] .jacdoc-editor-settings-btn:hover {
+  background: #f0f1f5; color: #0d1117; border-color: #e5e7eb;
+}
+
+/* ── Save menu (popover style JacPDF) ───────────────────────────────
+   Wrapper relatif autour du bouton « Sauvegardé » + popover ancré dessous.
+   Mêmes patterns visuels que .dsi-menu de JacPDF, skinés en JacDoc. */
+.jacdoc-save-menu-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.jacdoc-save-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 240px;
+  background: var(--jacdoc-panel);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: jacdoc-save-menu-pop 0.15s cubic-bezier(0.2, 0, 0, 1);
+}
+@keyframes jacdoc-save-menu-pop {
+  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+.jacdoc-save-menu .jacdoc-save-menu-status {
+  font-size: 12px;
+  font-weight: 500;
+  /* Ligne de statut neutre (blanche en sombre, sombre en clair). Forcé
+     en blanc via #fff pour ne pas suivre l'accent du thème. */
+  color: #ffffff;
+  padding: 8px 10px 4px;
+  line-height: 1.4;
+}
+.jacdoc-save-menu .jacdoc-save-menu-status.is-saved   { color: #ffffff; }
+.jacdoc-save-menu .jacdoc-save-menu-status.is-saving  { color: #60a5fa; }
+.jacdoc-save-menu .jacdoc-save-menu-status.is-error   { color: #f87171; }
+.jacdoc-save-menu-action {
+  width: 100%;
+  text-align: left;
+  padding: 9px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--jacdoc-fg);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.jacdoc-save-menu-action:hover:not(:disabled) {
+  background: var(--jacdoc-panel-hover);
+}
+.jacdoc-save-menu-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.jacdoc-save-menu-action.is-primary {
+  background: rgba(var(--jacdoc-accent-rgb), 0.12);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.35);
+  color: var(--jacdoc-accent);
+}
+.jacdoc-save-menu-action.is-primary:hover:not(:disabled) {
+  background: rgba(var(--jacdoc-accent-rgb), 0.2);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.55);
+}
+.jacdoc-save-menu-action.is-secondary { color: var(--jacdoc-fg-dim); }
+
+[data-theme="light"] .jacdoc-save-menu {
+  background: #ffffff;
+  border-color: #d1d5db;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+[data-theme="light"] .jacdoc-save-menu .jacdoc-save-menu-status { color: #0d1117; }
+[data-theme="light"] .jacdoc-save-menu .jacdoc-save-menu-status.is-saved { color: #0d1117; }
+[data-theme="light"] .jacdoc-save-menu-action { color: #1f2937; }
+[data-theme="light"] .jacdoc-save-menu-action:hover:not(:disabled) {
+  background: #f0f1f5; color: #0d1117;
+}
+[data-theme="light"] .jacdoc-save-menu-action.is-primary {
+  background: rgba(var(--jacdoc-accent-rgb), 0.12);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.45);
+  color: #0a7a05;
+}
+[data-theme="light"] .jacdoc-save-menu-action.is-primary:hover:not(:disabled) {
+  background: rgba(var(--jacdoc-accent-rgb), 0.2);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.6);
+}
+[data-theme="light"] .jacdoc-save-menu-action.is-secondary { color: #4b5563; }
+
+/* ── Badge « source du document » dans la topbar (calque JacPDF) ────
+   Affiché à gauche du nom du fichier pour indiquer d'où vient le doc
+   (Ordinateur / Google Drive / JacDoc Cloud). La variante Cloud est
+   skinnée en vert accent JacDoc ; Drive et Local reprennent le panel
+   neutre pour ne pas dominer visuellement le titre. */
+.jacdoc-topbar-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--jacdoc-fg-dim);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  flex-shrink: 0;
+  cursor: default;
+  user-select: none;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.jacdoc-topbar-source svg { flex-shrink: 0; }
+.jacdoc-topbar-source-logo {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  flex-shrink: 0;
+  pointer-events: none;
+  user-select: none;
+}
+.jacdoc-topbar-source-label {
+  white-space: nowrap;
+}
+.jacdoc-topbar-source-sep {
+  color: var(--jacdoc-border);
+  margin: 0 2px;
+}
+.jacdoc-topbar-source-folder {
+  color: var(--jacdoc-fg);
+  font-weight: 500;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.jacdoc-topbar-source-jacdoc-cloud {
+  color: var(--jacdoc-accent);
+  background: rgba(var(--jacdoc-accent-rgb), 0.10);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.30);
+}
+.jacdoc-topbar-source-drive {
+  color: var(--jacdoc-fg);
+  background: var(--jacdoc-panel-hover);
+  border-color: var(--jacdoc-border);
+}
+.jacdoc-topbar-source-local {
+  color: var(--jacdoc-fg-dim);
+  background: var(--jacdoc-panel-hover);
+  border-color: var(--jacdoc-border);
+}
+
+/* Petite barre verticale fine entre le logo JacDoc et le badge de
+   source (calque `.topbar-separator` de JacPDF). */
+.jacdoc-editor-topbar-vsep {
+  width: 1px;
+  height: 18px;
+  background: var(--jacdoc-border);
+  flex-shrink: 0;
+  margin: 0 2px;
+}
+
+/* Slash fil d'Ariane entre le badge source et le nom du document
+   (« JacDoc Cloud / Mon document »). Pris en charge uniquement quand
+   un documentSource est passé — sinon JacDocTopbar garde le « • ». */
+.jacdoc-editor-breadcrumb-sep {
+  color: var(--jacdoc-fg-dim);
+  font-size: 14px;
+  line-height: 1;
+  margin: 0 2px;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+[data-theme="light"] .jacdoc-topbar-source-jacdoc-cloud {
+  color: #0a7a05;
+  background: rgba(var(--jacdoc-accent-rgb), 0.12);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.40);
+}
+[data-theme="light"] .jacdoc-topbar-source-drive {
+  background: #f0f1f5;
+  border-color: #e5e7eb;
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-topbar-source-local {
+  background: #f0f1f5;
+  border-color: #e5e7eb;
+  color: #5f6368;
+}
+[data-theme="light"] .jacdoc-topbar-source-folder { color: #0d1117; }
+[data-theme="light"] .jacdoc-editor-topbar-vsep { background: #e5e7eb; }
+[data-theme="light"] .jacdoc-editor-breadcrumb-sep { color: #5f6368; }
+
+/* ── Responsive : modes compact + ultra-compact (calque JacPDF) ────────
+   La bascule vit dans JacDocTopbar.jsx (ResizeObserver qui mesure les
+   VRAIES largeurs gauche/droite, comme `.topbar-ultra-compact` côté JacPDF).
+   Trois modes :
+     1. .is-ultra-compact (largeur ≤ 560 px) : cache « JacDoc », badge DEV,
+        badge source, fil d'Ariane, nom du document, badge lecture-seule.
+        Il reste l'icône logo + indicateur de sauvegarde compact à gauche,
+        et à droite la présence + ⋯ (Historique/Commentaires) + Partager +
+        Profil.
+     2. .is-kami-compact (titre tronqué OU actions ne rentrent plus) : cache
+        uniquement le texte de la sauvegarde et regroupe Historique +
+        Commentaires derrière le bouton ⋯. Tout le reste à gauche reste
+        visible.
+     3. Normal : tout est rendu en pleine taille. */
+
+/* Mode compact « léger » + ultra-compact : le label de la sauvegarde
+   disparaît, seule l'icône cloud reste — comme JacPDF qui passe la pilule
+   en `compactLabel` dans le même contexte. */
+.jacdoc-editor-save-indicator.is-compact-label .jacdoc-editor-save-label {
+  display: none;
+}
+
+/* Le nom du document doit pouvoir RÉTRÉCIR avant qu'on déclenche le mode
+   compact — sinon le bouton refuse de passer en `text-overflow: ellipsis`
+   et fait déborder toute la barre. Avec `flex: 0 1 auto` + `min-width: 0`,
+   il rétrécit naturellement, le scrollWidth dépasse le clientWidth, et le
+   ResizeObserver passe en mode compact. */
+.jacdoc-editor-doc-name {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+/* Mode ultra-compact : on cache tout ce qui n'est pas essentiel à gauche
+   (mêmes éléments que JacPDF dans son `.topbar-ultra-compact`). */
+.jacdoc-editor-topbar.is-ultra-compact .jacdoc-editor-brand-text,
+.jacdoc-editor-topbar.is-ultra-compact .jacdoc-editor-dev-badge,
+.jacdoc-editor-topbar.is-ultra-compact .jacdoc-topbar-source,
+.jacdoc-editor-topbar.is-ultra-compact .jacdoc-editor-topbar-vsep,
+.jacdoc-editor-topbar.is-ultra-compact .jacdoc-editor-breadcrumb-sep,
+.jacdoc-editor-topbar.is-ultra-compact .jacdoc-editor-doc-sep,
+.jacdoc-editor-topbar.is-ultra-compact .jacdoc-editor-doc-name,
+.jacdoc-editor-topbar.is-ultra-compact .jacdoc-editor-doc-name-input,
+.jacdoc-editor-topbar.is-ultra-compact .jacdoc-editor-readonly-pill {
+  display: none !important;
+}
+.jacdoc-editor-topbar.is-ultra-compact .jacdoc-editor-brand {
+  padding: 4px 6px;
+}
+.jacdoc-editor-topbar.is-ultra-compact .jacdoc-editor-topbar-right {
+  gap: 4px;
+}
+
+/* Mode kami-compact : le badge DEV peut s'effacer aussi pour libérer de
+   la place pour le titre — JacPDF cache son badge DEV dès qu'il est en
+   `topbar-kami-compact` couplé à `hasTopbarOverflow`. */
+.jacdoc-editor-topbar.is-kami-compact .jacdoc-editor-dev-badge {
+  display: none;
+}
+
+/* Étape intermédiaire `is-hide-meta` : on cache le badge DEV + le badge
+   de source (et leurs séparateurs) quand le bouton Historique vient
+   serrer L'ICÔNE de save, après avoir déjà caché le mot « Sauvegardé ».
+   Le titre reste visible — on n'a pas encore besoin de collapser les
+   actions sous ⋯. */
+.jacdoc-editor-topbar.is-hide-meta .jacdoc-editor-dev-badge,
+.jacdoc-editor-topbar.is-hide-meta .jacdoc-topbar-source,
+.jacdoc-editor-topbar.is-hide-meta .jacdoc-editor-topbar-vsep,
+.jacdoc-editor-topbar.is-hide-meta .jacdoc-editor-breadcrumb-sep {
+  display: none !important;
+}
+
+/* Bouton ⋯ + popover regroupant Historique / Commentaires.
+   Style aligné sur les autres icônes de la topbar pour rester cohérent. */
+.jacdoc-editor-topbar-more {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.jacdoc-editor-more-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--jacdoc-fg-dim);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+}
+.jacdoc-editor-more-btn:hover,
+.jacdoc-editor-more-btn.is-open {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+  border-color: var(--jacdoc-border);
+}
+.jacdoc-editor-more-btn:active { transform: scale(0.94); }
+.jacdoc-editor-more-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 200px;
+  background: var(--jacdoc-panel);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: jacdoc-save-menu-pop 0.15s cubic-bezier(0.2, 0, 0, 1);
+}
+.jacdoc-editor-more-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--jacdoc-fg);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.jacdoc-editor-more-item:hover {
+  background: var(--jacdoc-panel-hover);
+}
+.jacdoc-editor-more-item.is-active {
+  background: rgba(var(--jacdoc-accent-rgb), 0.12);
+  color: var(--jacdoc-accent);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.35);
+}
+.jacdoc-editor-more-item svg { flex-shrink: 0; }
+
+[data-theme="light"] .jacdoc-editor-more-btn { color: #5f6368; }
+[data-theme="light"] .jacdoc-editor-more-btn:hover,
+[data-theme="light"] .jacdoc-editor-more-btn.is-open {
+  background: #f0f1f5; color: #0d1117; border-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-editor-more-menu {
+  background: #ffffff;
+  border-color: #d1d5db;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+[data-theme="light"] .jacdoc-editor-more-item { color: #1f2937; }
+[data-theme="light"] .jacdoc-editor-more-item:hover {
+  background: #f0f1f5; color: #0d1117;
+}
+[data-theme="light"] .jacdoc-editor-more-item.is-active {
+  background: rgba(var(--jacdoc-accent-rgb), 0.12);
+  color: #0a7a05;
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.45);
+}

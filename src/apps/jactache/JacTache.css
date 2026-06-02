@@ -1,0 +1,2464 @@
+/* JacTache.css
+ * Style JacSuite-dark, cohérent avec JacDoc / JacPDF.
+ * Layout 3 colonnes : sidebar (240px) | liste (1fr) | détail (360px, conditionnel).
+ */
+
+:root {
+	/* Tokens JacTâche — palette « Apple Reminders » sombre (vrai noir #000)
+	 * avec surfaces gris très foncé. Le bloc [data-theme="light"] plus bas
+	 * re-définit ces tokens pour le mode clair, donc tout le CSS qui utilise
+	 * var(--jt-*) suit automatiquement le toggle Sombre/Clair de JacSuite. */
+	--jt-bg: #000000;
+	--jt-bg-elev: #1c1c1e;
+	--jt-bg-hover: #2c2c2e;
+	--jt-bg-sidebar: #0a0a0a;
+	--jt-bg-input-focus: #2c2c2e;
+	--jt-border: #38383a;
+	--jt-text: #ffffff;
+	--jt-text-dim: #8e8e93;
+	--jt-accent: var(--accent);
+	--jt-accent-soft: rgba(var(--accent-rgb), 0.15);
+	--jt-danger: #ff453a;
+	--jt-success: #30d158;
+	--jt-radius: 8px;
+	--jt-radius-sm: 5px;
+	--jt-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+	/* Overlays blanc-sur-noir pour hover/active. En mode clair, le bloc
+	 * [data-theme="light"] les remplace par des overlays noir-sur-blanc
+	 * équivalents, sinon les hovers seraient invisibles. */
+	--jt-overlay-hover: var(--jt-overlay-hover);
+	--jt-overlay-strong: var(--jt-overlay-strong);
+	--jt-overlay-faint: var(--jt-overlay-faint);
+	--jt-tree-line: var(--jt-tree-line);
+}
+
+[data-theme="light"] {
+	/* JacTâche mode clair — fond blanc, surfaces gris clair, texte presque
+	 * noir. Aligné sur Apple Reminders mode clair. */
+	--jt-bg: #ffffff;
+	--jt-bg-elev: #f2f2f7;
+	--jt-bg-hover: #e5e5ea;
+	--jt-bg-sidebar: #f9f9fb;
+	--jt-bg-input-focus: #e5e5ea;
+	--jt-border: #d1d1d6;
+	--jt-text: #1c1c1e;
+	--jt-text-dim: #6e6e73;
+	--jt-danger: #ff3b30;
+	--jt-success: #34c759;
+	--jt-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+	--jt-overlay-hover: rgba(0, 0, 0, 0.05);
+	--jt-overlay-strong: rgba(0, 0, 0, 0.08);
+	--jt-overlay-faint: rgba(0, 0, 0, 0.03);
+	--jt-tree-line: rgba(0, 0, 0, 0.12);
+}
+
+.jactache-app {
+	display: grid;
+	/* Largeur de la sidebar pilotée par la variable CSS --jt-sidebar-width
+	 * posée en inline-style par JacTacheApp (default 240px). Le mode réduit
+	 * (data-sidebar-collapsed='true') force la colonne à 48px plus bas. */
+	grid-template-columns: var(--jt-sidebar-width, 240px) 1fr;
+	/* position: relative requis pour que le handle de redimensionnement
+	 * (.jactache-app__sidebar-resize) en position: absolute se réfère bien
+	 * à ce conteneur. */
+	position: relative;
+	/* height: 100% (pas 100vh) : on est monté dans le SuiteShell qui a sa
+	 * propre barre d'onglets en haut. 100vh dépassait la hauteur réelle
+	 * dispo → le pied de la sidebar (bouton Paramètres) sortait sous le
+	 * bas de l'écran. JacCalendrier utilise déjà 100% pour la même raison. */
+	height: 100%;
+	background: var(--jt-bg);
+	color: var(--jt-text);
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	font-size: 14px;
+	overflow: hidden;
+}
+
+.jactache-app[data-has-detail='true'] {
+	grid-template-columns: var(--jt-sidebar-width, 240px) 1fr 360px;
+}
+
+/* ---------- Sidebar flottante (Apparence > Sidebar flottante) ----------
+ * Mode « overlay façon Notion ». Quand activé :
+ *  • La colonne de la sidebar disparaît du grid (elle passe en
+ *    position: absolute, donc hors flux du grid).
+ *  • La sidebar glisse via `transform` ; cachée par défaut.
+ *  • Révélée par la zone de hover (12 px) au bord gauche ou par le
+ *    bouton « panneau latéral » de la tab bar JacSuite.
+ *  • Se referme dès que la souris quitte la sidebar (timer 150 ms,
+ *    géré côté JS pour tolérer les popovers enfants).
+ *  • Le handle de redimensionnement est désactivé.
+ */
+.jactache-app[data-sidebar-floating='true'] {
+	grid-template-columns: 1fr;
+}
+.jactache-app[data-sidebar-floating='true'][data-has-detail='true'] {
+	grid-template-columns: 1fr 360px;
+}
+
+.jactache-app[data-sidebar-floating='true'] .jactache-sidebar {
+	position: absolute;
+	top: 12px;
+	bottom: 12px;
+	left: 12px;
+	width: var(--jt-sidebar-width, 240px);
+	z-index: 50;
+	transform: translateX(calc(-100% - 16px));
+	transition: transform 220ms cubic-bezier(0.2, 0.9, 0.3, 1);
+	box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+	border: 1px solid var(--jt-border);
+	border-radius: 12px;
+}
+[data-theme='light'] .jactache-app[data-sidebar-floating='true'] .jactache-sidebar {
+	box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+}
+.jactache-app[data-sidebar-floating='true'][data-sidebar-floating-open='true'] .jactache-sidebar {
+	transform: translateX(0);
+}
+
+.jactache-app[data-sidebar-floating='true'] .jactache-app__sidebar-resize {
+	display: none;
+}
+
+/* Zone de hover invisible (12 px) collée au bord gauche de l'app. */
+.jactache-app__floating-hover-zone {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 12px;
+	z-index: 49;
+	background: transparent;
+}
+
+/* Handle de redimensionnement — overlay vertical fin centré sur la
+ * frontière sidebar/liste. Hors flux grâce à position: absolute (sinon il
+ * prendrait une colonne dans la grille). Zone de hit de 6px de large,
+ * translatée de -3px pour être centrée pile sur la frontière. Pastille
+ * colorée au hover/drag pour signaler l'interactivité. */
+.jactache-app__sidebar-resize {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: var(--jt-sidebar-width, 240px);
+	width: 6px;
+	transform: translateX(-3px);
+	cursor: col-resize;
+	z-index: 5;
+	background: transparent;
+	transition: background 0.12s ease;
+}
+.jactache-app__sidebar-resize:hover,
+.jactache-app__sidebar-resize:active {
+	background: var(--jt-accent-soft);
+}
+
+/* ---------- Sidebar ---------- */
+.jactache-sidebar {
+	background: var(--jt-bg-sidebar);
+	border-right: 1px solid var(--jt-border);
+	padding: 16px 8px;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+}
+
+.jactache-sidebar__brand {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 12px 16px;
+	font-weight: 600;
+	font-size: 15px;
+}
+
+.jactache-sidebar__logo {
+	font-size: 18px;
+	display: inline-flex;
+	align-items: center;
+	color: var(--jt-accent);
+}
+
+.jactache-sidebar__logo img {
+	width: 22px;
+	height: 22px;
+	object-fit: contain;
+	pointer-events: none;
+	user-select: none;
+}
+
+.jactache-sidebar__section {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin-bottom: 16px;
+}
+
+.jactache-sidebar__item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 7px 12px;
+	border: none;
+	border-radius: var(--jt-radius-sm);
+	background: transparent;
+	color: var(--jt-text);
+	font-size: 13.5px;
+	text-align: left;
+	cursor: pointer;
+	transition: background 0.12s ease;
+}
+
+.jactache-sidebar__item:hover {
+	background: var(--jt-bg-hover);
+}
+
+.jactache-sidebar__item[data-active='true'] {
+	background: var(--jt-accent-soft);
+	color: var(--jt-accent);
+}
+
+.jactache-sidebar__icon {
+	width: 18px;
+	text-align: center;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--jt-text-dim);
+}
+/* L'item actif (filtre rapide ou projet) garde la même couleur que son
+ * libellé — l'icône passe en accent via la cascade currentColor. */
+.jactache-sidebar__item[data-active='true'] .jactache-sidebar__icon {
+	color: var(--jt-accent);
+}
+
+.jactache-sidebar__name {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.jactache-sidebar__count {
+	font-size: 11px;
+	color: var(--jt-text-dim);
+	background: var(--jt-bg-elev);
+	padding: 1px 7px;
+	border-radius: 10px;
+}
+
+.jactache-sidebar__heading {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 12px 4px;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--jt-text-dim);
+}
+
+.jactache-sidebar__add {
+	background: transparent;
+	border: none;
+	color: var(--jt-text-dim);
+	cursor: pointer;
+	font-size: 16px;
+	line-height: 1;
+	padding: 0 4px;
+	border-radius: 4px;
+}
+.jactache-sidebar__add:hover {
+	background: var(--jt-bg-hover);
+	color: var(--jt-text);
+}
+
+.jactache-sidebar__input {
+	margin: 4px 12px;
+	padding: 6px 8px;
+	background: var(--jt-bg-elev);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius-sm);
+	color: var(--jt-text);
+	font-size: 13px;
+}
+
+/* ---------- Liste ---------- */
+.jactache-list {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.jactache-list__header {
+	display: flex;
+	align-items: baseline;
+	gap: 12px;
+	padding: 24px 32px 16px;
+	border-bottom: 1px solid var(--jt-border);
+}
+
+.jactache-list__title {
+	font-size: 22px;
+	font-weight: 600;
+	margin: 0;
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+}
+/* L'icône du titre (projet sélectionné) prend la couleur d'accent pour
+ * ressortir visuellement à côté du nom du projet. */
+.jactache-list__title svg {
+	color: var(--jt-accent);
+}
+/* Fil d'Ariane (breadcrumb) : ancêtres du projet courant rendus en
+ * boutons cliquables, plus petits et atténués pour ne pas voler la
+ * vedette au titre principal. */
+.jactache-list__crumb {
+	appearance: none;
+	background: transparent;
+	border: none;
+	padding: 2px 6px;
+	margin: 0;
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--jt-text-dim);
+	cursor: pointer;
+	border-radius: 6px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+.jactache-list__crumb svg {
+	color: var(--jt-text-dim);
+}
+.jactache-list__crumb:hover {
+	background: var(--jt-overlay-hover);
+	color: inherit;
+}
+.jactache-list__crumb:hover svg {
+	color: var(--jt-accent);
+}
+.jactache-list__crumb-sep {
+	color: var(--jt-text-dim);
+	opacity: 0.6;
+	font-size: 14px;
+	user-select: none;
+}
+/* Séparateur fin entre groupes d'items du menu contextuel projet
+ * (ajout vs renommer/supprimer). */
+.jactache-context-menu__sep {
+	height: 1px;
+	margin: 4px 0;
+	background: var(--jt-overlay-strong);
+}
+
+/* === Sélection multiple par rectangle élastique (marquee) ===
+ * La nav des projets est position: relative pour servir d'origine au
+ * rectangle de sélection. user-select: none empeche la sélection de
+ * texte parasite pendant le drag. */
+.jactache-sidebar__section--projects {
+	position: relative;
+	user-select: none;
+	/* Remplit la hauteur restante de la sidebar pour qu'il y ait toujours
+	 * une zone vide en bas où démarrer un drag-select à partir du « vide ». */
+	flex: 1 1 auto;
+	min-height: 80px;
+}
+.jactache-sidebar__marquee {
+	position: absolute;
+	background: rgba(var(--accent-rgb), 0.12);
+	border: 1px solid var(--jt-accent);
+	border-radius: 3px;
+	pointer-events: none;
+	z-index: 5;
+}
+/* Projet inclus dans la sélection multiple : fond accentué + filet
+ * à gauche pour bien le distinguer du projet actif (data-active),
+ * qui peut coexister visuellement avec une multi-sélection. */
+.jactache-sidebar__item[data-multi-selected='true'] {
+	background: rgba(var(--accent-rgb), 0.12);
+	box-shadow: inset 2px 0 0 var(--jt-accent);
+}
+.jactache-sidebar__item[data-multi-selected='true']:hover {
+	background: rgba(var(--accent-rgb), 0.18);
+}
+
+/* === Drag & drop des projets ===
+ * Les pseudo-éléments ::before/::after du bouton servent d'indicateurs
+ * d'insertion (filet horizontal accentué). Le bouton doit être
+ * position: relative pour que ces pseudos se positionnent par rapport
+ * à lui plutôt qu'à un ancetre quelconque. */
+.jactache-sidebar__section--projects .jactache-sidebar__item {
+	position: relative;
+}
+.jactache-sidebar__item[data-drop-position='before']::before,
+.jactache-sidebar__item[data-drop-position='after']::after {
+	content: '';
+	position: absolute;
+	left: 8px;
+	right: 8px;
+	height: 2px;
+	background: var(--jt-accent);
+	border-radius: 1px;
+	pointer-events: none;
+}
+.jactache-sidebar__item[data-drop-position='before']::before {
+	top: -1px;
+}
+.jactache-sidebar__item[data-drop-position='after']::after {
+	bottom: -1px;
+}
+/* Drop « inside » : on encadre le bouton entier pour signaler qu'il va
+ * devenir le parent du dossier déposé. */
+.jactache-sidebar__item[data-drop-position='inside'] {
+	box-shadow: inset 0 0 0 2px var(--jt-accent);
+	background: rgba(var(--accent-rgb), 0.08);
+}
+/* Dossier en cours de tirage : on l'estompe pour que l'utilisateur
+ * voie clairement qu'il est en transit. */
+.jactache-sidebar__item[data-dragging='true'] {
+	opacity: 0.4;
+}
+/* Drop dans le vide de la nav = retour à la racine. Le filet vert sous
+ * la liste suggère l'endroit où le dossier va atterrir. */
+.jactache-sidebar__section--projects[data-drop-root='true']::after {
+	content: '';
+	position: absolute;
+	left: 8px;
+	right: 8px;
+	bottom: 4px;
+	height: 2px;
+	background: var(--jt-accent);
+	border-radius: 1px;
+	pointer-events: none;
+}
+
+/* === Chevron de pli/dépli des dossiers ===
+ * Petit chevron à gauche du nom du dossier. Pour les dossiers sans
+ * enfants, on garde l'espace mais on masque le chevron pour conserver
+ * l'alignement de la colonne d'icônes. */
+.jactache-sidebar__chevron {
+	width: 14px;
+	height: 14px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	margin-right: 2px;
+	border-radius: 3px;
+	color: var(--jt-text-dim);
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+.jactache-sidebar__chevron svg {
+	transition: transform 0.18s ease;
+}
+/* Replié : le chevron pointe vers la droite (rotation -90°). Déplié :
+ * il pointe vers le bas (état naturel du SVG « 6 9 12 15 18 9 »). */
+.jactache-sidebar__chevron[data-collapsed='true'] svg {
+	transform: rotate(-90deg);
+}
+.jactache-sidebar__chevron[data-visible='false'] {
+	visibility: hidden;
+	pointer-events: none;
+}
+.jactache-sidebar__chevron:hover {
+	background: var(--jt-overlay-strong);
+	color: inherit;
+}
+
+/* === Lignes verticales de l'arbre de dossiers ===
+ * Trait fin et atténué sur toute la hauteur de la rangée, placé dans
+ * la colonne du chevron de l'ancêtre. Les lignes des rangées voisines
+ * se touchent pour former un trait continu reliant un parent à ses
+ * descendants. Le z-index négatif n'est pas nécessaire : pointer-events:
+ * none suffit pour ne pas gêner les clics. */
+.jactache-sidebar__tree-line {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 1px;
+	background: var(--jt-tree-line);
+	pointer-events: none;
+}
+/* Bouton-titre du projet : visuellement identique au span de filtre,
+ * mais cliquable pour entrer en mode renommage. Pas de fond/bordure
+ * sauf au survol pour signaler l'affordance. */
+.jactache-list__title-button {
+	appearance: none;
+	background: transparent;
+	border: none;
+	padding: 2px 6px;
+	margin: -2px -6px;
+	font: inherit;
+	color: inherit;
+	cursor: text;
+	border-radius: 6px;
+	text-align: left;
+	transition: background-color 0.15s ease;
+}
+.jactache-list__title-button:hover {
+	background: var(--jt-overlay-hover);
+}
+.jactache-list__title-button:focus-visible {
+	outline: 2px solid var(--jt-accent);
+	outline-offset: 2px;
+}
+/* Input de renommage du titre : sans contour pour rester aligné sur
+ * le style « Apple » (pas de bordure visible, juste un curseur). */
+.jactache-list__title-input {
+	flex: 1;
+	min-width: 0;
+	padding: 2px 6px;
+	margin: -2px -6px;
+	border: none;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	outline: none;
+	border-radius: 6px;
+}
+.jactache-list__title-input:focus {
+	background: var(--jt-overlay-faint);
+}
+
+.jactache-list__count {
+	color: var(--jt-text-dim);
+	font-size: 13px;
+}
+
+.jactache-list__add {
+	padding: 12px 32px;
+}
+
+.jactache-list__input {
+	width: 100%;
+	padding: 10px 14px;
+	background: var(--jt-bg-elev);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius);
+	color: var(--jt-text);
+	font-size: 14px;
+	transition: border-color 0.12s, background 0.12s;
+}
+.jactache-list__input:focus {
+	outline: none;
+	border-color: var(--jt-accent);
+	background: var(--jt-bg-input-focus);
+}
+
+.jactache-list__items {
+	list-style: none;
+	margin: 0;
+	padding: 4px 16px 32px;
+	overflow-y: auto;
+	flex: 1;
+}
+
+.jactache-list__empty {
+	padding: 48px 16px;
+	text-align: center;
+	color: var(--jt-text-dim);
+	font-size: 13.5px;
+}
+
+/* ---------- Barre d'outils (recherche + boutons d'action) ----------
+ * Remplace l'ancien champ « Ajouter une tâche ». Recherche prend tout
+ * l'espace flexible ; les boutons + et filtre sont des carrés 34×34. */
+.jactache-list__toolbar {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 32px 4px;
+}
+.jactache-list__search {
+	flex: 1;
+	padding: 8px 12px;
+	background: var(--jt-bg-elev);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius);
+	color: var(--jt-text);
+	font-size: 13.5px;
+	transition: border-color 0.12s, background 0.12s;
+}
+.jactache-list__search:focus {
+	outline: none;
+	border-color: var(--jt-accent);
+	background: var(--jt-bg-input-focus);
+}
+/* Cache la croix de reset native de <input type="search"> sous Safari/Chrome :
+ * notre design n'en a pas besoin et elle clash avec le bouton + adjacent. */
+.jactache-list__search::-webkit-search-cancel-button {
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+.jactache-list__tool {
+	background: var(--jt-bg-elev);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius-sm);
+	color: var(--jt-text);
+	cursor: pointer;
+	width: 34px;
+	height: 34px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 18px;
+	line-height: 1;
+	position: relative;
+	transition: background 0.12s, border-color 0.12s, color 0.12s;
+	flex-shrink: 0;
+}
+.jactache-list__tool:hover {
+	background: var(--jt-bg-hover);
+}
+.jactache-list__tool[data-active='true'] {
+	background: var(--jt-accent-soft);
+	border-color: var(--jt-accent);
+	color: var(--jt-accent);
+}
+
+/* Wrapper du bouton filtre — sert d'ancre pour le popover en position
+ * absolute. ref={filterPopoverRef} y est attaché pour la détection du
+ * click-outside. */
+.jactache-list__filter-wrap {
+	position: relative;
+}
+.jactache-list__filter-badge {
+	position: absolute;
+	top: -4px;
+	right: -4px;
+	background: var(--jt-accent);
+	color: #000;
+	border-radius: 10px;
+	font-size: 10px;
+	font-weight: 700;
+	padding: 1px 5px;
+	min-width: 16px;
+	height: 16px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.jactache-list__filter-popover {
+	position: absolute;
+	top: calc(100% + 6px);
+	right: 0;
+	min-width: 180px;
+	background: var(--jt-bg-elev);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius);
+	box-shadow: var(--jt-shadow);
+	padding: 8px;
+	z-index: 10;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+.jactache-list__filter-heading {
+	font-size: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--jt-text-dim);
+	padding: 4px 6px;
+}
+.jactache-list__filter-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 6px;
+	border-radius: var(--jt-radius-sm);
+	cursor: pointer;
+	font-size: 13px;
+}
+.jactache-list__filter-row:hover {
+	background: var(--jt-bg-hover);
+}
+.jactache-list__filter-row input[type='checkbox'] {
+	accent-color: var(--accent);
+}
+.jactache-list__filter-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+.jactache-list__filter-clear {
+	margin-top: 4px;
+	background: transparent;
+	border: 1px solid var(--jt-border);
+	color: var(--jt-text-dim);
+	padding: 5px 8px;
+	border-radius: var(--jt-radius-sm);
+	font-size: 12px;
+	cursor: pointer;
+}
+.jactache-list__filter-clear:hover {
+	color: var(--jt-text);
+	border-color: var(--jt-text-dim);
+}
+
+/* ---------- Item ---------- */
+.jactache-item {
+	display: flex;
+	gap: 12px;
+	align-items: flex-start;
+	padding: 10px 16px;
+	border-radius: var(--jt-radius-sm);
+	cursor: pointer;
+	transition: background 0.1s;
+}
+.jactache-item:hover {
+	background: var(--jt-bg-hover);
+}
+.jactache-item[data-active='true'] {
+	background: var(--jt-accent-soft);
+}
+.jactache-item[data-done='true'] .jactache-item__title {
+	text-decoration: line-through;
+	color: var(--jt-text-dim);
+}
+
+.jactache-item__check {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	border: 2px solid var(--jt-text-dim);
+	background: transparent;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: white;
+	font-size: 11px;
+	flex-shrink: 0;
+	margin-top: 1px;
+	transition: background 0.1s;
+}
+.jactache-item[data-done='true'] .jactache-item__check {
+	background: var(--jt-success);
+	border-color: var(--jt-success);
+}
+
+.jactache-item__body {
+	flex: 1;
+	min-width: 0;
+}
+
+.jactache-item__title {
+	display: block;
+	font-size: 14px;
+	line-height: 1.4;
+	word-break: break-word;
+}
+
+.jactache-item__edit {
+	width: 100%;
+	padding: 2px 4px;
+	background: var(--jt-bg-elev);
+	border: 1px solid var(--jt-accent);
+	border-radius: 4px;
+	color: var(--jt-text);
+	font-size: 14px;
+}
+
+.jactache-item__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 4px;
+	font-size: 12px;
+	color: var(--jt-text-dim);
+}
+/* Aligne les icônes SVG inline avec le texte des métadonnées (date,
+ * sous-tâches) sur la même ligne de base. */
+.jactache-item__date,
+.jactache-item__subs {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+/* === Mode édition inline (titre + note) style Apple Reminders ===
+ * Quand on clique sur une tâche, la ligne passe en mode édition :
+ * input pour le titre + textarea pour la note. Les deux éléments
+ * s'affichent sans bordure visible, pour rester légers comme Apple.
+ * Le commit se fait au clic-dehors (géré en JS). */
+/* Input du titre : on retire bordure, fond et outline pour qu'il
+ * s'intègre visuellement à la ligne (hérite de la typo du span
+ * .jactache-item__title qu'il remplace). */
+.jactache-item__edit {
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	border: none;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	outline: none;
+	box-shadow: none;
+}
+.jactache-item__edit:focus,
+.jactache-item__edit:focus-visible {
+	outline: none;
+	box-shadow: none;
+	border: none;
+}
+.jactache-item__note {
+	margin: 2px 0 0;
+	font-size: 13px;
+	color: var(--jt-text-dim);
+	line-height: 1.4;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+.jactache-item__note-input {
+	width: 100%;
+	margin-top: 2px;
+	padding: 0;
+	border: none;
+	background: transparent;
+	color: var(--jt-text-dim);
+	font: inherit;
+	font-size: 13px;
+	line-height: 1.4;
+	resize: none;
+	outline: none;
+	overflow: hidden;
+	min-height: 18px;
+	font-family: inherit;
+}
+.jactache-item__note-input::placeholder {
+	color: var(--jt-text-dim);
+	opacity: 0.55;
+}
+/* En mode édition, on garde la ligne visuellement calme : pas de
+ * surbrillance hover qui clignote alors qu'on tape. */
+.jactache-item[data-editing='true'] {
+	cursor: text;
+}
+.jactache-item[data-editing='true']:hover {
+	background: var(--jt-row-hover, transparent);
+}
+
+/* === Actions de fin de ligne (bouton i + marques de priorité) ===
+ * Bloc aligné à droite via margin-left:auto. Le bouton i n'apparait
+ * qu'au survol de la tâche (ou quand elle est active). Les marques
+ * de priorité « !!! » restent toujours visibles, dans la couleur de
+ * la priorité (style Apple Reminders). */
+.jactache-item__actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-left: auto;
+	padding-left: 8px;
+	flex-shrink: 0;
+}
+.jactache-item__info {
+	appearance: none;
+	background: transparent;
+	border: none;
+	padding: 4px;
+	border-radius: 6px;
+	color: var(--jt-text-dim);
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	transition: opacity 0.15s ease, background-color 0.15s ease,
+		color 0.15s ease;
+}
+.jactache-item:hover .jactache-item__info,
+.jactache-item:focus-within .jactache-item__info,
+.jactache-item[data-active='true'] .jactache-item__info {
+	opacity: 1;
+}
+.jactache-item__info:hover {
+	background: var(--jt-overlay-hover);
+	color: var(--jt-accent);
+}
+.jactache-item__info:focus-visible {
+	outline: 2px solid var(--jt-accent);
+	outline-offset: 2px;
+	opacity: 1;
+}
+.jactache-item__priority {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-weight: 700;
+	font-size: 14px;
+	line-height: 1;
+	letter-spacing: -1px;
+	min-width: 18px;
+	text-align: right;
+	user-select: none;
+}
+
+/* === Case à cocher custom du popover de filtre ===
+ * On masque l'input natif (sans le retirer du DOM — il garde le focus
+ * clavier et l'accessibilité) et on affiche un carré arrondi coloré
+ * qui sert à la fois d'indicateur de priorité et de checkbox. */
+.jactache-list__filter-input {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+	width: 0;
+	height: 0;
+	margin: 0;
+}
+.jactache-list__filter-check {
+	width: 16px;
+	height: 16px;
+	border-radius: 5px;
+	border: 2px solid currentColor;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	box-sizing: border-box;
+	transition: background-color 0.15s ease, transform 0.12s ease,
+		box-shadow 0.15s ease;
+}
+.jactache-list__filter-row:hover .jactache-list__filter-check {
+	transform: scale(1.08);
+}
+.jactache-list__filter-row[data-checked='true'] .jactache-list__filter-check {
+	box-shadow: 0 0 0 3px var(--jt-overlay-faint);
+}
+/* Focus visible via le clavier : on dessine un anneau autour de la case
+ * custom quand l'input natif (caché) reçoit le focus. */
+.jactache-list__filter-input:focus-visible
+	+ .jactache-list__filter-check {
+	outline: 2px solid var(--jt-accent);
+	outline-offset: 2px;
+}
+.jactache-item__date[data-overdue='true'] {
+	color: var(--jt-danger);
+}
+.jactache-item__tag {
+	color: var(--jt-accent);
+}
+
+/* ---------- Détail ---------- */
+.jactache-detail {
+	display: flex;
+	flex-direction: column;
+	background: var(--jt-bg-elev);
+	border-left: 1px solid var(--jt-border);
+	overflow-y: auto;
+	animation: slideIn 0.18s ease;
+}
+
+@keyframes slideIn {
+	from { transform: translateX(20px); opacity: 0; }
+	to { transform: translateX(0); opacity: 1; }
+}
+
+.jactache-detail__header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 20px 20px 12px;
+	border-bottom: 1px solid var(--jt-border);
+}
+
+.jactache-detail__title {
+	flex: 1;
+	background: transparent;
+	border: none;
+	color: var(--jt-text);
+	font-size: 17px;
+	font-weight: 600;
+	padding: 4px 0;
+}
+.jactache-detail__title:focus {
+	outline: none;
+}
+
+.jactache-detail__close {
+	background: transparent;
+	border: none;
+	color: var(--jt-text-dim);
+	cursor: pointer;
+	font-size: 16px;
+	padding: 4px 8px;
+	border-radius: 4px;
+}
+.jactache-detail__close:hover {
+	background: var(--jt-bg-hover);
+	color: var(--jt-text);
+}
+
+.jactache-detail__fields {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+	padding: 16px 20px;
+}
+
+.jactache-detail__field {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 12px;
+	color: var(--jt-text-dim);
+}
+.jactache-detail__field:nth-child(3) {
+	grid-column: span 2;
+}
+.jactache-detail__field select,
+.jactache-detail__field input {
+	padding: 6px 8px;
+	background: var(--jt-bg);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius-sm);
+	color: var(--jt-text);
+	font-size: 13px;
+}
+
+/* === Menus déroulants custom du panneau de détail (Priorité + Projet) ===
+ * Remplacent les <select> natifs. Même pattern que le sélecteur de
+ * calendrier de JacCalendrierEventModal : trigger button + popover <ul>
+ * en position: absolute en dessous. */
+.jactache-detail__select {
+	position: relative;
+	width: 100%;
+}
+.jactache-detail__select-trigger {
+	appearance: none;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	padding: 6px 8px;
+	background: var(--jt-bg);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius-sm);
+	color: var(--jt-text);
+	font-size: 13px;
+	font-family: inherit;
+	text-align: left;
+	cursor: pointer;
+	transition: border-color 0.12s ease, background 0.12s ease;
+}
+.jactache-detail__select-trigger:hover {
+	background: var(--jt-bg-hover);
+}
+.jactache-detail__select-trigger[data-open='true'] {
+	border-color: var(--jt-accent);
+}
+.jactache-detail__select-trigger:focus-visible {
+	outline: 2px solid var(--jt-accent);
+	outline-offset: 2px;
+}
+.jactache-detail__select-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+.jactache-detail__select-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--jt-text-dim);
+	flex-shrink: 0;
+}
+.jactache-detail__select-trigger[data-open='true'] .jactache-detail__select-icon,
+.jactache-detail__select-option[data-selected='true'] .jactache-detail__select-icon {
+	color: var(--jt-accent);
+}
+.jactache-detail__select-label {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.jactache-detail__select-chevron {
+	color: var(--jt-text-dim);
+	flex-shrink: 0;
+	transition: transform 0.15s ease, color 0.12s ease;
+}
+.jactache-detail__select-trigger[data-open='true'] .jactache-detail__select-chevron {
+	transform: rotate(180deg);
+	color: var(--jt-accent);
+}
+.jactache-detail__select-menu {
+	position: absolute;
+	top: calc(100% + 4px);
+	left: 0;
+	right: 0;
+	z-index: 60;
+	max-height: 260px;
+	overflow-y: auto;
+	list-style: none;
+	margin: 0;
+	padding: 4px;
+	background: var(--jt-bg-elev);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius);
+	box-shadow: var(--jt-shadow);
+	animation: jactacheDetailSelectPop 0.12s ease-out;
+}
+@keyframes jactacheDetailSelectPop {
+	from { opacity: 0; transform: translateY(-4px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+.jactache-detail__select-menu li { margin: 0; }
+.jactache-detail__select-option {
+	appearance: none;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	padding: 7px 8px;
+	background: transparent;
+	border: none;
+	border-radius: var(--jt-radius-sm);
+	color: var(--jt-text);
+	font-size: 13px;
+	font-family: inherit;
+	text-align: left;
+	cursor: pointer;
+	transition: background 0.1s ease;
+}
+.jactache-detail__select-option:hover {
+	background: var(--jt-bg-hover);
+}
+.jactache-detail__select-option[data-selected='true'] {
+	background: var(--jt-accent-soft);
+	color: var(--jt-accent);
+}
+.jactache-detail__select-check {
+	color: var(--jt-accent);
+	flex-shrink: 0;
+	margin-left: auto;
+}
+
+/* Variante « vide » : affichée quand il n'y a aucun projet. Texte
+ * atténué et italique, pas de hover marqué (information seulement). */
+.jactache-detail__select-option--empty {
+	color: var(--jt-text-dim);
+	font-style: italic;
+	cursor: default;
+}
+.jactache-detail__select-option--empty:hover {
+	background: transparent;
+}
+
+.jactache-detail__section {
+	padding: 12px 20px;
+	border-top: 1px solid var(--jt-border);
+}
+.jactache-detail__section h3 {
+	margin: 0 0 8px;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--jt-text-dim);
+}
+
+.jactache-detail__tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+.jactache-detail__tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 8px;
+	background: var(--jt-accent-soft);
+	color: var(--jt-accent);
+	border-radius: 12px;
+	font-size: 12px;
+}
+.jactache-detail__tag button {
+	background: none;
+	border: none;
+	color: inherit;
+	cursor: pointer;
+	padding: 0;
+	line-height: 1;
+}
+.jactache-detail__tag-input {
+	background: transparent;
+	border: none;
+	color: var(--jt-text);
+	font-size: 12px;
+	width: 80px;
+}
+.jactache-detail__tag-input:focus {
+	outline: none;
+}
+
+.jactache-detail__subs {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 6px;
+}
+.jactache-detail__subs li label {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	padding: 4px 0;
+	font-size: 13px;
+	cursor: pointer;
+}
+.jactache-detail__subs span[data-done='true'] {
+	text-decoration: line-through;
+	color: var(--jt-text-dim);
+}
+.jactache-detail__sub-input {
+	width: 100%;
+	padding: 6px 8px;
+	background: var(--jt-bg);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius-sm);
+	color: var(--jt-text);
+	font-size: 13px;
+}
+
+.jactache-detail__description {
+	width: 100%;
+	padding: 8px 10px;
+	background: var(--jt-bg);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius-sm);
+	color: var(--jt-text);
+	font-size: 13px;
+	font-family: inherit;
+	line-height: 1.4;
+	resize: none;
+}
+
+.jactache-detail__footer {
+	margin-top: auto;
+	padding: 16px 20px;
+	border-top: 1px solid var(--jt-border);
+}
+.jactache-detail__delete {
+	background: transparent;
+	border: 1px solid var(--jt-danger);
+	color: var(--jt-danger);
+	padding: 7px 14px;
+	border-radius: var(--jt-radius-sm);
+	cursor: pointer;
+	font-size: 13px;
+	transition: background 0.12s;
+}
+.jactache-detail__delete:hover {
+	background: rgba(255, 77, 79, 0.12);
+}
+
+/* ---------- Pied de sidebar (paramètres + avatar) ---------- */
+/* Footer fixé en bas de la sidebar via margin-top: auto. Contient un bouton
+ * avec l'avatar de l'utilisateur qui ouvre le panneau Paramètres partagé
+ * (Settings.jsx). Les notes de version sont accessibles depuis ce panneau,
+ * via le VersionModal partagé de la JacSuite (appName="JacTâche"). */
+.jactache-sidebar__footer {
+	/* Sticky bottom : sans ça, quand la liste des projets devient longue,
+	 * la sidebar scroll (overflow-y: auto) et le bouton paramètres sort
+	 * hors écran en bas. position: sticky + bottom:0 le garde toujours
+	 * collé en bas de la zone visible. margin-top: auto continue de le
+	 * pousser en bas tant qu'il n'y a pas de scroll (évite un saut visuel
+	 * quand la sidebar n'est pas remplie). Background opaque pour masquer
+	 * le contenu qui passe en dessous lors du scroll.
+	 * flex-direction: column pour empiler le bouton « Calendrier » au-
+	 * dessus du bouton « Paramètres ». */
+	position: sticky;
+	bottom: 0;
+	margin-top: auto;
+	padding: 12px 6px 4px;
+	background: var(--jt-bg-sidebar);
+	border-top: 1px solid var(--jt-border);
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 4px;
+}
+
+/* Bouton « Calendrier » du pied de sidebar. Look aligné sur
+ * .jactache-sidebar__profile (avatar+label) pour rester cohérent
+ * visuellement : icône ronde à gauche + libellé à droite. data-active
+ * passe au vert accent quand le panneau JacCalendrier est déplié. */
+.jactache-sidebar__footer-btn {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 6px 8px;
+	background: transparent;
+	border: none;
+	border-radius: var(--jt-radius-sm);
+	color: var(--jt-text);
+	font-size: 13px;
+	cursor: pointer;
+	transition: background 0.12s ease, color 0.12s ease;
+	text-align: left;
+}
+.jactache-sidebar__footer-btn:hover {
+	background: var(--jt-bg-hover);
+}
+.jactache-sidebar__footer-btn[data-active='true'] {
+	background: var(--jt-accent-soft);
+	color: var(--jt-accent);
+}
+.jactache-sidebar__footer-btn-icon {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	background: var(--jt-bg-hover);
+	color: var(--jt-text-dim);
+	transition: background 0.12s ease, color 0.12s ease;
+}
+.jactache-sidebar__footer-btn[data-active='true'] .jactache-sidebar__footer-btn-icon {
+	background: var(--jt-accent-soft);
+	color: var(--jt-accent);
+}
+.jactache-sidebar__footer-btn-label {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+/* Mode sidebar réduite : on masque le libellé, on centre l'icône. */
+.jactache-sidebar[data-collapsed='true'] .jactache-sidebar__footer-btn-label {
+	display: none;
+}
+.jactache-sidebar[data-collapsed='true'] .jactache-sidebar__footer-btn {
+	justify-content: center;
+	padding: 6px;
+	gap: 0;
+}
+
+.jactache-sidebar__profile {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 6px 8px;
+	background: transparent;
+	border: none;
+	border-radius: var(--jt-radius-sm);
+	color: var(--jt-text);
+	font-size: 13px;
+	cursor: pointer;
+	transition: background 0.12s ease;
+	min-width: 0;
+}
+.jactache-sidebar__profile:hover {
+	background: var(--jt-bg-hover);
+}
+
+.jactache-sidebar__avatar {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	object-fit: cover;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 13px;
+	font-weight: 600;
+	flex-shrink: 0;
+	background: var(--jt-accent-soft);
+	color: var(--jt-accent);
+}
+.jactache-sidebar__avatar--initial {
+	background: var(--jt-accent);
+	color: #fff;
+}
+
+.jactache-sidebar__profile-label {
+	flex: 1;
+	text-align: left;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* ---------- Panneau Calendrier ----------
+ * Deux modes selon l'état de la sidebar :
+ *  - par défaut (sidebar étendue) : rendu *inline* dans le flux du
+ *    footer, juste entre les boutons Calendrier et Paramètres. La
+ *    sidebar elle-même s'étire / scrolle pour l'accommoder.
+ *  - data-floating='true' (sidebar réduite) : position: fixed avec
+ *    left/bottom calculés en JS depuis getBoundingClientRect du bouton.
+ *    z-index supérieur à la sidebar et au handle de redimensionnement. */
+.jactache-calpanel {
+	width: 100%;
+	box-sizing: border-box;
+	margin: 4px 0;
+	background: var(--jt-bg-elev);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius);
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	animation: jactacheCalpanelExpand 0.18s ease-out;
+	overflow: hidden;
+}
+/* Mode flottant : on réinitialise width/margin et on bascule en
+ * position fixe ancrée via les coordonnées inline left/bottom posées
+ * en style={style} côté JS. Animation différente : un simple fade-pop. */
+.jactache-calpanel[data-floating='true'] {
+	position: fixed;
+	z-index: 150;
+	width: 280px;
+	max-width: calc(100vw - 24px);
+	margin: 0;
+	box-shadow: var(--jt-shadow);
+	padding: 12px;
+	gap: 10px;
+	animation: jactacheCalpanelPop 0.14s ease-out;
+	overflow: visible;
+}
+@keyframes jactacheCalpanelExpand {
+	from { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; margin: 0; border-width: 0; }
+	to   { opacity: 1; max-height: 500px; padding-top: 10px; padding-bottom: 10px; margin: 4px 0; border-width: 1px; }
+}
+@keyframes jactacheCalpanelPop {
+	from { opacity: 0; transform: translateY(4px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+/* En mode flottant on rebalance la taille des cellules : un peu plus
+ * grand parce qu'on a la place (pas de contrainte de largeur sidebar). */
+.jactache-calpanel[data-floating='true'] .jactache-calpanel__day {
+	font-size: 12px;
+	height: 30px;
+}
+
+.jactache-calpanel__nav {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 4px;
+}
+.jactache-calpanel__nav-btn {
+	width: 26px;
+	height: 26px;
+	background: transparent;
+	border: none;
+	color: var(--jt-text-dim);
+	border-radius: var(--jt-radius-sm);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+.jactache-calpanel__nav-btn:hover {
+	background: var(--jt-bg-hover);
+	color: var(--jt-text);
+}
+.jactache-calpanel__nav-label {
+	flex: 1;
+	text-align: center;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--jt-text);
+	text-transform: capitalize;
+}
+
+.jactache-calpanel__weekdays {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 2px;
+}
+.jactache-calpanel__weekday {
+	text-align: center;
+	font-size: 10.5px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--jt-text-dim);
+}
+
+.jactache-calpanel__grid {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 2px;
+}
+.jactache-calpanel__day {
+	appearance: none;
+	background: transparent;
+	border: none;
+	color: var(--jt-text);
+	font-size: 11.5px;
+	font-family: inherit;
+	height: 26px;
+	border-radius: 6px;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+	padding: 0;
+	transition: background 0.1s ease, color 0.1s ease;
+}
+.jactache-calpanel__day:hover {
+	background: var(--jt-bg-hover);
+}
+.jactache-calpanel__day[data-outside='true'] {
+	color: var(--jt-text-dim);
+	opacity: 0.45;
+}
+.jactache-calpanel__day[data-today='true'] {
+	font-weight: 700;
+	color: var(--jt-accent);
+}
+.jactache-calpanel__day[data-selected='true'] {
+	background: var(--jt-accent);
+	color: #0a0c0f;
+	font-weight: 600;
+}
+.jactache-calpanel__day-dot {
+	position: absolute;
+	bottom: 3px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 4px;
+	height: 4px;
+	border-radius: 50%;
+	background: var(--jt-accent);
+}
+.jactache-calpanel__day[data-selected='true'] .jactache-calpanel__day-dot {
+	background: #0a0c0f;
+}
+
+.jactache-calpanel__events {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding-top: 6px;
+	border-top: 1px solid var(--jt-border);
+}
+.jactache-calpanel__events-title {
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--jt-text-dim);
+}
+.jactache-calpanel__events-empty {
+	margin: 0;
+	font-size: 12.5px;
+	color: var(--jt-text-dim);
+	font-style: italic;
+}
+.jactache-calpanel__events-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	max-height: 140px;
+	overflow-y: auto;
+}
+.jactache-calpanel__event {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	padding: 4px 6px;
+	border-radius: var(--jt-radius-sm);
+	font-size: 12.5px;
+}
+.jactache-calpanel__event-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	margin-top: 4px;
+}
+.jactache-calpanel__event-body {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	min-width: 0;
+	flex: 1;
+}
+.jactache-calpanel__event-title {
+	color: var(--jt-text);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.jactache-calpanel__event-time {
+	font-size: 11px;
+	color: var(--jt-text-dim);
+	font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Bouton chevron de réduction de la sidebar ---------- */
+/* Style discret aligné sur le vocabulaire des autres boutons « ® » de la
+ * sidebar. margin-left: auto pousse le chevron à droite quand la brand row
+ * contient logo+nom (sidebar étendue) ; en mode réduit le brand est centré
+ * et margin-left:auto est neutralisé. */
+.jactache-sidebar__toggle {
+	margin-left: auto;
+	background: transparent;
+	border: none;
+	color: var(--jt-text-dim);
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px;
+	border-radius: 4px;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+.jactache-sidebar__toggle:hover {
+	background: var(--jt-bg-hover);
+	color: var(--jt-text);
+}
+
+/* ---------- Sidebar réduite (collapsed) ----------
+ * Basculée par .jactache-app[data-sidebar-collapsed='true']. On rétrécit
+ * la première colonne de la grille à 48px et on masque tous les libellés
+ * texte de la sidebar pour ne garder que les icônes. Le bouton chevron
+ * reste toujours visible pour permettre de déplier. */
+
+.jactache-app[data-sidebar-collapsed='true'] {
+	grid-template-columns: 48px 1fr;
+}
+.jactache-app[data-sidebar-collapsed='true'][data-has-detail='true'] {
+	grid-template-columns: 48px 1fr 360px;
+}
+
+.jactache-sidebar[data-collapsed='true'] {
+	padding: 12px 4px;
+	align-items: stretch;
+}
+
+/* Masque les libellés texte mais garde toujours les icônes et le bouton
+ * toggle. Les <span> sans classe (libellé des filtres rapides) sont
+ * ciblés via :not(.jactache-sidebar__icon). */
+.jactache-sidebar[data-collapsed='true'] .jactache-sidebar__brand-name,
+.jactache-sidebar[data-collapsed='true'] .jactache-sidebar__heading,
+.jactache-sidebar[data-collapsed='true'] .jactache-sidebar__input,
+.jactache-sidebar[data-collapsed='true'] .jactache-sidebar__profile-label,
+.jactache-sidebar[data-collapsed='true'] .jactache-sidebar__count,
+.jactache-sidebar[data-collapsed='true'] .jactache-sidebar__item span:not(.jactache-sidebar__icon) {
+	display: none;
+}
+
+.jactache-sidebar[data-collapsed='true'] .jactache-sidebar__brand {
+	padding: 4px 0 12px;
+	justify-content: center;
+}
+.jactache-sidebar[data-collapsed='true'] .jactache-sidebar__toggle {
+	margin-left: 0;
+}
+
+.jactache-sidebar[data-collapsed='true'] .jactache-sidebar__item {
+	justify-content: center;
+	padding: 8px 4px;
+	gap: 0;
+}
+
+.jactache-sidebar[data-collapsed='true'] .jactache-sidebar__footer {
+	justify-content: center;
+	padding: 12px 0 4px;
+}
+.jactache-sidebar[data-collapsed='true'] .jactache-sidebar__profile {
+	flex: 0 0 auto;
+	justify-content: center;
+	padding: 6px;
+	gap: 0;
+}
+
+/* ---------- Menu contextuel projet (clic droit) ----------
+ * Rendu en position: fixed pour pouvoir déborder de la sidebar sans être
+ * clippé par overflow. Le composant gère lui-même son positionnement via
+ * style={ { left, top } } d'après clientX/Y de l'event. */
+.jactache-context-menu {
+	position: fixed;
+	z-index: 100;
+	background: var(--jt-bg-elev);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius);
+	box-shadow: var(--jt-shadow);
+	padding: 4px;
+	min-width: 160px;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	animation: ctxMenuFade 0.1s ease-out;
+}
+@keyframes ctxMenuFade {
+	from { opacity: 0; transform: translateY(-2px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+.jactache-context-menu__item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 7px 10px;
+	background: transparent;
+	border: none;
+	border-radius: var(--jt-radius-sm);
+	color: var(--jt-text);
+	cursor: pointer;
+	font-size: 13px;
+	text-align: left;
+}
+.jactache-context-menu__item:hover {
+	background: var(--jt-bg-hover);
+}
+.jactache-context-menu__item--danger {
+	color: var(--jt-danger);
+}
+.jactache-context-menu__item--danger:hover {
+	background: rgba(255, 77, 79, 0.12);
+}
+
+/* ---------- Pop-up de confirmation personnalisée ----------
+ * Remplace window.confirm() partout dans JacTâche (suppression d'une
+ * tâche, d'un projet, multi-suppression, etc.). Overlay sombre flou,
+ * panneau centré avec deux boutons. Échap = annuler, Entrée = confirmer,
+ * clic sur l'overlay = annuler. */
+.jactache-confirm-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.55);
+	backdrop-filter: blur(2px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 200;
+	animation: jactacheConfirmFade 0.12s ease-out;
+}
+@keyframes jactacheConfirmFade {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+.jactache-confirm {
+	background: var(--jt-bg-elev);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius);
+	box-shadow: var(--jt-shadow);
+	padding: 22px 22px 18px;
+	min-width: 320px;
+	max-width: 440px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	animation: jactacheConfirmPop 0.15s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+@keyframes jactacheConfirmPop {
+	from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+	to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.jactache-confirm__title {
+	margin: 0;
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--jt-text);
+}
+
+.jactache-confirm__message {
+	margin: 0;
+	font-size: 13.5px;
+	line-height: 1.5;
+	color: var(--jt-text-dim);
+}
+
+.jactache-confirm__actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 8px;
+}
+
+.jactache-confirm__btn {
+	appearance: none;
+	padding: 8px 16px;
+	border-radius: var(--jt-radius-sm);
+	border: 1px solid var(--jt-border);
+	background: var(--jt-bg);
+	color: var(--jt-text);
+	font-size: 13.5px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.jactache-confirm__btn:hover { background: var(--jt-bg-hover); }
+.jactache-confirm__btn:focus-visible {
+	outline: 2px solid var(--jt-accent);
+	outline-offset: 2px;
+}
+
+.jactache-confirm__btn--ghost {
+	background: transparent;
+	color: var(--jt-text-dim);
+}
+.jactache-confirm__btn--ghost:hover {
+	background: var(--jt-bg-hover);
+	color: var(--jt-text);
+}
+
+.jactache-confirm__btn--primary {
+	background: var(--jt-accent);
+	border-color: var(--jt-accent);
+	color: #0a0c0f;
+}
+.jactache-confirm__btn--primary:hover { filter: brightness(1.08); }
+
+.jactache-confirm__btn--danger {
+	background: var(--jt-danger);
+	border-color: var(--jt-danger);
+	color: #fff;
+}
+.jactache-confirm__btn--danger:hover { filter: brightness(1.08); }
+
+/* ---------- Date picker custom ----------
+ * Remplace <input type="date"> dans le panneau de détail. Trigger ressemble
+ * à un select natif (même hauteur, même fond) ; le popover s'ouvre en
+ * dessous avec une grille de 6 semaines + boutons « Aujourd'hui » / « Effacer ». */
+.jactache-datepicker {
+	position: relative;
+	width: 100%;
+}
+
+.jactache-datepicker__trigger {
+	appearance: none;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	padding: 6px 8px;
+	background: var(--jt-bg);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius-sm);
+	color: var(--jt-text);
+	font-size: 13px;
+	font-family: inherit;
+	text-align: left;
+	cursor: pointer;
+	transition: border-color 0.12s ease, background 0.12s ease;
+}
+.jactache-datepicker__trigger:hover { background: var(--jt-bg-hover); }
+.jactache-datepicker__trigger:focus-visible {
+	outline: 2px solid var(--jt-accent);
+	outline-offset: 2px;
+}
+.jactache-datepicker__trigger[data-open='true'] {
+	border-color: var(--jt-accent);
+}
+.jactache-datepicker__trigger[data-empty='true'] .jactache-datepicker__label {
+	color: var(--jt-text-dim);
+}
+
+.jactache-datepicker__trigger-icon {
+	display: inline-flex;
+	color: var(--jt-text-dim);
+	flex-shrink: 0;
+}
+.jactache-datepicker__trigger[data-empty='false'] .jactache-datepicker__trigger-icon,
+.jactache-datepicker__trigger[data-open='true'] .jactache-datepicker__trigger-icon {
+	color: var(--jt-accent);
+}
+
+.jactache-datepicker__label {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.jactache-datepicker__clear {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	color: var(--jt-text-dim);
+	font-size: 15px;
+	line-height: 1;
+	cursor: pointer;
+	flex-shrink: 0;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+.jactache-datepicker__clear:hover {
+	background: rgba(255, 77, 79, 0.18);
+	color: var(--jt-danger);
+}
+
+/* ----- Popover ----- */
+.jactache-datepicker__popover {
+	position: absolute;
+	top: calc(100% + 6px);
+	right: 0;
+	left: auto;
+	z-index: 50;
+	width: min(280px, calc(100vw - 24px));
+	max-width: 280px;
+	box-sizing: border-box;
+	padding: 10px;
+	background: var(--jt-bg-elev);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius);
+	box-shadow: var(--jt-shadow);
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	animation: jactacheDatePop 0.12s ease-out;
+}
+@keyframes jactacheDatePop {
+	from { opacity: 0; transform: translateY(-4px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+.jactache-datepicker__nav {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 4px;
+}
+.jactache-datepicker__nav-btn {
+	appearance: none;
+	width: 26px;
+	height: 26px;
+	border: none;
+	background: transparent;
+	color: var(--jt-text-dim);
+	border-radius: var(--jt-radius-sm);
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+.jactache-datepicker__nav-btn:hover {
+	background: var(--jt-bg-hover);
+	color: var(--jt-text);
+}
+.jactache-datepicker__nav-label {
+	flex: 1;
+	text-align: center;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--jt-text);
+	text-transform: capitalize;
+}
+
+.jactache-datepicker__weekdays {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 2px;
+}
+.jactache-datepicker__weekday {
+	text-align: center;
+	font-size: 10.5px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: var(--jt-text-dim);
+	padding: 4px 0 2px;
+}
+
+.jactache-datepicker__grid {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 2px;
+}
+.jactache-datepicker__day {
+	appearance: none;
+	background: transparent;
+	border: none;
+	color: var(--jt-text);
+	font-size: 12.5px;
+	font-family: inherit;
+	padding: 0;
+	height: 30px;
+	border-radius: 6px;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+	transition: background 0.1s ease, color 0.1s ease;
+}
+.jactache-datepicker__day:hover {
+	background: var(--jt-bg-hover);
+}
+.jactache-datepicker__day[data-outside='true'] {
+	color: var(--jt-text-dim);
+	opacity: 0.45;
+}
+.jactache-datepicker__day[data-weekend='true']:not([data-outside='true']) {
+	color: var(--jt-text-dim);
+}
+.jactache-datepicker__day[data-today='true'] {
+	font-weight: 700;
+	color: var(--jt-accent);
+}
+.jactache-datepicker__day[data-today='true']::after {
+	content: '';
+	position: absolute;
+	bottom: 4px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 4px;
+	height: 4px;
+	border-radius: 50%;
+	background: var(--jt-accent);
+}
+.jactache-datepicker__day[data-selected='true'] {
+	background: var(--jt-accent);
+	color: #0a0c0f;
+	font-weight: 600;
+}
+.jactache-datepicker__day[data-selected='true']::after {
+	background: #0a0c0f;
+}
+.jactache-datepicker__day[data-selected='true']:hover {
+	filter: brightness(1.08);
+}
+
+/* Toggle "Toute la journée" */
+.jactache-datepicker__all-day {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 2px 4px;
+	font-size: 12.5px;
+	color: var(--jt-text);
+	cursor: pointer;
+	border-top: 1px solid var(--jt-border);
+	margin-top: 2px;
+	user-select: none;
+}
+/* On cache le checkbox natif (toujours présent pour l'a11y et le focus
+   keyboard) et on dessine une case custom à côté. */
+.jactache-datepicker__all-day input[type='checkbox'] {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	opacity: 0;
+	pointer-events: none;
+	margin: 0;
+}
+.jactache-datepicker__checkbox {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	border: 1.5px solid var(--jt-border);
+	border-radius: 4px;
+	background: var(--jt-bg);
+	flex-shrink: 0;
+	transition: background 0.12s ease, border-color 0.12s ease;
+}
+.jactache-datepicker__all-day:hover .jactache-datepicker__checkbox {
+	border-color: var(--jt-accent);
+}
+.jactache-datepicker__all-day input:focus-visible + .jactache-datepicker__checkbox {
+	outline: 2px solid var(--jt-accent);
+	outline-offset: 2px;
+}
+.jactache-datepicker__all-day input:checked + .jactache-datepicker__checkbox {
+	background: var(--jt-accent);
+	border-color: var(--jt-accent);
+}
+.jactache-datepicker__all-day input:checked + .jactache-datepicker__checkbox::after {
+	content: '';
+	width: 8px;
+	height: 4px;
+	border-left: 2px solid #0a0c0f;
+	border-bottom: 2px solid #0a0c0f;
+	transform: rotate(-45deg) translate(1px, -1px);
+}
+.jactache-datepicker__all-day-label {
+	flex: 1;
+}
+
+.jactache-datepicker__time {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 2px 2px 4px;
+	transition: opacity 0.15s ease;
+}
+.jactache-datepicker__time[data-disabled='true'] {
+	opacity: 0.4;
+	pointer-events: none;
+}
+.jactache-datepicker__time-label {
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--jt-text-dim);
+}
+.jactache-datepicker__time-inputs {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	background: var(--jt-bg);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius-sm);
+	padding: 3px 8px;
+	transition: border-color 0.12s ease;
+}
+.jactache-datepicker__time-inputs:focus-within {
+	border-color: var(--jt-accent);
+}
+.jactache-datepicker__time-input {
+	appearance: textfield;
+	-moz-appearance: textfield;
+	width: 28px;
+	min-width: 28px;
+	box-sizing: content-box;
+	background: transparent;
+	border: none;
+	color: var(--jt-text);
+	font-family: inherit;
+	font-size: 13px;
+	font-variant-numeric: tabular-nums;
+	text-align: center;
+	padding: 0 2px;
+	letter-spacing: 0.5px;
+}
+.jactache-datepicker__time-input::-webkit-outer-spin-button,
+.jactache-datepicker__time-input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+.jactache-datepicker__time-input:focus { outline: none; }
+.jactache-datepicker__time-sep {
+	color: var(--jt-text-dim);
+	font-weight: 600;
+	font-size: 13px;
+	padding: 0 1px;
+}
+
+/* Wrapper relatif pour positionner le menu déroulant sous chaque input. */
+.jactache-datepicker__time-field {
+	position: relative;
+	display: inline-flex;
+}
+.jactache-datepicker__time-menu {
+	position: absolute;
+	top: calc(100% + 6px);
+	left: 50%;
+	/* Important : on utilise une keyframe dédiée (jactacheTimeMenuPop) qui
+	   préserve le translateX(-50%) du recentrage. La keyframe partagée
+	   jactacheDatePop n'animait que translateY, donc écrasait le
+	   translateX et le menu apparaissait à droite puis snappait au centre. */
+	transform: translateX(-50%);
+	width: 56px;
+	max-height: 168px;
+	overflow-y: auto;
+	background: var(--jt-bg-elev);
+	border: 1px solid var(--jt-border);
+	border-radius: var(--jt-radius-sm);
+	box-shadow: var(--jt-shadow);
+	display: flex;
+	flex-direction: column;
+	padding: 4px;
+	gap: 1px;
+	z-index: 60;
+	animation: jactacheTimeMenuPop 0.1s ease-out;
+}
+@keyframes jactacheTimeMenuPop {
+	from { opacity: 0; transform: translate(-50%, -4px); }
+	to   { opacity: 1; transform: translate(-50%, 0); }
+}
+/* Scrollbar discrète */
+.jactache-datepicker__time-menu::-webkit-scrollbar { width: 6px; }
+.jactache-datepicker__time-menu::-webkit-scrollbar-thumb {
+	background: var(--jt-border);
+	border-radius: 3px;
+}
+.jactache-datepicker__time-menu::-webkit-scrollbar-thumb:hover {
+	background: var(--jt-text-dim);
+}
+
+.jactache-datepicker__time-option {
+	appearance: none;
+	background: transparent;
+	border: none;
+	color: var(--jt-text);
+	font-family: inherit;
+	font-size: 12.5px;
+	font-variant-numeric: tabular-nums;
+	padding: 5px 0;
+	border-radius: 4px;
+	cursor: pointer;
+	text-align: center;
+	flex-shrink: 0;
+	transition: background 0.1s ease, color 0.1s ease;
+}
+.jactache-datepicker__time-option:hover {
+	background: var(--jt-bg-hover);
+}
+.jactache-datepicker__time-option[data-active='true'] {
+	background: var(--jt-accent-soft);
+	color: var(--jt-accent);
+	font-weight: 600;
+}
+
+.jactache-datepicker__footer {
+	display: flex;
+	gap: 6px;
+	padding-top: 6px;
+}
+.jactache-datepicker__action {
+	appearance: none;
+	flex: 1;
+	padding: 6px 10px;
+	border-radius: var(--jt-radius-sm);
+	border: 1px solid var(--jt-border);
+	background: var(--jt-bg);
+	color: var(--jt-text);
+	font-size: 12.5px;
+	cursor: pointer;
+	transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.jactache-datepicker__action:hover {
+	background: var(--jt-bg-hover);
+	border-color: var(--jt-accent);
+	color: var(--jt-accent);
+}
+.jactache-datepicker__action--ghost {
+	background: transparent;
+	color: var(--jt-text-dim);
+	border-color: transparent;
+}
+.jactache-datepicker__action--ghost:hover {
+	background: rgba(255, 77, 79, 0.12);
+	border-color: transparent;
+	color: var(--jt-danger);
+}
+
+/* ===========================================================
+ * Hooks Settings — pilotés par les data-attributes posés au root
+ * .jactache-app par JacTacheApp via useJacTacheViewPrefs.
+ * Toute modification dans FullSettingsModal > JacTâche > Apparence
+ * (ou Vues & filtres) se voit instantanément, sans reload.
+ * =========================================================== */
+
+/* --- Densité : compact = padding/typo réduits ; comfortable = aérés.
+ *     'cozy' est la valeur par défaut, aucun override nécessaire. --- */
+.jactache-app[data-density='compact'] .jactache-item {
+	padding: 6px 12px;
+	gap: 8px;
+}
+.jactache-app[data-density='compact'] .jactache-item__title {
+	font-size: 13px;
+}
+.jactache-app[data-density='compact'] .jactache-item__meta {
+	font-size: 11px;
+	margin-top: 2px;
+}
+.jactache-app[data-density='compact'] .jactache-sidebar__item {
+	padding: 5px 12px;
+	font-size: 13px;
+}
+.jactache-app[data-density='comfortable'] .jactache-item {
+	padding: 14px 18px;
+	gap: 14px;
+}
+.jactache-app[data-density='comfortable'] .jactache-item__title {
+	font-size: 15px;
+}
+.jactache-app[data-density='comfortable'] .jactache-sidebar__item {
+	padding: 9px 12px;
+}
+
+/* --- Style de la case à cocher : square = carré arrondi au lieu de rond. --- */
+.jactache-app[data-checkbox-style='square'] .jactache-item__check {
+	border-radius: 5px;
+}
+
+/* --- Animation de cochage : off = pas de transition à l'état coché. --- */
+.jactache-app[data-check-animation='off'] .jactache-item__check {
+	transition: none;
+}
+
+/* --- Avatar de projet sur les items : off = masqué.
+ *     Le composant JacTacheItem n'a pas d'élément dédié pour l'avatar
+ *     pour l'instant ; cette règle anticipe l'ajout futur d'un
+ *     .jactache-item__project-avatar (badge rond coloré à gauche du
+ *     titre). Le reste du wiring est déjà en place. --- */
+.jactache-app[data-show-project-avatar='off'] .jactache-item__project-avatar {
+	display: none;
+}
+
+/* --- Masquer les tâches complétées globalement.
+ *     La logique de filtrage se fait côté store/sélecteur idéalement,
+ *     mais ce fallback CSS garantit qu'aucune tâche cochée n'apparaît
+ *     même si le sélecteur n'est pas branché. --- */
+.jactache-app[data-hide-completed='on'] .jactache-item[data-done='true'] {
+	display: none;
+}
+
+/* --- Compteurs dans la sidebar : off = masque les pastilles de count
+ *     à côté des projets et filtres rapides. --- */
+.jactache-app[data-show-sidebar-counts='off'] .jactache-sidebar__count {
+	display: none;
+}
+
+/* ============================================================
+ * MOBILE RESPONSIVE — sidebar drawer + 1-colonne sous 768px.
+ *
+ * Stratégie :
+ *   - Par défaut sur mobile, on force le mode COLLAPSED (rail 48px
+ *     visible à gauche) même si l'utilisateur l'a déplié sur desktop.
+ *     Le rail reste tap-friendly (44×44 sur les icones grâce au CSS plus
+ *     bas) et tient comme « hamburger » permanent : un tap sur le chevron
+ *     déplie la sidebar.
+ *   - Quand l'utilisateur déplie : la sidebar bascule en MODE DRAWER
+ *     overlay plein-écran-haut au-dessus du contenu, avec backdrop sombre.
+ *     Un re-tap sur le chevron, sur un projet, ou sur le backdrop la referme.
+ *   - Sous 480px (portrait téléphone) : drawer prend 100vw au lieu de 280px.
+ *   - L'état data-sidebar-collapsed est toujours piloté par JacTacheApp
+ *     (même source de vérité entre desktop et mobile) ; aucune modif JS
+ *     nécessaire pour cette responsivité.
+ * ============================================================ */
+@media (max-width: 768px) {
+	.jactache-app {
+		/* Sur mobile, le contenu prend toute la largeur. Le rail de 48px
+		 * de la sidebar s'affiche en overlay translucide sur la gauche
+		 * via position: fixed plus bas, mais la grille elle-même n'a
+		 * plus qu'une colonne. */
+		grid-template-columns: 1fr;
+	}
+	.jactache-app[data-has-detail='true'] {
+		/* Le panneau Detail (360px) bascule aussi sur une vue plein-écran :
+		 * en mobile, on l'affiche par-dessus la liste via position: fixed.
+		 * Déjà géré visuellement par .jactache-detail en bas. */
+		grid-template-columns: 1fr;
+	}
+
+	/* Sidebar en mode « collapsed » (rail 48px) : pinée en overlay
+	 * à gauche, par-dessus le contenu. Le rail reste visible et tappable. */
+	.jactache-sidebar[data-collapsed='true'] {
+		position: fixed;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		width: 48px;
+		z-index: 90;
+		border-right: 1px solid var(--jt-border);
+	}
+
+	/* Sidebar en mode « expanded » : DRAWER overlay 280px de large,
+	 * piné à gauche par-dessus le contenu. Backdrop ajouté via ::after
+	 * sur la sidebar elle-même (capé à 100vw, transparent, tap = ferme). */
+	.jactache-sidebar[data-collapsed='false'],
+	.jactache-sidebar:not([data-collapsed='true']) {
+		position: fixed;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		width: 280px;
+		max-width: 88vw;
+		z-index: 95;
+		box-shadow: 0 0 32px rgba(0, 0, 0, 0.5);
+		animation: jactacheSidebarSlideIn 0.18s ease-out;
+	}
+	@keyframes jactacheSidebarSlideIn {
+		from { transform: translateX(-100%); }
+		to   { transform: translateX(0); }
+	}
+
+	/* Contenu principal décalé du rail 48px en permanence (le rail est
+	 * en overlay donc l'auto-grid ne le compte plus). Pas de décalage
+	 * sous le drawer overlay : le user attend que le drawer disparaisse
+	 * derrière le backdrop, pas que le contenu push. */
+	.jactache-app > *:not(.jactache-sidebar):not(.jactache-app__sidebar-resize) {
+		padding-left: 48px;
+	}
+
+	/* Handle de redimensionnement désactivé sur mobile : sans souris
+	 * précise il gêne plus qu'il n'aide. */
+	.jactache-app__sidebar-resize {
+		display: none;
+	}
+
+	/* Touch targets : on agrandit toutes les zones cliquables de la
+	 * sidebar pour respecter le minimum 44×44 (Apple HIG / Material). */
+	.jactache-sidebar__item,
+	.jactache-sidebar__profile,
+	.jactache-sidebar__footer-btn {
+		min-height: 44px;
+	}
+	.jactache-sidebar__toggle {
+		min-width: 36px;
+		min-height: 36px;
+	}
+
+	/* En-tête de liste et items : padding horizontal réduit pour utiliser
+	 * la largeur de l'écran efficacement. */
+	.jactache-list__header { padding: 18px 16px 12px; }
+	.jactache-list__toolbar { padding: 10px 16px 4px; }
+	.jactache-list__items { padding: 4px 8px 24px; }
+	.jactache-list__title { font-size: 18px; }
+
+	/* Panneau détail : en mobile, on l'affiche en plein-écran par-dessus
+	 * la liste plutôt qu'en colonne 360px. Bordure gauche supprimée. */
+	.jactache-detail {
+		position: fixed;
+		top: 0;
+		left: 48px;
+		right: 0;
+		bottom: 0;
+		border-left: none;
+		z-index: 80;
+	}
+}
+
+@media (max-width: 480px) {
+	/* Drawer prend toute la largeur sur téléphone portrait. */
+	.jactache-sidebar[data-collapsed='false'],
+	.jactache-sidebar:not([data-collapsed='true']) {
+		width: 100vw;
+		max-width: none;
+	}
+
+	/* Item de tâche : un peu plus de padding vertical pour le tap. */
+	.jactache-item {
+		padding: 12px 14px;
+	}
+
+	/* Date picker popover : recadré pour ne pas déborder sous 480px.
+	 * On l'aligne à gauche au lieu de droite et on lui donne presque
+	 * toute la largeur. */
+	.jactache-datepicker__popover {
+		left: 0;
+		right: auto;
+		width: calc(100vw - 32px);
+		max-width: 320px;
+	}
+}
+
+/* Pointer coarse — détection tactile pure, même en grande largeur (tablette).
+ * Garantit les touch targets sur iPad même quand le layout reste 3-col. */
+@media (pointer: coarse) {
+	.jactache-sidebar__item,
+	.jactache-sidebar__profile,
+	.jactache-sidebar__footer-btn,
+	.jactache-item__check,
+	.jactache-list__tool {
+		min-height: 44px;
+	}
+	.jactache-item__check {
+		min-width: 22px;
+		width: 22px;
+		height: 22px;
+	}
+}

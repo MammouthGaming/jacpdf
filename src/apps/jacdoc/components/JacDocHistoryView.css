@@ -1,0 +1,454 @@
+/* Vue Historique des versions style Google Docs.
+   Remplace l'éditeur plein-cadre quand l'utilisateur clique sur l'icône
+   « Historique » de la topbar. Sombre par défaut (cohérent avec le reste
+   de JacDoc), variante claire Google-Docs-like via [data-theme="light"]. */
+
+.jacdoc-history-root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--jacdoc-bg, #000);
+  color: var(--jacdoc-fg, #e7ecf5);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  z-index: 50;
+  overflow: hidden;
+}
+
+/* ── Topbar : retour + label de version + bouton Restaurer ──────── */
+.jacdoc-history-topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 16px;
+  background: var(--jacdoc-panel, #161b27);
+  border-bottom: 1px solid var(--jacdoc-border, #2a3347);
+  flex-shrink: 0;
+}
+.jacdoc-history-back {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--jacdoc-fg-dim, #9ca3af);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.jacdoc-history-back:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--jacdoc-fg, #e7ecf5);
+}
+.jacdoc-history-version-label {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--jacdoc-fg, #e7ecf5);
+  flex: 1;
+  padding-left: 4px;
+}
+.jacdoc-history-restore-btn {
+  height: 38px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 22px;
+  background: #1a73e8;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.jacdoc-history-restore-btn:hover:not(:disabled) {
+  background: #1765cc;
+  box-shadow: 0 4px 10px rgba(26, 115, 232, 0.35);
+}
+.jacdoc-history-restore-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.jacdoc-history-restore-btn:disabled {
+  background: rgba(26, 115, 232, 0.32);
+  color: rgba(255, 255, 255, 0.55);
+  cursor: not-allowed;
+}
+
+/* ── Toolbar secondaire : imprimer / zoom / police / nb modifs ──── */
+.jacdoc-history-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: var(--jacdoc-panel, #161b27);
+  border-bottom: 1px solid var(--jacdoc-border, #2a3347);
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--jacdoc-fg-dim, #9ca3af);
+}
+.jacdoc-history-tb-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--jacdoc-fg-dim, #9ca3af);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+}
+.jacdoc-history-tb-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--jacdoc-fg, #e7ecf5);
+}
+.jacdoc-history-tb-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--jacdoc-border, #2a3347);
+  margin: 0 6px;
+}
+.jacdoc-history-tb-zoom {
+  min-width: 56px;
+  padding: 0 8px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.jacdoc-history-tb-font {
+  min-width: 36px;
+  padding: 0 8px;
+  font-style: italic;
+  letter-spacing: 0.5px;
+}
+.jacdoc-history-tb-spacer { flex: 1; }
+.jacdoc-history-tb-mods {
+  padding: 0 8px;
+  font-size: 13px;
+  color: var(--jacdoc-fg-dim, #9ca3af);
+}
+
+/* ── Corps : preview gauche + sidebar droite ─────────────────────── */
+.jacdoc-history-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  background: var(--jacdoc-bg, #000);
+}
+.jacdoc-history-preview-wrap {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 24px 60px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.jacdoc-history-page {
+  width: 816px;
+  min-height: 1056px;
+  background: var(--jacdoc-page-bg, #1f1f1f);
+  color: var(--jacdoc-page-fg, #e7e7e7);
+  border-radius: 12px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.5),
+    0 12px 32px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(var(--jacdoc-accent-rgb, 57, 255, 20), 0.08);
+  padding: 72px 96px;
+  box-sizing: border-box;
+}
+.jacdoc-history-content .ProseMirror {
+  outline: none;
+  font-size: 16px;
+  line-height: 1.65;
+  color: inherit;
+  caret-color: transparent;
+}
+.jacdoc-history-content .ProseMirror > * + * { margin-top: 0.75em; }
+.jacdoc-history-content .ProseMirror h1 {
+  font-size: 28px; font-weight: 700; line-height: 1.25; letter-spacing: -0.3px;
+}
+.jacdoc-history-content .ProseMirror h2 { font-size: 22px; font-weight: 700; line-height: 1.3; }
+.jacdoc-history-content .ProseMirror h3 { font-size: 18px; font-weight: 600; line-height: 1.35; }
+.jacdoc-history-content .ProseMirror p { margin: 0; min-height: 1.65em; }
+.jacdoc-history-content .ProseMirror ul,
+.jacdoc-history-content .ProseMirror ol { padding-left: 1.5em; }
+.jacdoc-history-content .ProseMirror blockquote {
+  border-left: 3px solid var(--jacdoc-accent, #39FF14);
+  padding: 0.5em 1em;
+  margin: 0;
+  color: inherit;
+  background: rgba(var(--jacdoc-accent-rgb, 57, 255, 20), 0.06);
+  border-radius: 0 6px 6px 0;
+}
+.jacdoc-history-content .ProseMirror a {
+  color: var(--jacdoc-accent, #39FF14);
+  text-decoration: underline;
+}
+.jacdoc-history-content .ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.jacdoc-history-content .ProseMirror code {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.9em;
+}
+.jacdoc-history-content .ProseMirror pre {
+  background: #0d1117;
+  color: #e6edf3;
+  padding: 16px 18px;
+  border-radius: 10px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 14px;
+}
+.jacdoc-history-content .ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0.5em;
+}
+.jacdoc-history-content .ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5em;
+}
+.jacdoc-history-content .ProseMirror ul[data-type="taskList"] li[data-checked="true"] > div > p,
+.jacdoc-history-content .ProseMirror ul[data-type="taskList"] li[data-checked="true"] > p {
+  text-decoration: line-through;
+  color: var(--jacdoc-fg-dim, #9ca3af);
+}
+
+/* ── Sidebar droite ─────────────────────────────────────────────── */
+.jacdoc-history-sidebar {
+  width: 340px;
+  flex-shrink: 0;
+  background: var(--jacdoc-panel, #161b27);
+  border-left: 1px solid var(--jacdoc-border, #2a3347);
+  display: flex;
+  flex-direction: column;
+}
+.jacdoc-history-sidebar-header {
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--jacdoc-border, #2a3347);
+  flex-shrink: 0;
+}
+.jacdoc-history-sidebar-title {
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--jacdoc-fg, #e7ecf5);
+}
+.jacdoc-history-filter-btn {
+  width: 100%;
+  height: 40px;
+  background: var(--jacdoc-panel-hover, #1e2535);
+  border: 1px solid var(--jacdoc-border, #2a3347);
+  border-radius: 8px;
+  color: var(--jacdoc-fg, #e7ecf5);
+  font-family: inherit;
+  font-size: 14px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.jacdoc-history-filter-btn:hover:not(:disabled) {
+  background: var(--jacdoc-panel-hover, #1e2535);
+  border-color: rgba(var(--jacdoc-accent-rgb, 57, 255, 20), 0.4);
+}
+.jacdoc-history-filter-btn:disabled { opacity: 0.7; cursor: default; }
+
+.jacdoc-history-sidebar-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0 12px;
+}
+.jacdoc-history-sidebar-scroll::-webkit-scrollbar { width: 6px; }
+.jacdoc-history-sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+.jacdoc-history-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: var(--jacdoc-border, #2a3347);
+  border-radius: 3px;
+}
+.jacdoc-history-group-heading {
+  margin: 14px 20px 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--jacdoc-fg-dim, #9ca3af);
+}
+.jacdoc-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.jacdoc-history-item {
+  padding: 10px 20px 12px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background 0.12s, border-left-color 0.12s;
+  outline: none;
+}
+.jacdoc-history-item:hover { background: rgba(255, 255, 255, 0.04); }
+.jacdoc-history-item.is-selected {
+  background: rgba(26, 115, 232, 0.16);
+  border-left-color: #4c8bf5;
+}
+.jacdoc-history-item:focus-visible {
+  outline: 2px solid rgba(var(--jacdoc-accent-rgb, 57, 255, 20), 0.55);
+  outline-offset: -2px;
+}
+.jacdoc-history-item-time {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--jacdoc-fg, #e7ecf5);
+  margin-bottom: 2px;
+}
+.jacdoc-history-item-sub {
+  font-size: 12px;
+  color: var(--jacdoc-fg-dim, #9ca3af);
+  margin-bottom: 6px;
+}
+.jacdoc-history-item-author {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--jacdoc-fg-dim, #9ca3af);
+}
+.jacdoc-history-item-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: rgba(var(--jacdoc-accent-rgb, 57, 255, 20), 0.18);
+  color: var(--jacdoc-accent, #39FF14);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid rgba(var(--jacdoc-accent-rgb, 57, 255, 20), 0.4);
+  flex-shrink: 0;
+}
+.jacdoc-history-item-avatar-initial {
+  text-transform: uppercase;
+}
+.jacdoc-history-empty {
+  padding: 32px 20px;
+  text-align: center;
+  color: var(--jacdoc-fg-dim, #9ca3af);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.jacdoc-history-sidebar-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--jacdoc-border, #2a3347);
+  flex-shrink: 0;
+}
+.jacdoc-history-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--jacdoc-fg, #e7ecf5);
+  user-select: none;
+}
+.jacdoc-history-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #1a73e8;
+  cursor: pointer;
+}
+
+/* ── Variante claire (Google Docs lookalike) ────────────────────── */
+[data-theme="light"] .jacdoc-history-root {
+  background: #f5f6f8;
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-history-topbar {
+  background: #f5f6f8;
+  border-bottom-color: transparent;
+}
+[data-theme="light"] .jacdoc-history-back { color: #3c4043; }
+[data-theme="light"] .jacdoc-history-back:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #202124;
+}
+[data-theme="light"] .jacdoc-history-version-label { color: #202124; }
+[data-theme="light"] .jacdoc-history-toolbar {
+  background: #f5f6f8;
+  border-bottom-color: #e5e7eb;
+  color: #3c4043;
+}
+[data-theme="light"] .jacdoc-history-tb-btn { color: #5f6368; }
+[data-theme="light"] .jacdoc-history-tb-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #202124;
+}
+[data-theme="light"] .jacdoc-history-tb-sep { background: #dadce0; }
+[data-theme="light"] .jacdoc-history-tb-zoom,
+[data-theme="light"] .jacdoc-history-tb-font,
+[data-theme="light"] .jacdoc-history-tb-mods { color: #3c4043; }
+[data-theme="light"] .jacdoc-history-body { background: #f5f6f8; }
+[data-theme="light"] .jacdoc-history-page {
+  background: #ffffff;
+  color: #0d1117;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  border-radius: 0;
+}
+[data-theme="light"] .jacdoc-history-content .ProseMirror { color: #0d1117; }
+[data-theme="light"] .jacdoc-history-content .ProseMirror code {
+  background: #eef1f3;
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-history-content .ProseMirror blockquote {
+  background: rgba(var(--jacdoc-accent-rgb, 57, 255, 20), 0.04);
+  color: #4b5563;
+}
+[data-theme="light"] .jacdoc-history-content .ProseMirror a { color: #0a7a05; }
+[data-theme="light"] .jacdoc-history-sidebar {
+  background: #ffffff;
+  border-left-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-history-sidebar-header { border-bottom-color: #e5e7eb; }
+[data-theme="light"] .jacdoc-history-sidebar-title { color: #202124; }
+[data-theme="light"] .jacdoc-history-filter-btn {
+  background: #ffffff;
+  border-color: #dadce0;
+  color: #202124;
+}
+[data-theme="light"] .jacdoc-history-filter-btn:hover:not(:disabled) {
+  background: #f8f9fa;
+  border-color: #c6c8ca;
+}
+[data-theme="light"] .jacdoc-history-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: #dadce0;
+}
+[data-theme="light"] .jacdoc-history-group-heading { color: #5f6368; }
+[data-theme="light"] .jacdoc-history-item:hover { background: #f8f9fa; }
+[data-theme="light"] .jacdoc-history-item.is-selected {
+  background: #e8f0fe;
+  border-left-color: #1a73e8;
+}
+[data-theme="light"] .jacdoc-history-item-time { color: #202124; }
+[data-theme="light"] .jacdoc-history-item-sub,
+[data-theme="light"] .jacdoc-history-item-author { color: #5f6368; }
+[data-theme="light"] .jacdoc-history-item-avatar {
+  background: #34a853;
+  color: #ffffff;
+  border-color: transparent;
+}
+[data-theme="light"] .jacdoc-history-empty { color: #5f6368; }
+[data-theme="light"] .jacdoc-history-sidebar-footer { border-top-color: #e5e7eb; }
+[data-theme="light"] .jacdoc-history-checkbox { color: #3c4043; }
+
+/* Responsive : la sidebar passe en accordéon sur petit écran. */
+@media (max-width: 900px) {
+  .jacdoc-history-sidebar { width: 280px; }
+  .jacdoc-history-page { padding: 48px 36px; }
+}

@@ -1,0 +1,549 @@
+.jds-overlay {
+  z-index: 9999;
+  padding: 24px;
+}
+
+.jds-modal {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  overflow: auto;
+  background: #1a1f2e;
+  color: #e5e7eb;
+  border-color: #2a3347;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+}
+
+.jds-header {
+  align-items: flex-start;
+  padding: 20px 24px;
+  border-bottom-color: #2a3347;
+}
+
+.jds-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.jds-header p {
+  margin: 4px 0 0;
+  color: #888;
+  font-size: 13px;
+}
+
+.jds-cloud-required {
+  margin: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid rgba(250, 204, 21, 0.28);
+  border-radius: 8px;
+  background: rgba(250, 204, 21, 0.08);
+  color: #fde68a;
+  padding: 16px;
+}
+
+.jds-cloud-upload-btn {
+  width: fit-content;
+  margin-top: 6px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.jds-cloud-upload-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.jds-readonly-share {
+  border-color: rgba(96, 165, 250, 0.28);
+  background: rgba(96, 165, 250, 0.08);
+  color: #bfdbfe;
+}
+
+.jds-notice-inline {
+  margin: 8px 0 0;
+}
+
+/* === Local share upload prompt (style JacPDF) === */
+.jds-upload-prompt {
+  padding: 8px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.jds-upload-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.18);
+  color: #a5b4fc;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jds-upload-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.jds-upload-text h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.jds-upload-text p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #9aa0b0;
+}
+
+.jds-upload-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #262b3a;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.jds-upload-option:hover:not(:disabled) {
+  background: #2c3142;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.jds-upload-option:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.jds-upload-option-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #c7cbd6;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.jds-upload-option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.jds-upload-option-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.jds-upload-option-sub {
+  font-size: 12px;
+  color: #8c92a4;
+}
+
+.jds-upload-foot {
+  margin: 0;
+  width: 100%;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #7a8194;
+  text-align: center;
+}
+
+[data-theme="light"] .jds-upload-text h3 { color: #0d1117; }
+[data-theme="light"] .jds-upload-text p,
+[data-theme="light"] .jds-upload-option-sub,
+[data-theme="light"] .jds-upload-foot { color: #4b5563; }
+[data-theme="light"] .jds-upload-option {
+  background: #f7f8fa;
+  border-color: #e5e7eb;
+}
+[data-theme="light"] .jds-upload-option:hover:not(:disabled) {
+  background: #eef0f4;
+}
+[data-theme="light"] .jds-upload-option-icon {
+  background: #eef0f4;
+  color: #4b5563;
+}
+[data-theme="light"] .jds-upload-option-title { color: #0d1117; }
+
+.jds-invite-row {
+  display: grid;
+  grid-template-columns: 1fr 145px auto;
+  gap: 10px;
+  padding: 18px 24px;
+}
+
+/* === Sections style JacPDF (labels MAJ + helper) === */
+.jds-body {
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.jds-body .jds-section {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jds-section-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #9ca3af;
+}
+
+.jds-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.jds-input {
+  flex: 1;
+  min-width: 0;
+  background: #0f1320;
+  border: 1px solid #2a3347;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #e5e7eb;
+  font-size: 14px;
+  outline: none;
+}
+.jds-input:focus { border-color: var(--accent, #39FF14); }
+
+.jds-body .jds-select {
+  background: #0f1320;
+  border: 1px solid #2a3347;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #e5e7eb;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+}
+.jds-body .jds-select:focus { border-color: var(--accent, #39FF14); }
+.jds-select-grow { flex: 1; }
+
+.jds-primary-btn {
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.jds-primary-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.jds-hint {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.45;
+}
+
+.jds-body .jds-link-url,
+.jds-body .jds-notice,
+.jds-body .jds-error,
+.jds-body .jds-empty {
+  margin: 0;
+}
+
+.jds-body .jds-share-list { gap: 6px; }
+.jds-body .jds-share-row { padding: 8px 12px; }
+
+.jds-revoke-btn {
+  background: transparent !important;
+  border: 1px solid #6b7280 !important;
+  color: #9ca3af !important;
+  padding: 4px 10px !important;
+  font-size: 12px !important;
+  border-radius: 4px !important;
+}
+.jds-revoke-btn:hover {
+  border-color: #f87171 !important;
+  color: #fecaca !important;
+}
+
+/* === Section Amis === */
+.jds-friend-row .jds-share-actions select {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+.jds-friend-add-btn {
+  background: var(--accent);
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.jds-friend-add-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.jds-friend-added {
+  background: transparent;
+  border: 1px solid #2a3347;
+  border-radius: 4px;
+  padding: 4px 10px;
+  color: #6b7280;
+  font-size: 12px;
+  cursor: default;
+}
+
+[data-theme="light"] .jds-friend-added {
+  border-color: #d1d5db;
+  color: #4b5563;
+}
+
+[data-theme="light"] .jds-body .jds-select,
+[data-theme="light"] .jds-input {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #0d1117;
+}
+[data-theme="light"] .jds-section-label,
+[data-theme="light"] .jds-hint { color: #4b5563; }
+
+.jds-invite-row input,
+.jds-invite-row select,
+.jds-share-actions select {
+  border: 1px solid #2a3347;
+  border-radius: 6px;
+  background: #0f1320;
+  color: #e5e7eb;
+  padding: 10px 12px;
+  outline: none;
+}
+
+.jds-invite-row input:focus,
+.jds-invite-row select:focus,
+.jds-share-actions select:focus {
+  border-color: var(--accent, #39FF14);
+}
+
+.jds-invite-row button,
+.jds-link-card button,
+.jds-share-actions button,
+.jds-share-row > button {
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.jds-invite-row button:disabled,
+.jds-link-card button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.jds-link-card {
+  margin: 0 24px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid #2a3347;
+  border-radius: 6px;
+  background: #0f1320;
+  padding: 12px;
+}
+
+.jds-link-card div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.jds-link-card span {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.jds-link-url,
+.jds-notice,
+.jds-error,
+.jds-empty {
+  margin: 0 24px 14px;
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: #0f1320;
+  color: #cbd5e1;
+  word-break: break-all;
+}
+
+.jds-notice {
+  border: 1px solid rgba(57, 255, 20, 0.28);
+  color: #b9ffb0;
+}
+
+.jds-error {
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  color: #fecaca;
+}
+
+.jds-section {
+  padding: 0 24px 22px;
+}
+
+.jds-section h3 {
+  margin: 12px 0;
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.jds-share-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jds-share-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1px solid #2a3347;
+  border-radius: 6px;
+  background: #0f1320;
+  padding: 8px 12px;
+}
+
+.jds-share-target {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.jds-avatar {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #1e2535;
+}
+
+.jds-share-target div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.jds-share-target strong,
+.jds-share-target small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jds-share-target small {
+  color: #9ca3af;
+}
+
+.jds-share-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.jds-share-actions button.danger,
+.jds-share-row > button.danger {
+  border: 1px solid #6b7280;
+  background: transparent;
+  color: #9ca3af;
+}
+
+[data-theme="light"] .jds-modal {
+  background: #ffffff;
+  border-color: #d1d5db;
+}
+
+[data-theme="light"] .jds-header {
+  border-bottom-color: #e5e7eb;
+}
+
+[data-theme="light"] .jds-header h2 {
+  color: #0d1117;
+}
+
+[data-theme="light"] .jds-header p,
+[data-theme="light"] .jds-link-card span,
+[data-theme="light"] .jds-share-target small,
+[data-theme="light"] .jds-section h3 {
+  color: #4b5563;
+}
+
+[data-theme="light"] .jds-invite-row input,
+[data-theme="light"] .jds-invite-row select,
+[data-theme="light"] .jds-share-actions select,
+[data-theme="light"] .jds-link-card,
+[data-theme="light"] .jds-link-url,
+[data-theme="light"] .jds-notice,
+[data-theme="light"] .jds-error,
+[data-theme="light"] .jds-empty,
+[data-theme="light"] .jds-share-row {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #0d1117;
+}
+
+[data-theme="light"] .jds-avatar {
+  background: #f0f1f5;
+}

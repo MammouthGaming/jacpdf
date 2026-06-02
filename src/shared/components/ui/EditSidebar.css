@@ -1,0 +1,273 @@
+/* ============================================================
+   EditSidebar — sidebar style Chrome side panel (slide depuis la droite)
+   ============================================================ */
+
+/* Bouton FAB qui ouvre/ferme la sidebar — position en bas-droite de .home-bg.
+   Le bouton lui-même est rendu dans HomeContent.jsx, mais ses styles vivent
+   ici pour garder toute la feature (FAB + sidebar) dans un seul fichier.
+
+   z-index 40 = plus élevé que .es-sidebar (30) → le FAB reste cliquable
+   AU-DESSUS de la sidebar quand elle est ouverte. Comme il est à right: 24px
+   et que la sidebar fait 380px de large alignée à right: 0, le FAB se
+   retrouve visuellement à l'intérieur du coin bas-droit de la sidebar quand
+   elle est ouverte — et son icône passe à ✕ (cf. JSX) pour signaler le
+   rôle « fermer » (style Chrome side panel toggle). */
+.home-edit-fab {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  z-index: 40;
+}
+.home-edit-fab:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+}
+.home-edit-fab:active { transform: translateY(0); }
+
+[data-theme="light"] .home-edit-fab {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+[data-theme="light"] .home-edit-fab:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Sidebar elle-même — slide depuis la droite via transform: translateX.
+   Style Chrome side panel : PAS d'overlay. La home est poussée vers la
+   gauche via padding-right animé sur .home-bg-with-sidebar (cf.
+   HomeContent.css) au lieu d'être recouverte par la sidebar. */
+.es-sidebar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(380px, 90vw);
+  background: #161b27;
+  border-left: 1px solid #1e2535;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', sans-serif;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  z-index: 30;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.4);
+  /* visibility hidden quand fermé évite que les enfants prennent le focus
+     au tab — important pour l'accessibilité. visibility est différée via
+     transition pour ne se cacher qu'après la fin du slide-out. */
+  visibility: hidden;
+  transition: transform 0.25s ease, visibility 0s linear 0.25s;
+}
+.es-sidebar-open {
+  transform: translateX(0);
+  visibility: visible;
+  transition: transform 0.25s ease, visibility 0s linear 0s;
+}
+
+[data-theme="light"] .es-sidebar {
+  background: #ffffff;
+  border-left-color: #e5e7eb;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Header de la sidebar */
+.es-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid #1e2535;
+  flex-shrink: 0;
+}
+.es-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+.es-close {
+  width: 28px;
+  height: 28px;
+  background: #1e2535;
+  border: none;
+  border-radius: 8px;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+.es-close:hover { background: #2a3347; color: #fff; }
+
+[data-theme="light"] .es-header { border-bottom-color: #e5e7eb; }
+[data-theme="light"] .es-title { color: #0d1117; }
+[data-theme="light"] .es-close { background: #f0f1f5; color: #6b7280; }
+[data-theme="light"] .es-close:hover { background: #e5e7eb; color: #0d1117; }
+
+/* Corps scrollable de la sidebar */
+.es-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* ============================================================
+   Liste de toggles « Personnaliser l'accueil » — chaque ligne masque ou
+   affiche une section de la home. Switch iOS-style à droite. Branché sur
+   homeVisibilityStore (cf. src/stores/social/homeVisibilityStore.js).
+   ============================================================ */
+.es-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 4px;
+  letter-spacing: 0.2px;
+}
+.es-section-desc {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+.es-toggle-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.es-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #1e2535;
+  border-radius: 10px;
+}
+.es-toggle-icon {
+  font-size: 16px;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.es-toggle-label {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+}
+
+/* Switch iOS-style : track + thumb circulaire. Quand `on` (.es-toggle-on),
+   le track passe à la couleur d'accent et le thumb glisse vers la droite. */
+.es-toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border: none;
+  border-radius: 10px;
+  background: #2a3347;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.es-toggle-on {
+  background: var(--accent);
+}
+.es-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  pointer-events: none;
+}
+.es-toggle-on .es-toggle-thumb {
+  transform: translateX(16px);
+}
+
+[data-theme="light"] .es-section-title { color: #0d1117; }
+[data-theme="light"] .es-toggle-row { background: #f0f1f5; }
+[data-theme="light"] .es-toggle-label { color: #0d1117; }
+[data-theme="light"] .es-toggle { background: #d1d5db; }
+
+/* ============================================================
+   Toggle « Mode réorganisation » — encadré spécial mis en avant en
+   haut de la sidebar. Activé par l'utilisateur pour rendre les
+   éléments de la home draggables. Couleur d'accent pour le distinguer
+   des toggles « simple visibilité » en dessous.
+   ============================================================ */
+.es-drag-mode-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(var(--accent-rgb), 0.13);
+  border: 1px solid rgba(var(--accent-rgb), 0.35);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+}
+.es-drag-mode-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+.es-drag-mode-icon {
+  font-size: 20px;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.es-drag-mode-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+.es-drag-mode-desc {
+  font-size: 11px;
+  color: #9ca3af;
+  margin: 2px 0 0;
+  line-height: 1.4;
+}
+[data-theme="light"] .es-drag-mode-label { color: #0d1117; }
+[data-theme="light"] .es-drag-mode-desc { color: #6b7280; }
+
+/* ============================================================
+   Groupes de toggles — séparation visuelle « En haut / En bas » de la
+   page pour clarifier où chaque switch agit. Label en small-caps gris
+   au-dessus de chaque sous-liste.
+   ============================================================ */
+.es-toggle-group {
+  margin-top: 18px;
+}
+.es-toggle-group:first-of-type {
+  margin-top: 0;
+}
+.es-toggle-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6b7280;
+  margin: 0 0 8px;
+  padding: 0 4px;
+}

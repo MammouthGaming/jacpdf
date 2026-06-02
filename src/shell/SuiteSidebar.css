@@ -1,0 +1,356 @@
+/* Barre latérale d'apps style Microsoft Edge — rail fixe à droite, pleine
+   hauteur, présent partout dans le shell JacSuite. */
+
+/* Réserve la gouttière à droite pour que le contenu ne passe pas sous le
+   rail. Appliquée au CONTENU seulement (pas à la tab bar) : le rail démarre
+   sous la barre d'onglets, donc la barre occupe toute la largeur. */
+/* Le padding (gouttière du rail/panneau) est piloté inline par SuiteShell
+   selon le côté choisi (droite / gauche) et l'état (masqué / épinglé). */
+.editor-content-area {
+	box-sizing: border-box;
+}
+
+.suite-sidebar {
+	position: fixed;
+	/* Démarre sous la tab bar (hauteur exposée en CSS var par SuiteShell ;
+	   vaut 0px quand la tab bar est masquée). */
+	top: var(--jacpdf-tabbar-h, 38px);
+	right: 0;
+	bottom: 0;
+	width: 52px;
+	z-index: 40;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 8px 0;
+	/* Même couleur que la barre d'onglets (.editor-tabbar). */
+	background: #0a0e16;
+	border-left: 1px solid #2a3347;
+}
+
+.suite-sidebar__apps {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	width: 100%;
+	overflow-y: auto;
+	scrollbar-width: none;
+}
+.suite-sidebar__apps::-webkit-scrollbar { display: none; }
+
+.suite-sidebar__btn {
+	position: relative;
+	flex: 0 0 auto;
+	width: 40px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	border-radius: 11px;
+	background: transparent;
+	cursor: pointer;
+	opacity: 0.65;
+	transition: background .15s ease, opacity .15s ease, transform .12s ease;
+}
+.suite-sidebar__btn:hover {
+	background: rgba(124, 138, 160, 0.14);
+	opacity: 1;
+}
+.suite-sidebar__btn:active {
+	transform: scale(0.92);
+}
+.suite-sidebar__btn img {
+	width: 24px;
+	height: 24px;
+	object-fit: contain;
+	pointer-events: none;
+	user-select: none;
+}
+
+.suite-sidebar__btn--active {
+	background: rgba(57, 255, 20, 0.14);
+	opacity: 1;
+}
+.suite-sidebar__btn--active::before {
+	content: '';
+	position: absolute;
+	left: -6px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 3px;
+	height: 22px;
+	border-radius: 0 3px 3px 0;
+	background: var(--accent, #39FF14);
+}
+
+/* Tooltip façon Edge : apparaît à gauche de l'icône au survol. */
+.suite-sidebar__tooltip {
+	position: absolute;
+	right: calc(100% + 10px);
+	top: 50%;
+	transform: translateY(-50%) translateX(4px);
+	white-space: nowrap;
+	background: #0d1117;
+	color: #f3f4f6;
+	border: 1px solid #2a3347;
+	padding: 5px 9px;
+	border-radius: 7px;
+	font-size: 12px;
+	font-weight: 500;
+	font-family: inherit;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity .14s ease, transform .14s ease;
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+	z-index: 5;
+}
+.suite-sidebar__btn:hover .suite-sidebar__tooltip {
+	opacity: 1;
+	transform: translateY(-50%) translateX(0);
+}
+
+/* Thème clair */
+[data-theme="light"] .suite-sidebar {
+	background: #f3f4f6;
+	border-left-color: #d8dbe2;
+}
+[data-theme="light"] .suite-sidebar__btn:hover {
+	background: rgba(13, 17, 23, 0.06);
+}
+[data-theme="light"] .suite-sidebar__tooltip {
+	background: #1f2937;
+	border-color: #374151;
+}
+
+/* ── Variante : rail à GAUCHE ── */
+.suite-sidebar[data-side="left"] {
+	right: auto;
+	left: 0;
+	border-left: none;
+	border-right: 1px solid #2a3347;
+}
+[data-theme="light"] .suite-sidebar[data-side="left"] {
+	border-right-color: #d8dbe2;
+}
+.suite-sidebar[data-side="left"] .suite-sidebar__tooltip {
+	right: auto;
+	left: calc(100% + 10px);
+	transform: translateY(-50%) translateX(-4px);
+}
+.suite-sidebar[data-side="left"] .suite-sidebar__btn:hover .suite-sidebar__tooltip {
+	transform: translateY(-50%) translateX(0);
+}
+.suite-sidebar[data-side="left"] .suite-sidebar__btn--active::before {
+	left: auto;
+	right: -6px;
+	border-radius: 3px 0 0 3px;
+}
+
+/* ── Taille des icônes ── */
+.suite-sidebar[data-size="small"] .suite-sidebar__btn { width: 34px; height: 34px; }
+.suite-sidebar[data-size="small"] .suite-sidebar__btn img { width: 20px; height: 20px; }
+.suite-sidebar[data-size="large"] .suite-sidebar__btn { width: 46px; height: 46px; }
+.suite-sidebar[data-size="large"] .suite-sidebar__btn img { width: 30px; height: 30px; }
+
+/* ── Libellés sous les icônes ── */
+.suite-sidebar__label {
+	display: none;
+	max-width: 48px;
+	margin-top: 2px;
+	font-size: 9px;
+	line-height: 1.1;
+	text-align: center;
+	color: #9ca3af;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-family: Inter, sans-serif;
+	pointer-events: none;
+}
+.suite-sidebar[data-labels="true"] .suite-sidebar__label { display: block; }
+.suite-sidebar[data-labels="true"] .suite-sidebar__btn {
+	flex-direction: column;
+	height: auto;
+	padding: 6px 0;
+	border-radius: 9px;
+}
+
+/* ── Réordonnancement (glisser-déposer) ── */
+.suite-sidebar__btn--dragging { opacity: 0.4; }
+
+/* ── Bouton « + » d'ajout d'app ── */
+.suite-sidebar__addwrap {
+	position: relative;
+	flex: 0 0 auto;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	margin-top: 6px;
+}
+.suite-sidebar__add {
+	width: 40px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px dashed #2a3347;
+	border-radius: 10px;
+	background: transparent;
+	color: #9ca3af;
+	cursor: pointer;
+	opacity: 0.75;
+	transition: background .15s ease, opacity .15s ease, color .15s ease;
+}
+.suite-sidebar__add:hover { background: rgba(124, 138, 160, 0.14); opacity: 1; color: #fff; }
+.suite-sidebar__addmenu {
+	position: absolute;
+	bottom: 0;
+	right: calc(100% + 10px);
+	min-width: 170px;
+	background: #0d1117;
+	border: 1px solid #2a3347;
+	border-radius: 9px;
+	padding: 5px;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+	z-index: 50;
+}
+.suite-sidebar[data-side="left"] .suite-sidebar__addmenu {
+	right: auto;
+	left: calc(100% + 10px);
+}
+.suite-sidebar__addmenu-item {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	width: 100%;
+	background: transparent;
+	border: none;
+	border-radius: 6px;
+	padding: 7px 9px;
+	color: #d1d5db;
+	font-size: 13px;
+	font-family: Inter, sans-serif;
+	cursor: pointer;
+	text-align: left;
+}
+.suite-sidebar__addmenu-item:hover { background: rgba(124, 138, 160, 0.16); color: #fff; }
+.suite-sidebar__addmenu-item img { width: 18px; height: 18px; object-fit: contain; }
+.suite-sidebar__addmenu-empty { padding: 8px 10px; color: #6b7280; font-size: 12px; font-family: Inter, sans-serif; }
+
+/* ── Aperçu au survol (JacTâche / JacCalendrier) ──
+   Popover en position fixed (posé inline par le composant) pour ne pas être
+   rogné par l'overflow du rail. */
+.suite-sidebar__preview {
+	position: fixed;
+	width: 264px;
+	max-height: 340px;
+	display: flex;
+	flex-direction: column;
+	background: #0d1117;
+	border: 1px solid #2a3347;
+	border-radius: 12px;
+	padding: 10px;
+	box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+	z-index: 60;
+	animation: suite-sidebar-preview-in .14s ease;
+}
+.suite-sidebar__preview[data-side="left"] { animation-name: suite-sidebar-preview-in-left; }
+@keyframes suite-sidebar-preview-in {
+	from { opacity: 0; transform: translateX(6px); }
+	to { opacity: 1; transform: translateX(0); }
+}
+@keyframes suite-sidebar-preview-in-left {
+	from { opacity: 0; transform: translateX(-6px); }
+	to { opacity: 1; transform: translateX(0); }
+}
+.suite-sidebar__preview-head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 12px;
+	font-weight: 600;
+	color: #f3f4f6;
+	font-family: Inter, sans-serif;
+	margin-bottom: 8px;
+	padding-bottom: 8px;
+	border-bottom: 1px solid #1f2733;
+}
+.suite-sidebar__preview-head img { width: 16px; height: 16px; object-fit: contain; }
+.suite-sidebar__preview-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	overflow-y: auto;
+	scrollbar-width: none;
+}
+.suite-sidebar__preview-list::-webkit-scrollbar { display: none; }
+.suite-sidebar__preview-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px;
+	border-radius: 7px;
+}
+.suite-sidebar__preview-item:hover { background: rgba(124, 138, 160, 0.1); }
+.suite-sidebar__preview-dot {
+	flex: 0 0 auto;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #6b7280;
+}
+.suite-sidebar__preview-dot[data-prio="urgent"] { background: #ff4d4d; }
+.suite-sidebar__preview-dot[data-prio="high"] { background: #ff9f1c; }
+.suite-sidebar__preview-dot[data-prio="medium"] { background: #39FF14; }
+.suite-sidebar__preview-dot[data-prio="low"] { background: #6b7280; }
+.suite-sidebar__preview-title {
+	flex: 1;
+	min-width: 0;
+	font-size: 13px;
+	color: #d1d5db;
+	font-family: Inter, sans-serif;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.suite-sidebar__preview-meta {
+	flex: 0 0 auto;
+	font-size: 11px;
+	color: #9ca3af;
+	font-family: Inter, sans-serif;
+}
+.suite-sidebar__preview-meta[data-late="true"] { color: #ff6b6b; }
+.suite-sidebar__preview-empty {
+	padding: 14px 8px;
+	text-align: center;
+	color: #6b7280;
+	font-size: 12px;
+	font-family: Inter, sans-serif;
+}
+.suite-sidebar__preview-open {
+	margin-top: 8px;
+	width: 100%;
+	background: rgba(57, 255, 20, 0.12);
+	color: var(--accent, #39FF14);
+	border: 1px solid rgba(57, 255, 20, 0.3);
+	border-radius: 8px;
+	padding: 7px;
+	font-size: 12px;
+	font-weight: 600;
+	font-family: Inter, sans-serif;
+	cursor: pointer;
+}
+.suite-sidebar__preview-open:hover { background: rgba(57, 255, 20, 0.2); }
+
+/* Thème clair */
+[data-theme="light"] .suite-sidebar__preview { background: #fff; border-color: #d8dbe2; }
+[data-theme="light"] .suite-sidebar__preview-head { color: #111827; border-bottom-color: #eef0f4; }
+[data-theme="light"] .suite-sidebar__preview-title { color: #1f2937; }

@@ -1,0 +1,48 @@
+.jdc-remote-cursors {
+  position: fixed;
+  top: calc(var(--jacpdf-tabbar-h, 38px) + 92px);
+  right: 132px;
+  z-index: 79;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 190px;
+  pointer-events: none;
+}
+
+.jdc-remote-cursor-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 260px;
+  padding: 7px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 999px;
+  background: rgba(2, 6, 23, 0.88);
+  color: #e5e7eb;
+  font-size: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(12px);
+}
+
+.jdc-remote-cursor-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+}
+
+.jdc-remote-cursor-name {
+  overflow: hidden;
+  max-width: 110px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jdc-remote-cursor-meta {
+  margin-left: auto;
+  color: #94a3b8;
+  font-size: 11px;
+  white-space: nowrap;
+}

@@ -1,0 +1,476 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.sp-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+
+.sp-panel {
+  position: fixed;
+  top: calc(70px + var(--jacpdf-tabbar-h, 0px));
+  right: 16px;
+  width: 264px;
+  max-height: calc(100vh - 90px - var(--jacpdf-tabbar-h, 0px));
+  overflow-y: auto;
+  background: #0d1117;
+  border: 1px solid #1e2535;
+  border-radius: 16px;
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 100;
+  font-family: 'Inter', sans-serif;
+  animation: popIn 0.15s ease;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---------- Variante « bas-gauche » (JacTâche, JacCalendrier) ----------
+ * Ces apps ont leur bouton paramètres dans le pied de leur sidebar, donc
+ * le panneau doit s'ouvrir juste au-dessus du bouton (bas-gauche de
+ * l'écran) plutôt qu'en haut à droite comme JacPDF/JacDoc/JacNote/JacSuite.
+ * On reset top/right hérités de .sp-panel et on positionne en bas-gauche,
+ * avec une animation qui part du bas pour rester cohérente avec l'origine
+ * visuelle du clic. */
+.sp-panel--bottom-left {
+  top: auto;
+  right: auto;
+  bottom: 56px;
+  left: 12px;
+  max-height: calc(100vh - 80px);
+  animation: popInBottomLeft 0.15s ease;
+  transform-origin: bottom left;
+}
+
+@keyframes popInBottomLeft {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---------- Variante « bas-droite » ----------
+ * Utilisée par JacNote lorsque la sidebar est positionnée à droite
+ * (réglage Apparence > Position de la sidebar). Le bouton Paramètres
+ * se trouve alors en bas-droite de l'écran ; le panneau doit s'ouvrir
+ * juste au-dessus, miroir de la variante bas-gauche.
+ */
+.sp-panel--bottom-right {
+  top: auto;
+  left: auto;
+  right: 12px;
+  bottom: 56px;
+  max-height: calc(100vh - 80px);
+  animation: popInBottomRight 0.15s ease;
+  transform-origin: bottom right;
+}
+
+@keyframes popInBottomRight {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* User */
+.sp-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #1e2535;
+  margin-bottom: 10px;
+}
+
+.sp-avatar {
+  /* Tailles explicites + min/max identiques pour bloquer toute croissance.
+     Sans min-width:0 (ou un max-width identique), .sp-avatar hérite du
+     min-width:auto par défaut des flex items → sa taille minimum devient
+     la taille intrinsequemnt de son contenu = pleine résolution de l'image
+     uploaded (1000+ px). Résultat : le cercle de 34px gonfle pour englober
+     l'image entière et bouffe tout le panneau (bug « photo énorme »). */
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  min-height: 34px;
+  max-width: 34px;
+  max-height: 34px;
+  background: rgba(var(--accent-rgb), 0.13);
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+  /* overflow:hidden pour clipper l'image au cercle (sinon les coins de l'img
+     dépassent puisque la border-radius:50% est sur le wrapper). */
+  overflow: hidden;
+  /* box-sizing:border-box pour que la border 2px reste à l'INTÉRIEUR des
+     34×34 (sinon le cercle visuel fait 38×38 et le layout du header se
+     décale). */
+  box-sizing: border-box;
+}
+
+/* Image de profil (Supabase Storage) — remplace l'initiale quand
+   user_metadata.avatar_url existe. object-fit:cover évite la déformation
+   pour les images non carrées. min-width:0 essentiel : sans ça, l'img
+   en tant que flex item hérite de min-width:auto = sa taille intrinsèque,
+   donc width:100% (= 30px après la border) est ignoré et l'img reste à sa
+   résolution native. */
+.sp-avatar-img {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  object-fit: cover;
+  display: block;
+}
+
+.sp-user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.sp-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ligne nom + médaillon de palier (badge Premium/Pro à côté du pseudo). */
+.sp-name-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+.sp-name-row .sp-name { min-width: 0; }
+.sp-tier-badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+}
+.sp-tier-badge--premium {
+  background: linear-gradient(135deg, rgba(245, 197, 24, 0.22), rgba(250, 204, 21, 0.22));
+  box-shadow: 0 0 0 1px rgba(245, 197, 24, 0.45);
+}
+.sp-tier-badge--pro {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(14, 165, 233, 0.22));
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.45);
+}
+
+.sp-app {
+  font-size: 11px;
+  color: #4b5563;
+}
+
+.sp-logout {
+  background: #1e2535;
+  border: none;
+  border-radius: 6px;
+  padding: 5px;
+  color: var(--accent);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.sp-logout:hover { background: #252d3f; }
+
+/* Boutons icônes du header (Notifications + Amis quand inEditor=true).
+   Même taille/forme que .sp-logout mais couleur neutre pour les distinguer
+   du logout (couleur d'accent). */
+.sp-header-icon-btn {
+  position: relative;
+  background: #1e2535;
+  border: none;
+  border-radius: 6px;
+  padding: 5px;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+.sp-header-icon-btn:hover { background: #252d3f; color: #fff; }
+/* Badge non-lu compact — bouton plus petit (15×15 svg, ~25px de contour)
+   donc on capote à 9+ pour ne pas dépasser. Box-shadow assortie au fond du
+   panneau Settings (#161b27 sombre / #ffffff clair) pour donner un anneau
+   propre. */
+.sp-header-icon-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: 7px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 0 0 2px #161b27;
+  pointer-events: none;
+}
+[data-theme="light"] .sp-header-icon-btn { background: #f0f1f5; color: #6b7280; }
+[data-theme="light"] .sp-header-icon-btn:hover { background: #e5e7eb; color: #0d1117; }
+[data-theme="light"] .sp-header-icon-badge { box-shadow: 0 0 0 2px #ffffff; }
+
+/* Title */
+.sp-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+  padding: 2px 4px 10px;
+}
+
+/* Sections */
+.sp-section { margin-bottom: 1px; }
+
+.sp-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 6px 8px;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sp-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #9ca3af;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sp-row:hover { background: #1e2535; color: #fff; }
+
+.sp-row-left { display: flex; align-items: center; gap: 8px; }
+.sp-row-right { display: flex; align-items: center; gap: 5px; }
+
+.sp-chevron { transition: transform 0.2s; color: #4b5563; }
+.sp-chevron.open { transform: rotate(180deg); }
+
+.sp-icon-btn {
+  background: none;
+  border: none;
+  color: #4b5563;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+.sp-icon-btn:hover { color: #fff; }
+
+/* Content */
+.sp-content { padding: 6px 10px 10px; }
+
+.sp-sublabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: #4b5563;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+/* Select */
+.sp-select {
+  width: 100%;
+  background: #1e2535;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+/* Colors */
+.sp-colors { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.sp-color-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.sp-color-dot.active { border-color: #fff; transform: scale(1.1); }
+
+/* Toggle */
+.sp-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.sp-toggle-label { font-size: 12px; color: #9ca3af; }
+
+.sp-toggle {
+  width: 34px;
+  height: 19px;
+  background: #2a3347;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+  padding: 0;
+}
+.sp-toggle.on { background: var(--accent); }
+
+.sp-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 15px;
+  height: 15px;
+  background: #fff;
+  border-radius: 50%;
+  transition: left 0.2s;
+}
+.sp-toggle.on .sp-toggle-thumb { left: 17px; }
+
+/* Shortcuts */
+.sp-shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #1e2535;
+}
+.sp-shortcut-row:last-child { border-bottom: none; }
+.sp-shortcut-label { font-size: 11px; color: #9ca3af; }
+.sp-keys { display: flex; gap: 3px; }
+.sp-kbd {
+  background: #1e2535;
+  border: 1px solid #2a3347;
+  border-radius: 4px;
+  padding: 2px 5px;
+  font-size: 10px;
+  color: #d1d5db;
+  font-family: 'Inter', sans-serif;
+  font-style: normal;
+}
+
+/* Credits */
+.sp-credits { display: flex; flex-direction: column; gap: 8px; }
+
+.sp-credit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.sp-version-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent);
+  border: none;
+  border-radius: 7px;
+  padding: 7px 12px;
+  color: #000;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  width: 100%;
+  justify-content: center;
+}
+
+.sp-copyright {
+  font-size: 10px;
+  color: #374151;
+  text-align: center;
+}
+
+/* Bouton « Afficher tous les paramètres » — ouvre FullSettingsModal */
+.sp-row-all {
+  color: var(--accent);
+  font-weight: 600;
+}
+.sp-row-all:hover {
+  background: rgba(var(--accent-rgb), 0.08);
+  color: var(--accent);
+}
+.sp-row-all .sp-row-left svg {
+  color: var(--accent);
+}
+
+/* ─── Mode clair ─── */
+[data-theme="light"] .sp-panel { background: #ffffff; border-color: #e5e7eb; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+[data-theme="light"] .sp-user { border-bottom-color: #e5e7eb; }
+[data-theme="light"] .sp-name { color: #0d1117; }
+[data-theme="light"] .sp-app { color: #9ca3af; }
+[data-theme="light"] .sp-logout { background: #f0f1f5; }
+[data-theme="light"] .sp-logout:hover { background: #e5e7eb; }
+[data-theme="light"] .sp-title { color: #0d1117; }
+[data-theme="light"] .sp-section-header { color: #4b5563; }
+[data-theme="light"] .sp-row { color: #4b5563; }
+[data-theme="light"] .sp-row:hover { background: #f0f1f5; color: #0d1117; }
+[data-theme="light"] .sp-chevron,
+[data-theme="light"] .sp-icon-btn { color: #9ca3af; }
+[data-theme="light"] .sp-icon-btn:hover { color: #0d1117; }
+[data-theme="light"] .sp-sublabel { color: #9ca3af; }
+[data-theme="light"] .sp-select { background: #ffffff; border-color: #d1d5db; color: #0d1117; }
+[data-theme="light"] .sp-color-dot.active { border-color: #0d1117; }
+[data-theme="light"] .sp-toggle-label { color: #4b5563; }
+[data-theme="light"] .sp-toggle { background: #d1d5db; }
+[data-theme="light"] .sp-shortcut-row { border-bottom-color: #f0f1f5; }
+[data-theme="light"] .sp-shortcut-label { color: #4b5563; }
+[data-theme="light"] .sp-kbd { background: #f0f1f5; border-color: #d1d5db; color: #1f2937; }
+[data-theme="light"] .sp-credit-row { color: #4b5563; }
+[data-theme="light"] .sp-copyright { color: #9ca3af; }

@@ -1,0 +1,363 @@
+/* ============================================================
+   JacpdfCloudQuickLook — overlay d'aperçu rapide style macOS
+   Activé via Espace dans le picker JacPDF Cloud.
+   Classes : .jpc-ql-* (Quick Look)
+   ============================================================ */
+
+.jpc-ql-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 1300;
+	background: rgba(0, 0, 0, 0.78);
+	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(6px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	animation: jpc-ql-fadein 0.15s ease-out;
+}
+
+@keyframes jpc-ql-fadein {
+	from { opacity: 0; }
+	to   { opacity: 1; }
+}
+
+.jpc-ql-content {
+	width: min(960px, 92vw);
+	max-height: 92vh;
+	display: flex;
+	flex-direction: column;
+	background: #0d1117;
+	border: 1px solid #2a3347;
+	border-radius: 14px;
+	box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(57, 255, 20, 0.05);
+	overflow: hidden;
+	animation: jpc-ql-slidein 0.18s ease-out;
+}
+
+@keyframes jpc-ql-slidein {
+	from { opacity: 0; transform: translateY(-12px) scale(0.97); }
+	to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+/* ─── Header ─── */
+.jpc-ql-header {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 14px 18px;
+	border-bottom: 1px solid #1e2535;
+	background: #161b29;
+}
+
+.jpc-ql-meta {
+	flex: 1;
+	min-width: 0;
+}
+
+.jpc-ql-name {
+	color: #ffffff;
+	font-size: 14px;
+	font-weight: 600;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.jpc-ql-info {
+	color: #9ca3af;
+	font-size: 11px;
+	margin-top: 2px;
+}
+
+.jpc-ql-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+.jpc-ql-open-btn {
+	background: var(--accent, #39FF14);
+	border: none;
+	color: #0d1117;
+	font-size: 12px;
+	font-weight: 600;
+	font-family: 'Inter', sans-serif;
+	padding: 7px 14px;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: filter 0.15s, box-shadow 0.15s;
+}
+.jpc-ql-open-btn:hover {
+	filter: brightness(1.08);
+	box-shadow: 0 0 14px rgba(57, 255, 20, 0.35);
+}
+
+.jpc-ql-close {
+	background: #1e2535;
+	border: 1px solid #2a3347;
+	color: #9ca3af;
+	font-size: 12px;
+	width: 28px;
+	height: 28px;
+	border-radius: 6px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background 0.12s, color 0.12s;
+}
+.jpc-ql-close:hover {
+	background: #2a3347;
+	color: #ffffff;
+}
+
+/* ─── Canvas wrap ─── */
+.jpc-ql-canvas-wrap {
+	flex: 1;
+	min-height: 0;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+	background: radial-gradient(ellipse at center, #1a1f2e 0%, #0d1117 100%);
+	overflow: auto;
+}
+
+.jpc-ql-canvas {
+	display: block;
+	background: #ffffff;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+	border-radius: 4px;
+	max-width: 100%;
+}
+
+.jpc-ql-page-shell {
+	position: relative;
+	display: inline-block;
+	flex-shrink: 0;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+	border-radius: 4px;
+	overflow: hidden;
+	background: #ffffff;
+}
+
+.jpc-ql-page-shell .jpc-ql-canvas {
+	box-shadow: none;
+	border-radius: 0;
+}
+
+.jpc-ql-annotations {
+	position: absolute;
+	top: 0;
+	left: 0;
+	transform-origin: top left;
+	pointer-events: none;
+	z-index: 2;
+}
+
+.jpc-ql-annotation-svg {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+.jpc-ql-textbox {
+	position: absolute;
+	box-sizing: border-box;
+	padding: 6px 8px;
+	white-space: pre-wrap;
+	word-break: break-word;
+	overflow-wrap: anywhere;
+	background: transparent;
+	pointer-events: none;
+}
+
+.jpc-ql-loading,
+.jpc-ql-error {
+	color: #9ca3af;
+	font-size: 13px;
+	text-align: center;
+	line-height: 1.6;
+	padding: 24px;
+}
+.jpc-ql-error {
+	color: #f87171;
+}
+
+/* ─── Boutons de pagination (overlay sur le canvas) ─── */
+.jpc-ql-page-btn {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	background: rgba(0, 0, 0, 0.6);
+	border: 1px solid #2a3347;
+	color: #ffffff;
+	width: 40px;
+	height: 56px;
+	border-radius: 8px;
+	font-size: 26px;
+	line-height: 1;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background 0.12s, color 0.12s, border-color 0.12s;
+	font-family: serif;
+}
+.jpc-ql-page-btn:hover:not(:disabled) {
+	background: rgba(57, 255, 20, 0.15);
+	color: var(--accent, #39FF14);
+	border-color: var(--accent, #39FF14);
+}
+.jpc-ql-page-btn:disabled {
+	opacity: 0.3;
+	cursor: not-allowed;
+}
+.jpc-ql-page-prev { left: 12px; }
+.jpc-ql-page-next { right: 12px; }
+
+/* ─── Footer (compteur + hints + nav fichiers) ─── */
+.jpc-ql-footer {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 10px 18px;
+	border-top: 1px solid #1e2535;
+	background: #161b29;
+	font-size: 11px;
+	color: #6b7280;
+}
+
+.jpc-ql-page-counter {
+	font-variant-numeric: tabular-nums;
+	color: #d1d5db;
+	font-weight: 500;
+	font-size: 12px;
+	flex-shrink: 0;
+	min-width: 90px;
+}
+
+.jpc-ql-hints {
+	flex: 1;
+	text-align: center;
+	color: #6b7280;
+}
+
+.jpc-ql-hints kbd {
+	display: inline-block;
+	padding: 1px 6px;
+	margin: 0 2px;
+	background: #1e2535;
+	border: 1px solid #2a3347;
+	border-radius: 4px;
+	color: #d1d5db;
+	font-family: 'Inter', sans-serif;
+	font-size: 10px;
+	font-weight: 500;
+	line-height: 1.4;
+}
+
+.jpc-ql-nav {
+	display: flex;
+	gap: 6px;
+	flex-shrink: 0;
+}
+
+.jpc-ql-nav-btn {
+	background: transparent;
+	border: 1px solid #2a3347;
+	color: #9ca3af;
+	font-family: 'Inter', sans-serif;
+	font-size: 11px;
+	font-weight: 500;
+	padding: 6px 10px;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.12s;
+}
+.jpc-ql-nav-btn:hover:not(:disabled) {
+	background: #1e2535;
+	border-color: var(--accent, #39FF14);
+	color: var(--accent, #39FF14);
+}
+.jpc-ql-nav-btn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+
+/* ─── Mode clair ─── */
+[data-theme="light"] .jpc-ql-overlay {
+	background: rgba(15, 23, 42, 0.55);
+}
+[data-theme="light"] .jpc-ql-content {
+	background: #ffffff;
+	border-color: #e5e7eb;
+	box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+}
+[data-theme="light"] .jpc-ql-header,
+[data-theme="light"] .jpc-ql-footer {
+	background: #f7f8fa;
+	border-color: #e5e7eb;
+}
+[data-theme="light"] .jpc-ql-name { color: #0d1117; }
+[data-theme="light"] .jpc-ql-info { color: #6b7280; }
+[data-theme="light"] .jpc-ql-close {
+	background: #f0f1f5;
+	border-color: #d1d5db;
+	color: #6b7280;
+}
+[data-theme="light"] .jpc-ql-close:hover {
+	background: #e5e7eb;
+	color: #0d1117;
+}
+[data-theme="light"] .jpc-ql-canvas-wrap {
+	background: radial-gradient(ellipse at center, #f0f1f5 0%, #e5e7eb 100%);
+}
+[data-theme="light"] .jpc-ql-page-btn {
+	background: rgba(255, 255, 255, 0.92);
+	border-color: #d1d5db;
+	color: #1f2937;
+}
+[data-theme="light"] .jpc-ql-page-btn:hover:not(:disabled) {
+	background: rgba(5, 150, 105, 0.12);
+	color: #059669;
+	border-color: #059669;
+}
+[data-theme="light"] .jpc-ql-hints { color: #6b7280; }
+[data-theme="light"] .jpc-ql-hints kbd {
+	background: #ffffff;
+	border-color: #d1d5db;
+	color: #1f2937;
+}
+[data-theme="light"] .jpc-ql-page-counter { color: #1f2937; }
+[data-theme="light"] .jpc-ql-nav-btn {
+	border-color: #d1d5db;
+	color: #4b5563;
+}
+[data-theme="light"] .jpc-ql-nav-btn:hover:not(:disabled) {
+	background: #f0f1f5;
+	color: #059669;
+	border-color: #059669;
+}
+
+/* ─── Mobile ─── */
+@media (max-width: 600px) {
+	.jpc-ql-content {
+		width: 100vw;
+		height: 100vh;
+		max-height: 100vh;
+		border-radius: 0;
+	}
+	.jpc-ql-hints { display: none; }
+	.jpc-ql-page-counter { min-width: 60px; font-size: 11px; }
+	.jpc-ql-nav-btn { padding: 5px 8px; font-size: 10px; }
+}

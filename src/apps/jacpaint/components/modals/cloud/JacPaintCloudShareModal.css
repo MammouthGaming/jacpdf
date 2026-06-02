@@ -1,0 +1,321 @@
+/* JacPaintCloudShareModal.css — styles modale de partage par lien. */
+
+.jpshare-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.55);
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	animation: jpshare-fade-in 0.18s ease-out;
+}
+
+@keyframes jpshare-fade-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+.jpshare-modal {
+	background: #1e1e1e;
+	color: #f5f5f5;
+	border-radius: 14px;
+	width: min(640px, 92vw);
+	max-height: 88vh;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+	border: 1px solid rgba(255, 255, 255, 0.06);
+	animation: jpshare-slide-up 0.22s ease-out;
+}
+
+@keyframes jpshare-slide-up {
+	from { transform: translateY(14px); opacity: 0; }
+	to { transform: translateY(0); opacity: 1; }
+}
+
+.jpshare-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 20px 22px 14px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.jpshare-header-text { flex: 1; min-width: 0; }
+
+.jpshare-title {
+	margin: 0 0 4px;
+	font-size: 17px;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+.jpshare-subtitle {
+	margin: 0;
+	font-size: 13px;
+	color: #a0a0a0;
+	line-height: 1.45;
+}
+
+.jpshare-close {
+	background: transparent;
+	border: none;
+	color: #a0a0a0;
+	width: 30px;
+	height: 30px;
+	border-radius: 8px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: background 0.12s, color 0.12s;
+	flex-shrink: 0;
+}
+.jpshare-close:hover { background: rgba(255, 255, 255, 0.08); color: #f5f5f5; }
+
+.jpshare-body {
+	flex: 1;
+	overflow-y: auto;
+	padding: 18px 22px;
+	display: flex;
+	flex-direction: column;
+	gap: 22px;
+}
+
+.jpshare-section-title {
+	margin: 0 0 10px;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #909090;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.jpshare-count {
+	font-weight: 500;
+	color: #707070;
+	text-transform: none;
+	letter-spacing: 0;
+}
+
+/* ----- Bloc création ----- */
+
+.jpshare-create-row {
+	display: flex;
+	align-items: flex-end;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.jpshare-label {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	font-size: 12px;
+	color: #b8b8b8;
+}
+
+.jpshare-select {
+	background: #2a2a2a;
+	color: #f5f5f5;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 8px;
+	padding: 8px 10px;
+	font-size: 13px;
+	outline: none;
+	transition: border-color 0.12s, background 0.12s;
+	cursor: pointer;
+}
+.jpshare-select:hover { border-color: rgba(255, 255, 255, 0.16); }
+.jpshare-select:focus { border-color: var(--accent); }
+.jpshare-select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.jpshare-select-inline { padding: 5px 8px; font-size: 12px; }
+
+/* Menu déroulant custom JacSuite (FsmSelect) utilisé à la place des <select>
+   natifs. On lui donne une largeur fixe : le défaut width:100% de FsmSelect
+   ne convient pas dans la rangée flex de création ni dans les actions par
+   lien. Le style visuel (fond, bordure, accent, popover) vient de
+   FsmSelect.css. */
+.jpshare-select-fsm { width: 160px; }
+.jpshare-select-fsm-inline { width: 132px; }
+
+/* ----- Liste des liens ----- */
+
+.jpshare-loading {
+	padding: 18px 0;
+	text-align: center;
+	color: #909090;
+	font-size: 13px;
+}
+
+.jpshare-error {
+	padding: 10px 12px;
+	background: rgba(255, 100, 100, 0.1);
+	border: 1px solid rgba(255, 100, 100, 0.25);
+	color: #ff9b9b;
+	border-radius: 8px;
+	font-size: 13px;
+	margin-bottom: 12px;
+}
+
+.jpshare-empty {
+	padding: 26px 16px;
+	text-align: center;
+	background: rgba(255, 255, 255, 0.025);
+	border: 1px dashed rgba(255, 255, 255, 0.08);
+	border-radius: 10px;
+}
+.jpshare-empty p { margin: 6px 0 0; color: #a0a0a0; font-size: 13px; }
+.jpshare-empty-icon { font-size: 26px; }
+
+.jpshare-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.jpshare-item {
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.06);
+	border-radius: 10px;
+	padding: 12px 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 9px;
+	transition: border-color 0.15s, background 0.15s;
+}
+.jpshare-item:hover { border-color: rgba(255, 255, 255, 0.12); }
+.jpshare-item-disabled { opacity: 0.55; }
+
+.jpshare-link-row {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.jpshare-link-input {
+	flex: 1;
+	min-width: 0;
+	background: #161616;
+	color: #d8d8d8;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 7px;
+	padding: 7px 10px;
+	font-size: 12.5px;
+	font-family: 'SF Mono', Menlo, Consolas, monospace;
+	outline: none;
+}
+.jpshare-link-input:focus { border-color: var(--accent); }
+
+.jpshare-copy-btn { min-width: 76px; }
+
+.jpshare-meta-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 12px;
+}
+
+.jpshare-status { font-weight: 500; font-size: 11.5px; }
+.jpshare-status-on { color: #5cd577; }
+.jpshare-status-off { color: #909090; }
+.jpshare-meta-sep { color: #555; }
+.jpshare-meta-expiry { color: #a0a0a0; }
+
+.jpshare-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.jpshare-label-inline {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 12px;
+	color: #a0a0a0;
+}
+
+/* ----- Boutons ----- */
+
+.jpshare-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	justify-content: center;
+	border: none;
+	border-radius: 7px;
+	padding: 7px 13px;
+	font-size: 12.5px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background 0.12s, color 0.12s, transform 0.05s;
+	white-space: nowrap;
+}
+.jpshare-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.jpshare-btn:not(:disabled):active { transform: translateY(1px); }
+
+.jpshare-btn-primary {
+	background: var(--accent);
+	color: #fff;
+}
+.jpshare-btn-primary:not(:disabled):hover { background: var(--accent-hover); }
+
+.jpshare-btn-secondary {
+	background: rgba(255, 255, 255, 0.08);
+	color: #e8e8e8;
+}
+.jpshare-btn-secondary:not(:disabled):hover { background: rgba(255, 255, 255, 0.13); }
+
+.jpshare-btn-danger {
+	background: rgba(255, 90, 90, 0.12);
+	color: #ff8a8a;
+}
+.jpshare-btn-danger:not(:disabled):hover { background: rgba(255, 90, 90, 0.2); color: #ff9b9b; }
+
+/* ----- Footer ----- */
+
+.jpshare-footer {
+	padding: 14px 22px;
+	border-top: 1px solid rgba(255, 255, 255, 0.06);
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	background: rgba(0, 0, 0, 0.18);
+}
+
+/* Thème clair */
+.theme-light .jpshare-modal {
+	background: #ffffff;
+	color: #1a1a1a;
+	border-color: rgba(0, 0, 0, 0.08);
+}
+.theme-light .jpshare-header { border-bottom-color: rgba(0, 0, 0, 0.06); }
+.theme-light .jpshare-subtitle { color: #666; }
+.theme-light .jpshare-close { color: #666; }
+.theme-light .jpshare-close:hover { background: rgba(0, 0, 0, 0.05); color: #1a1a1a; }
+.theme-light .jpshare-section-title { color: #666; }
+.theme-light .jpshare-count { color: #8a8a8a; }
+.theme-light .jpshare-label, .theme-light .jpshare-label-inline { color: #555; }
+.theme-light .jpshare-select { background: #f6f6f6; color: #1a1a1a; border-color: rgba(0, 0, 0, 0.1); }
+.theme-light .jpshare-empty { background: rgba(0, 0, 0, 0.025); border-color: rgba(0, 0, 0, 0.08); }
+.theme-light .jpshare-empty p { color: #666; }
+.theme-light .jpshare-item { background: rgba(0, 0, 0, 0.025); border-color: rgba(0, 0, 0, 0.08); }
+.theme-light .jpshare-link-input { background: #f8f8f8; color: #2a2a2a; border-color: rgba(0, 0, 0, 0.1); }
+.theme-light .jpshare-meta-expiry { color: #666; }
+.theme-light .jpshare-btn-secondary { background: rgba(0, 0, 0, 0.06); color: #2a2a2a; }
+.theme-light .jpshare-btn-secondary:not(:disabled):hover { background: rgba(0, 0, 0, 0.1); }
+.theme-light .jpshare-footer { background: rgba(0, 0, 0, 0.02); border-top-color: rgba(0, 0, 0, 0.06); }

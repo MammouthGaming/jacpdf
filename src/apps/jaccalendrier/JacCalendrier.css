@@ -1,0 +1,1917 @@
+/* JacCalendrier.css
+   Styles dédiés à JacCalendrier. Cohérent avec le thème sombre JacPDF/JacDoc.
+   Accents bleus, grille compacte, pastilles colorées par calendrier. */
+
+:root {
+	/* Tokens JacCalendrier — palette « Apple Calendar » sombre (vrai noir #000)
+	 * avec surfaces gris très foncé. Le bloc [data-theme="light"] plus bas
+	 * re-définit ces tokens pour le mode clair, donc tout le CSS qui utilise
+	 * var(--jc-*) suit automatiquement le toggle Sombre/Clair de JacSuite. */
+	--jc-bg: #000000;
+	--jc-bg-surface: #0a0a0a;
+	--jc-bg-elev: #1c1c1e;
+	--jc-bg-hover: #2c2c2e;
+	--jc-bg-hover-strong: #3a3a3c;
+	--jc-bg-deep: #000000;
+	--jc-border: #38383a;
+	--jc-text: #ffffff;
+	--jc-text-soft: #d1d1d6;
+	--jc-text-dim: #aeaeb2;
+	--jc-text-muted: #8e8e93;
+	--jc-text-faint: #48484a;
+}
+
+[data-theme="light"] {
+	/* JacCalendrier mode clair — fond blanc, surfaces gris clair, texte
+	 * presque noir. Aligné sur Apple Calendar mode clair. */
+	--jc-bg: #ffffff;
+	--jc-bg-surface: #f9f9fb;
+	--jc-bg-elev: #f2f2f7;
+	--jc-bg-hover: #e5e5ea;
+	--jc-bg-hover-strong: #d1d1d6;
+	--jc-bg-deep: #f2f2f7;
+	--jc-border: #d1d1d6;
+	--jc-text: #1c1c1e;
+	--jc-text-soft: #1c1c1e;
+	--jc-text-dim: #6e6e73;
+	--jc-text-muted: #8e8e93;
+	--jc-text-faint: #c7c7cc;
+}
+
+.jaccalendrier-app {
+	display: grid;
+	/* Largeur de la sidebar pilotée par la variable CSS --jc-sidebar-width
+	 * posée en inline-style par JacCalendrierApp (default 260px). Le mode
+	 * réduit (data-sidebar-collapsed='true') force la colonne à 48px plus
+	 * bas. */
+	grid-template-columns: var(--jc-sidebar-width, 260px) 1fr;
+	/* position: relative requis pour que le handle de redimensionnement
+	 * (.jaccalendrier-app__sidebar-resize) en position: absolute se réfère
+	 * à ce conteneur. */
+	position: relative;
+	height: 100%;
+	background: var(--jc-bg);
+	color: var(--jc-text);
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Handle de redimensionnement — overlay vertical fin centré sur la
+ * frontière sidebar/zone principale. Hors flux grâce à position: absolute
+ * (sinon il prendrait une colonne dans la grille). Zone de hit de 6px
+ * translatée de -3px pour être centrée pile sur la frontière. Pastille
+ * colorée (accent JacCalendrier) au hover/drag pour signaler l'interactivité. */
+.jaccalendrier-app__sidebar-resize {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: var(--jc-sidebar-width, 260px);
+	width: 6px;
+	transform: translateX(-3px);
+	cursor: col-resize;
+	z-index: 5;
+	background: transparent;
+	transition: background 0.12s ease;
+}
+.jaccalendrier-app__sidebar-resize:hover,
+.jaccalendrier-app__sidebar-resize:active {
+	background: rgba(var(--accent-rgb), 0.15);
+}
+
+/* ---------- Sidebar flottante (Apparence > Sidebar flottante) ----------
+ * Mode « overlay façon Notion ». Quand activé :
+ *  • La colonne de la sidebar disparaît du grid (position: absolute).
+ *  • La sidebar glisse via `transform` ; cachée par défaut.
+ *  • Révélée par la zone de hover (12 px) au bord gauche ou par le
+ *    bouton « panneau latéral » de la tab bar JacSuite.
+ *  • Se referme dès que la souris quitte la sidebar (timer 150 ms).
+ *  • Le handle de redimensionnement est désactivé.
+ */
+.jaccalendrier-app[data-sidebar-floating='true'] {
+	grid-template-columns: 1fr;
+}
+
+.jaccalendrier-app[data-sidebar-floating='true'] .jaccalendrier-sidebar {
+	position: absolute;
+	top: 12px;
+	bottom: 12px;
+	left: 12px;
+	width: var(--jc-sidebar-width, 260px);
+	z-index: 50;
+	transform: translateX(calc(-100% - 16px));
+	transition: transform 220ms cubic-bezier(0.2, 0.9, 0.3, 1);
+	box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+	border: 1px solid var(--jc-border);
+	border-radius: 12px;
+}
+[data-theme='light'] .jaccalendrier-app[data-sidebar-floating='true'] .jaccalendrier-sidebar {
+	box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+}
+.jaccalendrier-app[data-sidebar-floating='true'][data-sidebar-floating-open='true'] .jaccalendrier-sidebar {
+	transform: translateX(0);
+}
+
+.jaccalendrier-app[data-sidebar-floating='true'] .jaccalendrier-app__sidebar-resize {
+	display: none;
+}
+
+/* Zone de hover invisible (12 px) collée au bord gauche de l'app. */
+.jaccalendrier-app__floating-hover-zone {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 12px;
+	z-index: 49;
+	background: transparent;
+}
+
+/* ---------- Sidebar ---------- */
+.jaccalendrier-sidebar {
+	background: var(--jc-bg-surface);
+	border-right: 1px solid var(--jc-border);
+	padding: 16px 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	overflow-y: auto;
+}
+.jaccalendrier-sidebar__brand {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-weight: 600;
+	font-size: 14px;
+}
+.jaccalendrier-sidebar__logo {
+	font-size: 20px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.jaccalendrier-sidebar__logo img {
+	width: 24px;
+	height: 24px;
+	object-fit: contain;
+	pointer-events: none;
+	user-select: none;
+}
+
+.jaccalendrier-sidebar__create {
+	background: var(--accent);
+	color: white;
+	border: 0;
+	border-radius: 8px;
+	padding: 8px 12px;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: filter 0.15s;
+}
+.jaccalendrier-sidebar__create:hover {
+	filter: brightness(1.1);
+}
+
+.jaccalendrier-sidebar__mini {
+	background: var(--jc-bg);
+	border: 1px solid var(--jc-border);
+	border-radius: 8px;
+	padding: 8px;
+}
+.jaccalendrier-sidebar__mini-label {
+	text-align: center;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: capitalize;
+	margin-bottom: 6px;
+}
+.jaccalendrier-sidebar__mini-weekdays,
+.jaccalendrier-sidebar__mini-grid {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 2px;
+}
+.jaccalendrier-sidebar__mini-weekdays span {
+	text-align: center;
+	font-size: 10px;
+	color: var(--jc-text-muted);
+}
+.jaccalendrier-sidebar__mini-cell {
+	background: transparent;
+	color: var(--jc-text-soft);
+	border: 0;
+	font-size: 11px;
+	padding: 4px 0;
+	border-radius: 4px;
+	cursor: pointer;
+}
+.jaccalendrier-sidebar__mini-cell:hover {
+	background: var(--jc-border);
+}
+.jaccalendrier-sidebar__mini-cell[data-out='true'] {
+	color: var(--jc-text-faint);
+}
+.jaccalendrier-sidebar__mini-cell[data-today='true'] {
+	background: var(--accent);
+	color: white;
+	font-weight: 600;
+}
+
+.jaccalendrier-sidebar__heading {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--jc-text-muted);
+}
+.jaccalendrier-sidebar__add {
+	background: transparent;
+	border: 0;
+	color: var(--jc-text-dim);
+	cursor: pointer;
+	font-size: 16px;
+	line-height: 1;
+}
+.jaccalendrier-sidebar__add:hover {
+	color: #fff;
+}
+
+.jaccalendrier-sidebar__cals {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+.jaccalendrier-sidebar__cal {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 8px;
+	border-radius: 6px;
+	font-size: 13px;
+	cursor: pointer;
+}
+.jaccalendrier-sidebar__cal:hover {
+	background: var(--jc-bg-hover);
+}
+/* Ancien indicateur (pastille ronde à côté d'une checkbox native) —
+ * conservé pour compat éventuelle, plus utilisé dans la sidebar : la
+ * pastille et la checkbox sont maintenant fusionnées en
+ * .jaccalendrier-sidebar__cal-check. */
+.jaccalendrier-sidebar__cal-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+/* === Case à cocher custom des calendriers ===
+ * On masque l'input natif (sans le retirer du DOM — il garde le focus
+ * clavier et l'accessibilité) et on affiche un carré arrondi coloré
+ * qui sert à la fois d'indicateur de couleur du calendrier et de
+ * checkbox. Coché = rempli avec la couleur du calendrier et coche
+ * blanche ; décoché = juste un cadre de la même couleur, intérieur
+ * transparent. Les couleurs proviennent du style inline posé côté JS. */
+.jaccalendrier-sidebar__cal-input {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+	width: 0;
+	height: 0;
+	margin: 0;
+}
+.jaccalendrier-sidebar__cal-check {
+	width: 16px;
+	height: 16px;
+	border-radius: 4px;
+	border: 2px solid currentColor;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	box-sizing: border-box;
+	transition: background-color 0.15s ease, transform 0.12s ease,
+		box-shadow 0.15s ease;
+}
+.jaccalendrier-sidebar__cal:hover .jaccalendrier-sidebar__cal-check {
+	transform: scale(1.08);
+}
+/* Petite coche blanche dessinée en CSS (2 bordures inclinées) au lieu
+ * d'un SVG, pour rester léger. Visible uniquement quand data-checked. */
+.jaccalendrier-sidebar__cal-check[data-checked='true']::after {
+	content: '';
+	width: 8px;
+	height: 4px;
+	border-left: 2px solid #fff;
+	border-bottom: 2px solid #fff;
+	transform: rotate(-45deg) translate(1px, -1px);
+}
+/* Focus visible via le clavier : on dessine un anneau autour de la case
+ * custom quand l'input natif (caché) reçoit le focus. */
+.jaccalendrier-sidebar__cal-input:focus-visible + .jaccalendrier-sidebar__cal-check {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+.jaccalendrier-sidebar__cal-name {
+	flex: 1;
+}
+.jaccalendrier-sidebar__cal-del {
+	background: transparent;
+	border: 0;
+	color: var(--jc-text-muted);
+	cursor: pointer;
+	font-size: 14px;
+	opacity: 0;
+	transition: opacity 0.15s;
+}
+.jaccalendrier-sidebar__cal:hover .jaccalendrier-sidebar__cal-del {
+	opacity: 1;
+}
+
+/* Input de renommage inline d'un calendrier : prend la place du span du
+ * nom quand renamingId === c.id. Style minimal pour rester intégré dans
+ * la ligne (pas de bordure visible, juste un fond plus sombre et un
+ * outline accent au focus). */
+.jaccalendrier-sidebar__cal-rename {
+	flex: 1;
+	min-width: 0;
+	background: var(--jc-bg);
+	border: 1px solid var(--jc-border);
+	color: var(--jc-text);
+	font-size: 13px;
+	padding: 2px 6px;
+	border-radius: 4px;
+	outline: none;
+	font-family: inherit;
+}
+.jaccalendrier-sidebar__cal-rename:focus {
+	border-color: var(--accent);
+	box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
+}
+
+/* === Menu contextuel clic droit (sur un calendrier) ===
+ * Liste position: fixed, placée aux coordonnées du clic. Items en
+ * flex-row (icône SVG + libellé). Variante danger pour Supprimer. */
+.jaccalendrier-sidebar__ctx-menu {
+	position: fixed;
+	z-index: 200;
+	margin: 0;
+	padding: 4px;
+	list-style: none;
+	min-width: 160px;
+	background: var(--jc-bg-surface);
+	border: 1px solid var(--jc-border);
+	border-radius: 8px;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+	animation: jaccalendrierCtxMenuPop 0.12s ease-out;
+}
+@keyframes jaccalendrierCtxMenuPop {
+	from { opacity: 0; transform: scale(0.96) translateY(-2px); }
+	to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.jaccalendrier-sidebar__ctx-menu li { margin: 0; }
+.jaccalendrier-sidebar__ctx-item {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	width: 100%;
+	background: transparent;
+	border: 0;
+	color: var(--jc-text);
+	font-size: 13px;
+	padding: 7px 10px;
+	border-radius: 5px;
+	cursor: pointer;
+	text-align: left;
+	transition: background 0.1s ease;
+}
+.jaccalendrier-sidebar__ctx-item:hover {
+	background: var(--jc-bg-hover);
+}
+.jaccalendrier-sidebar__ctx-item svg {
+	flex-shrink: 0;
+	color: var(--jc-text-dim);
+}
+.jaccalendrier-sidebar__ctx-item--danger {
+	color: #ff4d4f;
+}
+.jaccalendrier-sidebar__ctx-item--danger:hover {
+	background: rgba(255, 77, 79, 0.12);
+}
+.jaccalendrier-sidebar__ctx-item--danger svg {
+	color: #ff4d4f;
+}
+
+/* === Drag-and-drop des calendriers (sidebar) ===
+ * Chaque <li> est draggable. Pendant le drag :
+ *  - l'item d'origine est atténué (opacity)
+ *  - la cible de drop (dragOverId) reçoit une fine barre accent au-dessus
+ *    via ::before pour indiquer le point d'insertion. */
+.jaccalendrier-sidebar__cal-item {
+	position: relative;
+	list-style: none;
+}
+.jaccalendrier-sidebar__cal-item[draggable="true"] .jaccalendrier-sidebar__cal {
+	cursor: grab;
+}
+.jaccalendrier-sidebar__cal-item[draggable="true"]:active .jaccalendrier-sidebar__cal {
+	cursor: grabbing;
+}
+.jaccalendrier-sidebar__cal-item[data-dragging="true"] {
+	opacity: 0.4;
+}
+.jaccalendrier-sidebar__cal-item[data-drag-over="true"]::before {
+	content: "";
+	position: absolute;
+	top: -1px;
+	left: 4px;
+	right: 4px;
+	height: 2px;
+	background: var(--accent);
+	border-radius: 2px;
+	box-shadow: 0 0 6px rgba(var(--accent-rgb), 0.6);
+	pointer-events: none;
+	z-index: 2;
+}
+
+/* === Modal de confirmation custom (JacCalendrierConfirmModal) ===
+ * Overlay sombre plein écran, panneau centré. Mêmes tokens que la modal
+ * d'événement pour rester cohérent visuellement. z-index plus haut que
+ * la modal d'événement (qui est à ~100) pour pouvoir s'ouvrir par-dessus. */
+.jaccalendrier-confirm-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.6);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 300;
+	animation: jaccalendrierConfirmFadeIn 0.15s ease-out;
+}
+@keyframes jaccalendrierConfirmFadeIn {
+	from { opacity: 0; }
+	to   { opacity: 1; }
+}
+.jaccalendrier-confirm {
+	background: var(--jc-bg-hover);
+	border: 1px solid var(--jc-border);
+	border-radius: 10px;
+	padding: 22px 22px 18px;
+	min-width: 320px;
+	max-width: 440px;
+	box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+	animation: jaccalendrierConfirmPop 0.18s ease-out;
+}
+@keyframes jaccalendrierConfirmPop {
+	from { opacity: 0; transform: scale(0.94) translateY(-6px); }
+	to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.jaccalendrier-confirm__title {
+	margin: 0 0 10px;
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--jc-text);
+}
+.jaccalendrier-confirm__message {
+	margin: 0 0 18px;
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--jc-text-dim);
+}
+.jaccalendrier-confirm__actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+.jaccalendrier-confirm__btn {
+	padding: 7px 14px;
+	font-size: 13px;
+	border-radius: 6px;
+	border: 1px solid transparent;
+	cursor: pointer;
+	font-family: inherit;
+	transition: background 0.12s ease, border-color 0.12s ease;
+}
+.jaccalendrier-confirm__btn--ghost {
+	background: transparent;
+	border-color: var(--jc-border);
+	color: var(--jc-text);
+}
+.jaccalendrier-confirm__btn--ghost:hover {
+	background: var(--jc-border);
+}
+.jaccalendrier-confirm__btn--primary {
+	background: var(--accent);
+	color: var(--jc-bg);
+	font-weight: 600;
+}
+.jaccalendrier-confirm__btn--primary:hover {
+	filter: brightness(1.08);
+}
+.jaccalendrier-confirm__btn--danger {
+	background: #ff4d4f;
+	color: #fff;
+	font-weight: 600;
+}
+.jaccalendrier-confirm__btn--danger:hover {
+	background: #ff6b6d;
+}
+.jaccalendrier-confirm__btn:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.jaccalendrier-sidebar__cal-create {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 8px;
+	background: var(--jc-bg);
+	border: 1px solid var(--jc-border);
+	border-radius: 8px;
+}
+.jaccalendrier-sidebar__cal-create input {
+	background: var(--jc-bg-surface);
+	border: 1px solid var(--jc-border);
+	color: white;
+	padding: 6px 8px;
+	border-radius: 4px;
+	font-size: 13px;
+}
+.jaccalendrier-sidebar__palette {
+	display: grid;
+	grid-template-columns: repeat(8, 1fr);
+	gap: 4px;
+}
+.jaccalendrier-sidebar__swatch {
+	width: 100%;
+	aspect-ratio: 1;
+	border-radius: 50%;
+	border: 2px solid transparent;
+	cursor: pointer;
+	transition: transform 0.15s;
+}
+.jaccalendrier-sidebar__swatch[data-active='true'] {
+	border-color: white;
+	transform: scale(1.15);
+}
+
+/* Bouton « Autre couleur » à la fin de la palette : même format qu'un
+ * swatch, mais rempli d'un dégradé conique pour signaler qu'il ouvre le
+ * cercle chromatique complet. Petit « + » au centre pour clarifier que
+ * c'est un « ajouter une couleur custom ». */
+.jaccalendrier-sidebar__swatch--more {
+	position: relative;
+	background: conic-gradient(
+		from 0deg,
+		#ff4d4f,
+		#ff9f1c,
+		#ffd166,
+		#06d6a0,
+		#3a86ff,
+		#8338ec,
+		#ff4d4f
+	) !important;
+}
+.jaccalendrier-sidebar__swatch--more::after {
+	content: '+';
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 14px;
+	font-weight: 700;
+	color: #fff;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+	line-height: 1;
+}
+.jaccalendrier-sidebar__cal-actions {
+	display: flex;
+	gap: 6px;
+	justify-content: flex-end;
+}
+.jaccalendrier-sidebar__cal-actions button {
+	background: var(--jc-border);
+	color: white;
+	border: 0;
+	padding: 4px 10px;
+	border-radius: 4px;
+	font-size: 12px;
+	cursor: pointer;
+}
+
+/* ---------- Toolbar ---------- */
+.jaccalendrier-main {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+.jaccalendrier-toolbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 12px 20px;
+	background: var(--jc-bg-surface);
+	border-bottom: 1px solid var(--jc-border);
+}
+.jaccalendrier-toolbar__nav {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.jaccalendrier-toolbar__today {
+	background: var(--jc-border);
+	color: white;
+	border: 0;
+	padding: 6px 12px;
+	border-radius: 6px;
+	font-size: 13px;
+	cursor: pointer;
+}
+.jaccalendrier-toolbar__today:hover {
+	background: var(--jc-bg-hover-strong);
+}
+.jaccalendrier-toolbar__arrow {
+	background: transparent;
+	color: var(--jc-text-soft);
+	border: 0;
+	width: 28px;
+	height: 28px;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 18px;
+}
+.jaccalendrier-toolbar__arrow:hover {
+	background: var(--jc-border);
+}
+.jaccalendrier-toolbar__title {
+	margin: 0 8px;
+	font-size: 18px;
+	font-weight: 600;
+	text-transform: capitalize;
+}
+.jaccalendrier-toolbar__views {
+	display: flex;
+	background: var(--jc-bg);
+	border-radius: 6px;
+	padding: 2px;
+}
+.jaccalendrier-toolbar__view {
+	background: transparent;
+	color: var(--jc-text-dim);
+	border: 0;
+	padding: 6px 14px;
+	font-size: 12px;
+	font-weight: 500;
+	cursor: pointer;
+	border-radius: 4px;
+}
+.jaccalendrier-toolbar__view[data-active='true'] {
+	background: var(--accent);
+	color: white;
+}
+
+/* ---------- Mois ---------- */
+.jaccalendrier-month {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	overflow: hidden;
+}
+.jaccalendrier-month__weekdays {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	background: var(--jc-bg-surface);
+	border-bottom: 1px solid var(--jc-border);
+}
+.jaccalendrier-month__weekday {
+	padding: 8px 12px;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--jc-text-muted);
+}
+.jaccalendrier-month__grid {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	grid-auto-rows: 1fr;
+	flex: 1;
+	gap: 1px;
+	background: var(--jc-border);
+}
+.jaccalendrier-month__cell {
+	background: var(--jc-bg);
+	padding: 4px 6px;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	cursor: pointer;
+	overflow: hidden;
+}
+.jaccalendrier-month__cell:hover {
+	background: var(--jc-bg-surface);
+}
+.jaccalendrier-month__cell[data-out='true'] {
+	background: var(--jc-bg-deep);
+	color: var(--jc-text-faint);
+}
+.jaccalendrier-month__cell-date {
+	font-size: 12px;
+	color: var(--jc-text-soft);
+}
+.jaccalendrier-month__cell[data-today='true'] .jaccalendrier-month__cell-date {
+	background: var(--accent);
+	color: white;
+	border-radius: 50%;
+	width: 22px;
+	height: 22px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 600;
+}
+.jaccalendrier-month__cell-items {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.jaccalendrier-pill {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 11px;
+	color: white;
+	padding: 2px 6px;
+	border-radius: 4px;
+	cursor: pointer;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	border: 1px solid transparent;
+}
+.jaccalendrier-pill[data-task='true'] {
+	color: var(--jc-text-soft);
+	background: transparent !important;
+	border-style: dashed;
+}
+.jaccalendrier-pill:hover {
+	filter: brightness(1.15);
+}
+.jaccalendrier-month__more {
+	font-size: 10px;
+	color: var(--jc-text-muted);
+	padding: 2px 6px;
+}
+
+/* ---------- Modal ---------- */
+.jaccalendrier-modal__backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(2px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 100;
+}
+.jaccalendrier-modal {
+	background: var(--jc-bg-surface);
+	border: 1px solid var(--jc-border);
+	border-radius: 12px;
+	padding: 20px;
+	width: 480px;
+	max-width: 90vw;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+}
+.jaccalendrier-modal__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.jaccalendrier-modal__header h2 {
+	margin: 0;
+	font-size: 18px;
+}
+.jaccalendrier-modal__close {
+	background: transparent;
+	border: 0;
+	color: var(--jc-text-dim);
+	cursor: pointer;
+	font-size: 16px;
+}
+.jaccalendrier-modal__title,
+.jaccalendrier-modal input,
+.jaccalendrier-modal select,
+.jaccalendrier-modal textarea {
+	background: var(--jc-bg);
+	border: 1px solid var(--jc-border);
+	color: white;
+	border-radius: 6px;
+	padding: 8px 10px;
+	font-size: 13px;
+}
+/* Pas de poignée de redimensionnement sur la zone Description : la
+ * taille est fixée par l'attribut rows={4} et c'est suffisant pour le
+ * besoin (les longues descriptions scrollent dans la zone). */
+.jaccalendrier-modal textarea {
+	resize: none;
+	font-family: inherit;
+	line-height: 1.4;
+}
+
+/* Le JacTacheDatePicker est réutilisé dans le modal de JacCalendrier pour
+ * les champs Début / Fin. On annule le style générique des inputs du
+ * modal pour les composants internes du picker (sinon ses HH:MM
+ * compacts héritent du padding 8/10 et de la bordure, ce qui casse le
+ * layout du popover). On laisse les classes propres du picker reprendre
+ * la main. */
+.jaccalendrier-modal .jactache-datepicker {
+	width: 100%;
+}
+.jaccalendrier-modal .jactache-datepicker input {
+	background: transparent;
+	border: 1px solid var(--jc-border);
+	padding: 4px 6px;
+	font-size: 13px;
+	border-radius: 5px;
+}
+.jaccalendrier-modal .jactache-datepicker__trigger {
+	width: 100%;
+}
+/* Le popover du picker doit passer au-dessus du contenu du modal mais
+ * rester sous le backdrop. z-index plus haut que le contenu form, plus
+ * bas que les modaux globaux. */
+.jaccalendrier-modal .jactache-datepicker__popover {
+	z-index: 110;
+}
+/* Dans le modal JacCalendrier on a déjà une case « Journée entière »
+ * en haut du formulaire, qui pilote les deux pickers ensemble. On masque
+ * donc le toggle interne du JacTacheDatePicker pour éviter le doublon
+ * et la confusion (l'un agissant sur un seul champ, l'autre sur les
+ * deux). Le state interne du picker reste piloté par le format de la
+ * valeur qu'on lui passe. */
+.jaccalendrier-modal .jactache-datepicker__all-day {
+	display: none;
+}
+
+/* === Sélecteur de calendrier custom (modal) ===
+ * Remplace le <select> natif. Architecture : un wrapper position:
+ * relative pour ancrer le popover, un bouton trigger (pastille de
+ * couleur + nom + chevron), et un <ul> popover qui s'affiche en
+ * dessous avec la liste des calendriers (chacun avec sa pastille). */
+.jaccalendrier-modal__calendar-select {
+	flex: 1;
+	position: relative;
+}
+.jaccalendrier-modal__calendar-trigger {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	background: var(--jc-bg) !important;
+	border: 1px solid var(--jc-border) !important;
+	color: white !important;
+	border-radius: 6px !important;
+	padding: 8px 10px !important;
+	font-size: 13px !important;
+	cursor: pointer;
+	text-align: left;
+	transition: border-color 0.12s ease, background 0.12s ease;
+}
+.jaccalendrier-modal__calendar-trigger:hover {
+	border-color: var(--jc-border) !important;
+	background: var(--jc-bg-surface) !important;
+}
+.jaccalendrier-modal__calendar-trigger[data-open='true'] {
+	border-color: var(--accent) !important;
+}
+.jaccalendrier-modal__calendar-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	background: var(--jc-text-muted); /* fallback si pas de color */
+}
+.jaccalendrier-modal__calendar-name {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.jaccalendrier-modal__calendar-chevron {
+	flex-shrink: 0;
+	color: var(--jc-text-dim);
+	transition: transform 0.15s ease;
+}
+.jaccalendrier-modal__calendar-trigger[data-open='true']
+	.jaccalendrier-modal__calendar-chevron {
+	transform: rotate(180deg);
+}
+
+/* Popover liste : position: absolute pour se détacher du flux et se
+ * placer juste sous le trigger. z-index plus haut que les autres
+ * éléments du modal pour passer au-dessus. */
+.jaccalendrier-modal__calendar-menu {
+	position: absolute;
+	top: calc(100% + 4px);
+	left: 0;
+	right: 0;
+	margin: 0;
+	padding: 4px;
+	list-style: none;
+	background: var(--jc-bg-surface);
+	border: 1px solid var(--jc-border);
+	border-radius: 8px;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+	z-index: 110;
+	max-height: 240px;
+	overflow-y: auto;
+	animation: jaccalendrierCalendarMenuPop 0.12s ease-out;
+}
+@keyframes jaccalendrierCalendarMenuPop {
+	from { opacity: 0; transform: translateY(-4px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+.jaccalendrier-modal__calendar-menu li { margin: 0; }
+
+.jaccalendrier-modal__calendar-option {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	background: transparent;
+	border: 0;
+	color: var(--jc-text);
+	font-size: 13px;
+	padding: 7px 8px;
+	border-radius: 5px;
+	cursor: pointer;
+	text-align: left;
+	transition: background 0.1s ease;
+}
+.jaccalendrier-modal__calendar-option:hover {
+	background: var(--jc-bg-hover);
+}
+.jaccalendrier-modal__calendar-option[data-selected='true'] {
+	background: rgba(var(--accent-rgb), 0.12);
+	color: var(--accent);
+}
+.jaccalendrier-modal__calendar-check {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--accent);
+	flex-shrink: 0;
+}
+.jaccalendrier-modal__title {
+	font-size: 18px;
+	font-weight: 600;
+}
+.jaccalendrier-modal__row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 13px;
+	color: var(--jc-text-soft);
+}
+.jaccalendrier-modal__row > span {
+	min-width: 80px;
+	color: var(--jc-text-dim);
+}
+.jaccalendrier-modal__row input[type='checkbox'] {
+	width: auto;
+}
+
+/* Variante « tight » : pour les lignes du modal qui n'ont pas de label
+ * à colonne fixe à gauche (ex : ligne Journée entière). On annule le
+ * min-width: 80px appliqué aux <span> par défaut, sinon le libellé est
+ * poussé loin de la case. Gap réduit pour bien coller la case au texte. */
+.jaccalendrier-modal__row--tight {
+	gap: 8px;
+}
+.jaccalendrier-modal__row--tight > span {
+	min-width: 0;
+}
+
+/* === Case « Journée entière » custom (modal) ===
+ * Même logique que les cases custom des calendriers en sidebar : input
+ * natif caché (gardé pour focus clavier + a11y) + carré arrondi
+ * dessiné en CSS. Couleur : accent JacSuite quand coché, gris quand
+ * décoché. La case est placée juste à côté du libellé (cf.
+ * .jaccalendrier-modal__row--tight). */
+.jaccalendrier-modal__allday {
+	cursor: pointer;
+	user-select: none;
+}
+.jaccalendrier-modal__allday-input {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+	width: 0;
+	height: 0;
+	margin: 0;
+}
+.jaccalendrier-modal__allday-box {
+	width: 18px;
+	height: 18px;
+	border-radius: 5px;
+	border: 2px solid var(--jc-text-muted);
+	background: transparent;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	box-sizing: border-box;
+	transition: background-color 0.15s ease, border-color 0.15s ease,
+		transform 0.12s ease;
+}
+.jaccalendrier-modal__allday:hover .jaccalendrier-modal__allday-box {
+	transform: scale(1.06);
+	border-color: var(--jc-text-dim);
+}
+.jaccalendrier-modal__allday-box[data-checked='true'] {
+	background: var(--accent);
+	border-color: var(--accent);
+}
+.jaccalendrier-modal__allday-box[data-checked='true']::after {
+	content: '';
+	width: 9px;
+	height: 5px;
+	border-left: 2px solid #fff;
+	border-bottom: 2px solid #fff;
+	transform: rotate(-45deg) translate(1px, -1px);
+}
+.jaccalendrier-modal__allday-input:focus-visible + .jaccalendrier-modal__allday-box {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+/* Libellé du toggle : annule le min-width 80px par défaut, prend juste
+ * la largeur de son texte pour rester collé à la case. */
+.jaccalendrier-modal__allday-label {
+	min-width: 0 !important;
+	color: var(--jc-text-soft) !important;
+	font-size: 13px;
+}
+.jaccalendrier-modal__row select,
+.jaccalendrier-modal__row input {
+	flex: 1;
+}
+.jaccalendrier-modal__row--dates {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+}
+.jaccalendrier-modal__row--dates label,
+.jaccalendrier-modal__row--block {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 4px;
+}
+.jaccalendrier-modal__row--dates span,
+.jaccalendrier-modal__row--block span {
+	font-size: 12px;
+	color: var(--jc-text-dim);
+}
+.jaccalendrier-modal__footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 4px;
+}
+.jaccalendrier-modal__footer button {
+	background: var(--jc-border);
+	color: white;
+	border: 0;
+	border-radius: 6px;
+	padding: 7px 12px;
+	cursor: pointer;
+	font-size: 13px;
+}
+.jaccalendrier-modal__footer button:hover {
+	filter: brightness(1.1);
+}
+.jaccalendrier-modal__save {
+	background: var(--accent) !important;
+}
+.jaccalendrier-modal__delete {
+	background: #ff4d4f !important;
+	margin-right: auto;
+}
+.jaccalendrier-modal__convert {
+	background: #06d6a0 !important;
+	color: #06120e !important;
+	font-weight: 600;
+}
+
+/* ---------- Pied de sidebar (paramètres + avatar) ---------- */
+/* Footer fixé en bas de la sidebar via margin-top: auto. Contient un bouton
+ * avec l'avatar de l'utilisateur qui ouvre le panneau Paramètres partagé
+ * (Settings.jsx). Les notes de version sont accessibles depuis ce panneau,
+ * via le VersionModal partagé de la JacSuite (appName="JacCalendrier"). */
+.jaccalendrier-sidebar__footer {
+	/* Sticky bottom : sans ça, quand la liste des calendriers devient
+	 * longue, la sidebar scroll (overflow-y: auto) et le bouton paramètres
+	 * sort hors écran en bas. position: sticky + bottom:0 le garde
+	 * toujours collé en bas de la zone visible. margin-top: auto continue
+	 * de le pousser en bas tant qu'il n'y a pas de scroll (évite un saut
+	 * visuel). Background opaque pour masquer le contenu en dessous.
+	 * flex-direction: column pour empiler le bouton « Tâches » au-dessus
+	 * du bouton « Paramètres ». */
+	position: sticky;
+	bottom: 0;
+	margin-top: auto;
+	padding: 12px 0 4px;
+	background: var(--jc-bg-surface);
+	border-top: 1px solid var(--jc-border);
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 4px;
+}
+
+/* Bouton « Tâches » du pied de sidebar JacCalendrier. Look aligné sur
+ * .jaccalendrier-sidebar__profile (avatar+label) pour rester cohérent
+ * visuellement : icône ronde à gauche + libellé à droite. data-active
+ * passe en accent quand le panneau JacTâche est déplié. */
+.jaccalendrier-sidebar__footer-btn {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 6px 8px;
+	background: transparent;
+	border: none;
+	border-radius: 6px;
+	color: var(--jc-text);
+	font-size: 13px;
+	cursor: pointer;
+	transition: background 0.12s ease, color 0.12s ease;
+	text-align: left;
+}
+.jaccalendrier-sidebar__footer-btn:hover {
+	background: var(--jc-bg-hover);
+}
+.jaccalendrier-sidebar__footer-btn[data-active='true'] {
+	background: rgba(var(--accent-rgb), 0.15);
+	color: var(--accent);
+}
+.jaccalendrier-sidebar__footer-btn-icon {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	background: var(--jc-bg-hover);
+	color: var(--jc-text-dim);
+	transition: background 0.12s ease, color 0.12s ease;
+}
+.jaccalendrier-sidebar__footer-btn[data-active='true'] .jaccalendrier-sidebar__footer-btn-icon {
+	background: rgba(var(--accent-rgb), 0.15);
+	color: var(--accent);
+}
+.jaccalendrier-sidebar__footer-btn-label {
+	flex: 1;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.jaccalendrier-sidebar[data-collapsed='true'] .jaccalendrier-sidebar__footer-btn-label {
+	display: none;
+}
+.jaccalendrier-sidebar[data-collapsed='true'] .jaccalendrier-sidebar__footer-btn {
+	justify-content: center;
+	padding: 6px;
+	gap: 0;
+}
+
+/* ---------- Panneau Tâches ----------
+ * Symétrique du JacTacheCalendarPanel côté JacTâche. Deux modes :
+ *  - par défaut (sidebar étendue) : rendu *inline* dans le flux du
+ *    footer, entre les boutons Tâches et Paramètres.
+ *  - data-floating='true' (sidebar réduite) : position: fixed avec
+ *    left/bottom calculés en JS depuis getBoundingClientRect du bouton. */
+.jaccalendrier-tachepanel {
+	width: 100%;
+	box-sizing: border-box;
+	margin: 4px 0;
+	background: var(--jc-bg);
+	border: 1px solid var(--jc-border);
+	border-radius: 8px;
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	animation: jaccalendrierTachepanelExpand 0.18s ease-out;
+	overflow: hidden;
+}
+.jaccalendrier-tachepanel[data-floating='true'] {
+	position: fixed;
+	z-index: 150;
+	width: 300px;
+	max-width: calc(100vw - 24px);
+	margin: 0;
+	box-shadow: 0 12px 48px rgba(0, 0, 0, 0.45);
+	padding: 12px;
+	gap: 10px;
+	animation: jaccalendrierTachepanelPop 0.14s ease-out;
+	overflow: visible;
+}
+@keyframes jaccalendrierTachepanelExpand {
+	from { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; margin: 0; border-width: 0; }
+	to   { opacity: 1; max-height: 500px; padding-top: 10px; padding-bottom: 10px; margin: 4px 0; border-width: 1px; }
+}
+@keyframes jaccalendrierTachepanelPop {
+	from { opacity: 0; transform: translateY(4px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Barre de filtres rapides en haut du panneau (Aujourd'hui / À venir / Tout) */
+.jaccalendrier-tachepanel__filters {
+	display: flex;
+	gap: 2px;
+	background: var(--jc-bg-surface);
+	border-radius: 6px;
+	padding: 2px;
+}
+.jaccalendrier-tachepanel__filter {
+	flex: 1;
+	background: transparent;
+	color: var(--jc-text-dim);
+	border: 0;
+	padding: 5px 8px;
+	font-size: 11.5px;
+	font-weight: 500;
+	cursor: pointer;
+	border-radius: 4px;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+.jaccalendrier-tachepanel__filter:hover {
+	color: var(--jc-text);
+}
+.jaccalendrier-tachepanel__filter[data-active='true'] {
+	background: var(--accent);
+	color: white;
+}
+
+.jaccalendrier-tachepanel__empty {
+	margin: 0;
+	padding: 12px 4px;
+	font-size: 12.5px;
+	color: var(--jc-text-muted);
+	text-align: center;
+	font-style: italic;
+}
+
+.jaccalendrier-tachepanel__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	max-height: 280px;
+	overflow-y: auto;
+}
+.jaccalendrier-tachepanel__list::-webkit-scrollbar { width: 6px; }
+.jaccalendrier-tachepanel__list::-webkit-scrollbar-thumb {
+	background: var(--jc-border);
+	border-radius: 3px;
+}
+.jaccalendrier-tachepanel__list::-webkit-scrollbar-thumb:hover {
+	background: var(--jc-bg-hover-strong);
+}
+
+.jaccalendrier-tachepanel__item {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	padding: 6px 4px;
+	border-radius: 4px;
+	transition: background 0.12s ease;
+}
+.jaccalendrier-tachepanel__item:hover {
+	background: var(--jc-bg-surface);
+}
+
+/* Case ronde inspirée d'Apple Reminders : bordure colorée par priorité
+ * (via inline style), intérieur vide. Clic = toggleTask. */
+.jaccalendrier-tachepanel__check {
+	appearance: none;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	border: 2px solid var(--jc-text-muted);
+	background: transparent;
+	cursor: pointer;
+	flex-shrink: 0;
+	margin-top: 1px;
+	padding: 0;
+	transition: background 0.12s ease, transform 0.1s ease;
+}
+.jaccalendrier-tachepanel__check:hover {
+	transform: scale(1.1);
+}
+
+.jaccalendrier-tachepanel__body {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+.jaccalendrier-tachepanel__title {
+	font-size: 12.5px;
+	color: var(--jc-text);
+	line-height: 1.3;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+}
+.jaccalendrier-tachepanel__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	font-size: 11px;
+	color: var(--jc-text-muted);
+}
+.jaccalendrier-tachepanel__due {
+	color: var(--jc-text-dim);
+	font-variant-numeric: tabular-nums;
+}
+.jaccalendrier-tachepanel__due[data-overdue='true'] {
+	color: #ff4d4f;
+	font-weight: 600;
+}
+.jaccalendrier-tachepanel__project {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 140px;
+}
+.jaccalendrier-tachepanel__project::before {
+	content: '· ';
+	margin-right: 2px;
+}
+
+.jaccalendrier-sidebar__profile {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 6px 8px;
+	background: transparent;
+	border: none;
+	border-radius: 6px;
+	color: var(--jc-text);
+	font-size: 13px;
+	cursor: pointer;
+	transition: background 0.12s ease;
+	min-width: 0;
+}
+.jaccalendrier-sidebar__profile:hover {
+	background: var(--jc-bg-hover);
+}
+
+.jaccalendrier-sidebar__avatar {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	object-fit: cover;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 13px;
+	font-weight: 600;
+	flex-shrink: 0;
+	background: rgba(var(--accent-rgb), 0.15);
+	color: var(--accent);
+}
+.jaccalendrier-sidebar__avatar--initial {
+	background: var(--accent);
+	color: #fff;
+}
+
+.jaccalendrier-sidebar__profile-label {
+	flex: 1;
+	text-align: left;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* ---------- Bouton chevron de réduction/dépliage ---------- */
+/* Style discret aligné sur le vocabulaire des autres boutons de la
+ * sidebar. margin-left: auto pousse le chevron à droite quand la brand
+ * row contient logo+nom (sidebar étendue) ; en mode réduit le brand est
+ * centré et margin-left:auto est neutralisé. */
+.jaccalendrier-sidebar__toggle {
+	margin-left: auto;
+	background: transparent;
+	border: none;
+	color: var(--jc-text-dim);
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px;
+	border-radius: 4px;
+	transition: background 0.12s ease, color 0.12s ease;
+}
+.jaccalendrier-sidebar__toggle:hover {
+	background: var(--jc-bg-hover);
+	color: #fff;
+}
+
+/* ---------- Sidebar réduite (collapsed) ----------
+ * Basculée par .jaccalendrier-app[data-sidebar-collapsed='true']. On
+ * rétrécit la première colonne de la grille à 48px et on masque tous les
+ * libellés texte + le mini-mois + la liste des calendriers (trop denses
+ * pour 48px de large). Restent visibles : logo (chevron), bouton + de
+ * création rapide, et le bouton avatar/Paramètres du pied. */
+
+.jaccalendrier-app[data-sidebar-collapsed='true'] {
+	grid-template-columns: 48px 1fr;
+}
+
+.jaccalendrier-sidebar[data-collapsed='true'] {
+	padding: 12px 4px;
+	gap: 10px;
+}
+
+.jaccalendrier-sidebar[data-collapsed='true'] .jaccalendrier-sidebar__brand-name,
+.jaccalendrier-sidebar[data-collapsed='true'] .jaccalendrier-sidebar__mini,
+.jaccalendrier-sidebar[data-collapsed='true'] .jaccalendrier-sidebar__heading,
+.jaccalendrier-sidebar[data-collapsed='true'] .jaccalendrier-sidebar__cals,
+.jaccalendrier-sidebar[data-collapsed='true'] .jaccalendrier-sidebar__cal-create,
+.jaccalendrier-sidebar[data-collapsed='true'] .jaccalendrier-sidebar__profile-label {
+	display: none;
+}
+
+.jaccalendrier-sidebar[data-collapsed='true'] .jaccalendrier-sidebar__brand {
+	justify-content: center;
+	padding: 0;
+}
+.jaccalendrier-sidebar[data-collapsed='true'] .jaccalendrier-sidebar__toggle {
+	margin-left: 0;
+}
+
+/* Bouton « + Nouvel événement » réduit à un carré avec juste un « + ».
+ * On efface le libellé d'origine via font-size:0 et on réinject un « + »
+ * en ::before — évite un changement de JSX juste pour le mode réduit. */
+.jaccalendrier-sidebar[data-collapsed='true'] .jaccalendrier-sidebar__create {
+	padding: 8px 0;
+	font-size: 0;
+	text-align: center;
+}
+.jaccalendrier-sidebar[data-collapsed='true'] .jaccalendrier-sidebar__create::before {
+	content: '+';
+	font-size: 18px;
+	font-weight: 600;
+}
+
+.jaccalendrier-sidebar[data-collapsed='true'] .jaccalendrier-sidebar__footer {
+	justify-content: center;
+	padding: 12px 0 4px;
+}
+.jaccalendrier-sidebar[data-collapsed='true'] .jaccalendrier-sidebar__profile {
+	flex: 0 0 auto;
+	justify-content: center;
+	padding: 6px;
+	gap: 0;
+}
+
+/* ---------- Vues temporelles (Semaine / Jour) ----------
+ * Layout commun à 'week' et 'day' : header + bandeau all-day + corps
+ * scrollable. Toutes les rangées partagent la même grille (gutter + N
+ * colonnes de jour) pour que les frontières verticales s'alignent.
+ * --jc-cols (posée en inline-style par le composant) = 1 pour Day,
+ * 7 pour Week. La hauteur d'une heure (48px) est doublée en JS via la
+ * constante HOUR_HEIGHT — garder les deux synchronisés. */
+
+.jaccalendrier-timed {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	overflow: hidden;
+	background: var(--jc-bg);
+}
+
+.jaccalendrier-timed__header,
+.jaccalendrier-timed__allday {
+	display: grid;
+	grid-template-columns: 60px repeat(var(--jc-cols, 7), 1fr);
+	background: var(--jc-bg-surface);
+	border-bottom: 1px solid var(--jc-border);
+}
+.jaccalendrier-timed__header { flex-shrink: 0; }
+
+.jaccalendrier-timed__gutter {
+	border-right: 1px solid var(--jc-border);
+}
+.jaccalendrier-timed__gutter--label {
+	font-size: 10px;
+	color: var(--jc-text-muted);
+	padding: 4px 6px;
+	display: flex;
+	align-items: center;
+}
+
+.jaccalendrier-timed__day-header {
+	padding: 8px 12px;
+	border-left: 1px solid var(--jc-border);
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+.jaccalendrier-timed__day-name {
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--jc-text-muted);
+}
+.jaccalendrier-timed__day-num {
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--jc-text-soft);
+}
+.jaccalendrier-timed__day-header[data-today='true'] .jaccalendrier-timed__day-num {
+	color: var(--accent);
+}
+
+.jaccalendrier-timed__allday {
+	max-height: 96px;
+	overflow-y: auto;
+	flex-shrink: 0;
+}
+.jaccalendrier-timed__allday-cell {
+	border-left: 1px solid var(--jc-border);
+	padding: 4px;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-height: 28px;
+}
+
+.jaccalendrier-timed__body {
+	display: grid;
+	grid-template-columns: 60px repeat(var(--jc-cols, 7), 1fr);
+	flex: 1;
+	overflow-y: auto;
+	position: relative;
+}
+
+.jaccalendrier-timed__hours {
+	display: flex;
+	flex-direction: column;
+	border-right: 1px solid var(--jc-border);
+	background: var(--jc-bg-surface);
+	position: sticky;
+	left: 0;
+	z-index: 1;
+}
+.jaccalendrier-timed__hour-label {
+	height: 48px;
+	box-sizing: border-box;
+	font-size: 10px;
+	color: var(--jc-text-muted);
+	padding: 2px 6px;
+	border-bottom: 1px solid var(--jc-bg-hover);
+}
+
+.jaccalendrier-timed__day-col {
+	border-left: 1px solid var(--jc-border);
+	position: relative;
+	cursor: pointer;
+}
+.jaccalendrier-timed__slot {
+	height: 48px;
+	box-sizing: border-box;
+	border-bottom: 1px solid var(--jc-bg-hover);
+}
+.jaccalendrier-timed__slot:hover {
+	background: var(--jc-bg-surface);
+}
+
+/* Pastille d'événement positionnée en absolu dans une colonne jour.
+ * top/height sont calculés en JS depuis start/end. left/right en CSS
+ * laissent une petite marge pour ne pas coller aux frontières. */
+.jaccalendrier-time-pill {
+	position: absolute;
+	left: 2px;
+	right: 2px;
+	padding: 3px 6px;
+	border-radius: 4px;
+	color: white;
+	font-size: 11px;
+	cursor: pointer;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+	transition: filter 0.12s;
+}
+.jaccalendrier-time-pill:hover { filter: brightness(1.15); }
+.jaccalendrier-time-pill__time {
+	font-size: 9px;
+	opacity: 0.85;
+	font-weight: 600;
+}
+.jaccalendrier-time-pill__title {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Mode « Jour » : on retire le séparateur vertical à gauche de l'unique
+ * colonne pour un look plus aéré, et on aligne le header horizontalement
+ * (nom + numéro sur la même ligne) puisqu'on a la place. */
+.jaccalendrier-timed[data-view='day'] .jaccalendrier-timed__day-header {
+	flex-direction: row;
+	align-items: baseline;
+	gap: 10px;
+	border-left: none;
+}
+.jaccalendrier-timed[data-view='day'] .jaccalendrier-timed__day-col,
+.jaccalendrier-timed[data-view='day'] .jaccalendrier-timed__allday-cell {
+	border-left: none;
+}
+
+/* ===========================================================
+ * Hooks Settings — pilotés par les data-attributes posés au root
+ * .jaccalendrier-app par JacCalendrierApp via
+ * useJacCalendrierViewPrefs + useJacCalendrierSettings.
+ * Toute modification dans FullSettingsModal > JacCalendrier > Apparence
+ * (ou Général) se voit instantanément.
+ *
+ * Variables CSS posées par le root :
+ *   --jc-hour-height       : hauteur d'une rangée d'heure (px)
+ *   --jc-default-event-color : couleur fallback des pastilles
+ *   --jc-day-start-hour    : heure de début de journée (entier)
+ *   --jc-day-end-hour      : heure de fin de journée (entier)
+ * =========================================================== */
+
+/* --- Densité : compact = grille mois plus tassée + cellules plus
+ *     petites en vue temporelle. comfortable = inverse. --- */
+.jaccalendrier-app[data-density='compact'] .jaccalendrier-month__cell {
+	padding: 2px 4px;
+}
+.jaccalendrier-app[data-density='compact'] .jaccalendrier-pill {
+	font-size: 10px;
+	padding: 1px 4px;
+}
+.jaccalendrier-app[data-density='comfortable'] .jaccalendrier-month__cell {
+	padding: 8px 10px;
+}
+.jaccalendrier-app[data-density='comfortable'] .jaccalendrier-pill {
+	font-size: 12px;
+	padding: 3px 8px;
+}
+
+/* --- Hauteur d'une heure pilotée par variable CSS posée au root.
+ *     Remplace la valeur en dur (48px) des slots et des labels.
+ *     Garder synchronisé avec la constante HOUR_HEIGHT côté JS qui
+ *     calcule le positionnement absolu des pastilles d'événement. --- */
+.jaccalendrier-timed__hour-label,
+.jaccalendrier-timed__slot {
+	height: var(--jc-hour-height, 48px);
+}
+
+/* --- Masquer les week-ends en vue mois ET semaine. On cible :
+ *     - les cellules du mois marquées data-weekend (à ajouter côté
+ *       JacCalendrierMonth) ;
+ *     - les colonnes 6 et 7 de la grille semaine (samedi/dimanche)
+ *       si week-start = monday, sinon 1 et 7. Pour rester simple on
+ *       fait juste le cas par défaut monday. --- */
+.jaccalendrier-app[data-show-weekends='off'] .jaccalendrier-month__weekday:nth-child(6),
+.jaccalendrier-app[data-show-weekends='off'] .jaccalendrier-month__weekday:nth-child(7),
+.jaccalendrier-app[data-show-weekends='off'] .jaccalendrier-month__cell[data-weekend='true'] {
+	display: none;
+}
+.jaccalendrier-app[data-show-weekends='off'] .jaccalendrier-month__weekdays,
+.jaccalendrier-app[data-show-weekends='off'] .jaccalendrier-month__grid {
+	grid-template-columns: repeat(5, 1fr);
+}
+
+/* --- Numéros de semaine en vue mois.
+ *     Quand on = colonne supplémentaire à gauche, off = masquée.
+ *     Le composant doit prévoir un .jaccalendrier-month__weeknum à
+ *     chaque rangée pour que la règle ait un effet visible. --- */
+.jaccalendrier-app[data-show-week-numbers='off'] .jaccalendrier-month__weeknum {
+	display: none;
+}
+
+/* --- Style de grille : dots = remplace les bordures continues par
+ *     des bordures pointillées ; none = supprime carrément les lignes. --- */
+.jaccalendrier-app[data-grid-style='dots'] .jaccalendrier-month__grid {
+	background: transparent;
+	gap: 0;
+}
+.jaccalendrier-app[data-grid-style='dots'] .jaccalendrier-month__cell {
+	border: 1px dotted var(--jc-border);
+	margin: -0.5px;
+}
+.jaccalendrier-app[data-grid-style='dots'] .jaccalendrier-timed__day-col,
+.jaccalendrier-app[data-grid-style='dots'] .jaccalendrier-timed__slot {
+	border-left-style: dotted;
+	border-bottom-style: dotted;
+}
+.jaccalendrier-app[data-grid-style='none'] .jaccalendrier-month__grid {
+	background: transparent;
+	gap: 0;
+}
+.jaccalendrier-app[data-grid-style='none'] .jaccalendrier-month__cell {
+	border: none;
+}
+.jaccalendrier-app[data-grid-style='none'] .jaccalendrier-timed__day-col {
+	border-left: none;
+}
+.jaccalendrier-app[data-grid-style='none'] .jaccalendrier-timed__slot {
+	border-bottom: none;
+}
+
+/* --- Ligne de l'heure courante : off = masque l'indicateur rouge.
+ *     Le composant JacCalendrierTimedView doit poser un
+ *     .jaccalendrier-timed__now-line ; on le cache ici si désactivé. --- */
+.jaccalendrier-app[data-highlight-current-time='off'] .jaccalendrier-timed__now-line {
+	display: none;
+}
+
+/* ============================================================
+ * MOBILE RESPONSIVE — même stratégie que JacTache.css :
+ *   - Sous 768px, la grille passe à 1 colonne. La sidebar bascule
+ *     en overlay drawer plein-écran-haut, pinée à gauche.
+ *   - Mode COLLAPSED = rail 48px visible en overlay (hamburger
+ *     permanent : tap sur le chevron → déplie le drawer).
+ *   - Mode EXPANDED = drawer 280px + backdrop, avec animation
+ *     slide-in. Sous 480px le drawer prend toute la largeur.
+ *   - Le handle de redimensionnement est désactivé sous 768px.
+ *   - Les touch targets sont garantis ≥ 44×44 sur tout pointer
+ *     coarse (mobile + tablette tactile).
+ * ============================================================ */
+@media (max-width: 768px) {
+	.jaccalendrier-app {
+		grid-template-columns: 1fr;
+	}
+
+	/* Sidebar collapsed : rail 48px en overlay à gauche. */
+	.jaccalendrier-sidebar[data-collapsed='true'] {
+		position: fixed;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		width: 48px;
+		z-index: 90;
+		border-right: 1px solid var(--jc-border);
+	}
+
+	/* Sidebar expanded : drawer overlay 280px par-dessus le contenu. */
+	.jaccalendrier-sidebar[data-collapsed='false'],
+	.jaccalendrier-sidebar:not([data-collapsed='true']) {
+		position: fixed;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		width: 280px;
+		max-width: 88vw;
+		z-index: 95;
+		box-shadow: 0 0 32px rgba(0, 0, 0, 0.5);
+		animation: jaccalendrierSidebarSlideIn 0.18s ease-out;
+	}
+	@keyframes jaccalendrierSidebarSlideIn {
+		from { transform: translateX(-100%); }
+		to   { transform: translateX(0); }
+	}
+
+	/* Contenu principal décalé du rail 48px (overlay donc hors grille). */
+	.jaccalendrier-app > *:not(.jaccalendrier-sidebar):not(.jaccalendrier-app__sidebar-resize) {
+		padding-left: 48px;
+	}
+
+	.jaccalendrier-app__sidebar-resize {
+		display: none;
+	}
+
+	/* Touch targets minimum 44×44 sur les zones interactives. */
+	.jaccalendrier-sidebar__cal,
+	.jaccalendrier-sidebar__profile,
+	.jaccalendrier-sidebar__footer-btn,
+	.jaccalendrier-sidebar__create {
+		min-height: 44px;
+	}
+	.jaccalendrier-sidebar__toggle {
+		min-width: 36px;
+		min-height: 36px;
+	}
+
+	/* Toolbar : on packe titre + vues sur une même ligne avec une
+	 * typo réduite, pas de wrap puisque le screen est étroit mais
+	 * tout doit tenir. Pour les très petits écrans (<480) on bascule
+	 * en flex-column plus bas. */
+	.jaccalendrier-toolbar {
+		padding: 10px 14px;
+		gap: 8px;
+	}
+	.jaccalendrier-toolbar__title {
+		font-size: 15px;
+		margin: 0 4px;
+	}
+	.jaccalendrier-toolbar__today {
+		padding: 5px 10px;
+		font-size: 12px;
+	}
+
+	/* Mois : on rend les cellules plus tassées pour qu'il en tienne 5
+	 * sur la largeur dispo. */
+	.jaccalendrier-month__cell {
+		padding: 3px 4px;
+		font-size: 11px;
+	}
+	.jaccalendrier-pill {
+		font-size: 9.5px;
+		padding: 1px 4px;
+	}
+
+	/* Vue temporelle : on rétrécit le gutter des heures pour gagner
+	 * de la place horizontale. Le calcul des grilles header/allday/body
+	 * utilise la même valeur 44px grâce à grid-template-columns. */
+	.jaccalendrier-timed__header,
+	.jaccalendrier-timed__allday,
+	.jaccalendrier-timed__body {
+		grid-template-columns: 44px repeat(var(--jc-cols, 7), 1fr);
+	}
+	.jaccalendrier-timed__hour-label,
+	.jaccalendrier-timed__gutter--label {
+		font-size: 9.5px;
+		padding: 2px 4px;
+	}
+
+	/* Modal : marge plus serrée + width 100% pour les petits écrans. */
+	.jaccalendrier-modal {
+		width: calc(100vw - 24px);
+		max-width: 480px;
+		padding: 16px;
+	}
+}
+
+@media (max-width: 480px) {
+	/* Drawer plein-écran sur téléphone portrait. */
+	.jaccalendrier-sidebar[data-collapsed='false'],
+	.jaccalendrier-sidebar:not([data-collapsed='true']) {
+		width: 100vw;
+		max-width: none;
+	}
+
+	/* Toolbar en deux lignes : nav (today/arrows/title) + views. */
+	.jaccalendrier-toolbar {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 8px;
+	}
+	.jaccalendrier-toolbar__nav {
+		justify-content: center;
+	}
+	.jaccalendrier-toolbar__views {
+		align-self: center;
+	}
+
+	/* Modal de création d'événement : dates passent en colonne pour
+	 * éviter l'écrasement du picker sur une grille 2-colonnes. */
+	.jaccalendrier-modal__row--dates {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* Pointer coarse — touch targets garantis même en tablette portrait
+ * où la largeur dépasse 768px (iPad 810px). */
+@media (pointer: coarse) {
+	.jaccalendrier-sidebar__cal,
+	.jaccalendrier-sidebar__profile,
+	.jaccalendrier-sidebar__footer-btn,
+	.jaccalendrier-toolbar__today,
+	.jaccalendrier-toolbar__view,
+	.jaccalendrier-toolbar__arrow {
+		min-height: 44px;
+	}
+	.jaccalendrier-month__cell {
+		min-height: 60px;
+	}
+}

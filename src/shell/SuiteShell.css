@@ -1,0 +1,230 @@
+/* ── SuiteShell.css ──
+   Règles visuelles du shell multi-onglets JacSuite : la barre d'onglets,
+   les onglets eux-mêmes, le panneau actif/inactif, l'animation
+   d'apparition style Chrome, et les variantes light theme.
+
+   Promu de @/apps/jacpdf/pages/editor/Editor.css en Phase 5 :
+   ces règles étaient héritées du temps où le shell vivait à l'intérieur
+   de l'éditeur PDF (« editor-app-root »). Avec SuiteShell générique
+   (jacpdf + jacdoc + jacnote + launcher), elles méritent de vivre à côté
+   du composant qui les consomme, pas dans le CSS de l'app PDF.
+
+   Les classes gardent leur préfixe `editor-` historique pour éviter une
+   migration des composants et du DOM persisté (les anciennes sessions
+   IDB référencent du markup avec ces classes). Renommer en `suite-`
+   viendra dans un futur lot de nettoyage si on choisit de le faire.
+*/
+
+/* ── App root (shell plein écran qui contient la barre d'onglets + le pane actif) ── */
+.editor-app-root {
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── Tab bar ── */
+.editor-tabbar {
+  height: 38px;
+  background: #0a0e16;
+  border-bottom: 1px solid #1e2535;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 8px;
+  gap: 2px;
+  flex-shrink: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.editor-tabbar::-webkit-scrollbar { display: none; }
+
+.editor-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 6px 0 12px;
+  background: #161b27;
+  border: 1px solid #1e2535;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: grab;
+  min-width: 140px;
+  max-width: 240px;
+  flex-shrink: 0;
+  position: relative;
+  user-select: none;
+  transition: background 0.15s, color 0.15s, transform 0.22s cubic-bezier(0.2, 0, 0, 1);
+  will-change: transform;
+  /* Animation d'apparition style Chrome — quand un groupe est replié, ses
+     onglets sont démontés ; quand il est déplié, ils ré-apparaissent
+     avec une animation de largeur+opacité. La keyframe se rejoue à
+     chaque mount d'onglet (donc aussi au chargement initial — court et
+     non perturbant). Le repli reste instantané (pas d'unmount animé
+     en React, comme dans Chrome où le repli est rapide). */
+  animation: editorTabExpand 0.22s cubic-bezier(0.2, 0, 0, 1);
+}
+@keyframes editorTabExpand {
+  from {
+    max-width: 0;
+    min-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    opacity: 0;
+    transform: scaleX(0.6);
+    transform-origin: left center;
+  }
+  to {
+    max-width: 240px;
+    min-width: 140px;
+    padding-left: 12px;
+    padding-right: 6px;
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+.editor-tab:hover { background: #1e2535; color: #fff; }
+
+/* Onglets en veille (suspendus) — leur instance a été démontée par le
+   réglage « Suspendre les onglets inactifs » (Paramètres > Performance).
+   Ils sont toujours dans la barre, mais visuellement atténués pour signaler
+   qu'ils ne consomment plus de ressources. Cliquer dessus les réveille.
+   - Opacité 0.55 + fond plus sombre + icône grise + label en italique
+   - Petit 💤 avant le label pour rendre l'état évident
+   - Au survol : opacité 0.85 (toujours plus pale qu'un onglet normal,
+     mais on confirme que c'est cliquable) */
+.editor-tab.suspended:not(.active) {
+  opacity: 0.55;
+  background: #0e1219;
+  font-style: italic;
+}
+.editor-tab.suspended:not(.active) .editor-tab-icon {
+  color: #6b7280;
+}
+.editor-tab.suspended:not(.active):hover {
+  opacity: 0.85;
+}
+.editor-tab.suspended .editor-tab-label::before {
+  content: '💤 ';
+  font-style: normal;
+  margin-right: 2px;
+  opacity: 0.8;
+}
+.editor-tab.active {
+  background: #000;
+  color: #fff;
+  border-color: #1e2535;
+}
+.editor-tab.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 8px 8px 0 0;
+}
+.editor-tab:active,
+.editor-tab.dragging { cursor: grabbing; }
+.editor-tab.dragging {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  transition: none !important;
+}
+.editor-tab-icon {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+img.editor-tab-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+.editor-tab-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.editor-tab-close {
+  width: 18px;
+  height: 18px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.editor-tab-close:hover { background: #2a3347; color: #fff; }
+.editor-tab-plus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 28px;
+  margin-left: 4px;
+  margin-bottom: 1px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #9aa3b2;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s, transform 0.22s cubic-bezier(0.2, 0, 0, 1);
+  will-change: transform;
+}
+.editor-tab-plus:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+.editor-tab-pane {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+.editor-tab-pane:not(.active) { display: none; }
+
+.editor-content-area {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+}
+
+/* ─── Mode clair ─── */
+[data-theme="light"] .editor-app-root { background: #f5f6f8; }
+[data-theme="light"] .editor-tabbar { background: #e8eaf0; border-bottom-color: #d1d5db; }
+[data-theme="light"] .editor-tab { background: #ffffff; border-color: #d1d5db; color: #4b5563; }
+[data-theme="light"] .editor-tab:hover { background: #f0f1f5; color: #0d1117; }
+[data-theme="light"] .editor-tab.suspended:not(.active) {
+  opacity: 0.55;
+  background: #e5e7eb;
+}
+[data-theme="light"] .editor-tab.suspended:not(.active) .editor-tab-icon {
+  color: #9ca3af;
+}
+[data-theme="light"] .editor-tab.suspended:not(.active):hover {
+  opacity: 0.85;
+}
+[data-theme="light"] .editor-tab.active { background: #f5f6f8; color: #0d1117; border-color: #d1d5db; }
+[data-theme="light"] .editor-tab-close { color: #9ca3af; }
+[data-theme="light"] .editor-tab-close:hover { background: #e5e7eb; color: #0d1117; }
+[data-theme="light"] .editor-tab-plus { color: #6b7280; }
+[data-theme="light"] .editor-tab-plus:hover { background: rgba(0,0,0,0.06); color: #0d1117; }i

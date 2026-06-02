@@ -1,0 +1,122 @@
+/* ============================================================
+   PdfShareCard — carte de partage PDF dans une bulle de chat
+   ============================================================ */
+
+.psc-card {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+  min-width: 240px;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.18);
+  color: inherit;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  text-align: left;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.psc-card:hover {
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.psc-card:active {
+  transform: scale(0.98);
+}
+
+.psc-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Variantes selon le côté — surchargent le fond pour rester lisible
+   peu importe la couleur de la bulle parent. */
+.psc-card.psc-me {
+  background: rgba(0, 0, 0, 0.18);
+}
+.psc-card.psc-me:hover {
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.psc-card.psc-them {
+  background: rgba(255, 255, 255, 0.04);
+}
+.psc-card.psc-them:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.psc-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 56px;
+  border-radius: 6px;
+  background: #dc2626;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.psc-icon-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  background: #fff;
+  color: #dc2626;
+  font-size: 8px;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+
+.psc-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+  justify-content: center;
+}
+
+.psc-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.psc-meta {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.psc-cta {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 4px;
+  opacity: 0.85;
+}
+
+/* Mes bulles ont color: #052e13, le CTA accent vert serait illisible.
+   On force un noir semi-transparent qui fonctionne sur le vert accent. */
+.psc-card.psc-me .psc-meta,
+.psc-card.psc-me .psc-cta {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* ============================================================
+   Light theme overrides
+   ============================================================ */
+
+[data-theme="light"] .psc-card.psc-them {
+  background: rgba(0, 0, 0, 0.05);
+}
+[data-theme="light"] .psc-card.psc-them:hover {
+  background: rgba(0, 0, 0, 0.09);
+}

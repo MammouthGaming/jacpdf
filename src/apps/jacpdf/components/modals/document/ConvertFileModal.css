@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.cfm-overlay {
+  position: fixed;
+  top: var(--jacpdf-tabbar-h, 0);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: cfmFade 0.15s ease;
+}
+
+@keyframes cfmFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.cfm-card {
+  background: #161b27;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 380px;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  animation: cfmSlide 0.2s ease;
+  overflow: hidden;
+}
+
+@keyframes cfmSlide {
+  from { opacity: 0; transform: translateY(-12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.cfm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid #1e2535;
+}
+
+.cfm-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.cfm-close {
+  background: #1e2535;
+  border: none;
+  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+.cfm-close:hover { background: #2a3347; color: #fff; }
+
+.cfm-body {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cfm-file-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #1e2535;
+  border: 1px solid #2a3347;
+  border-radius: 10px;
+}
+
+.cfm-file-badge {
+  min-width: 52px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+  border: 1px solid;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.cfm-file-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cfm-file-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cfm-file-meta {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.cfm-text {
+  font-size: 13px;
+  color: #9ca3af;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.cfm-text-warning {
+  color: #fb923c;
+}
+
+.cfm-text strong {
+  color: #fff;
+  font-weight: 700;
+}
+
+.cfm-error {
+  font-size: 12px;
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 0;
+}
+
+.cfm-actions {
+  display: flex;
+  gap: 10px;
+  padding: 0 20px 18px;
+}
+
+.cfm-cancel-btn {
+  flex: 1;
+  padding: 11px;
+  background: #1e2535;
+  border: 1px solid #2a3347;
+  border-radius: 10px;
+  color: #d1d5db;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s, color 0.2s;
+}
+.cfm-cancel-btn:hover { background: #252d3f; color: #fff; }
+
+.cfm-convert-btn {
+  flex: 1.5;
+  padding: 11px;
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  color: #000;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s;
+}
+.cfm-convert-btn:hover:not(:disabled) { background: var(--accent-hover); }
+.cfm-convert-btn:disabled {
+  background: rgba(var(--accent-rgb), 0.18);
+  color: rgba(var(--accent-rgb), 0.55);
+  cursor: not-allowed;
+}
+
+/* ─── Mode clair ─── */
+[data-theme="light"] .cfm-overlay { background: rgba(0,0,0,0.3); }
+[data-theme="light"] .cfm-card { background: #ffffff; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+[data-theme="light"] .cfm-header { border-bottom-color: #e5e7eb; }
+[data-theme="light"] .cfm-title { color: #0d1117; }
+[data-theme="light"] .cfm-close { background: #f0f1f5; color: #6b7280; }
+[data-theme="light"] .cfm-close:hover { background: #e5e7eb; color: #0d1117; }
+[data-theme="light"] .cfm-file-row { background: #f0f1f5; border-color: #d1d5db; }
+[data-theme="light"] .cfm-file-name { color: #0d1117; }
+[data-theme="light"] .cfm-file-meta { color: #6b7280; }
+[data-theme="light"] .cfm-text { color: #4b5563; }
+[data-theme="light"] .cfm-text strong { color: #0d1117; }
+[data-theme="light"] .cfm-cancel-btn { background: #f0f1f5; border-color: #d1d5db; color: #1f2937; }
+[data-theme="light"] .cfm-cancel-btn:hover { background: #e5e7eb; color: #0d1117; }

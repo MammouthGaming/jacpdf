@@ -1,0 +1,174 @@
+/* JacNoteEditor.css
+   Style Apple Notes : flux continu, pas de pages A4. Le format bar
+   est sticky en haut, le contenu scrollable en dessous. */
+
+.jacnote-editor {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+	background: var(--jn-bg, #1c1c1e);
+	color: var(--jn-fg, #f5f5f7);
+}
+
+.jacnote-editor__scroll {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	padding: 24px max(24px, 6%) 80px;
+	/* Scrollbar masquée (Firefox + Webkit) — le scroll reste fonctionnel. */
+	scrollbar-width: none;
+}
+.jacnote-editor__scroll::-webkit-scrollbar {
+	display: none;
+}
+
+.jacnote-editor__date {
+	max-width: 720px;
+	margin: 0 auto 16px;
+	text-align: center;
+	font-size: 11px;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	color: var(--jn-fg-muted, #8e8e93);
+	user-select: none;
+	pointer-events: none;
+}
+
+.jacnote-editor__content {
+	max-width: 720px;
+	margin: 0 auto;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+		'Helvetica Neue', sans-serif;
+	font-size: 16px;
+	line-height: 1.6;
+	color: inherit;
+}
+
+.jacnote-editor__content .ProseMirror {
+	outline: none;
+	min-height: 100%;
+}
+
+.jacnote-editor__content .ProseMirror > * + * {
+	margin-top: 0.65em;
+}
+
+.jacnote-editor__content h1 {
+	font-size: 1.75em;
+	font-weight: 700;
+	line-height: 1.25;
+	margin-top: 0.4em;
+}
+
+.jacnote-editor__content h2 {
+	font-size: 1.35em;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.jacnote-editor__content h3 {
+	font-size: 1.15em;
+	font-weight: 600;
+}
+
+/* Apple Notes : titre = première ligne, grosse taille même si
+   l'utilisateur n'a pas appliqué de heading explicite. */
+.jacnote-editor__content .ProseMirror > p:first-child {
+	font-size: 1.6em;
+	font-weight: 700;
+	line-height: 1.25;
+}
+
+.jacnote-editor__content ul,
+.jacnote-editor__content ol {
+	padding-left: 1.5em;
+}
+
+.jacnote-editor__content blockquote {
+	border-left: 3px solid var(--jn-accent, #ffd60a);
+	padding: 4px 12px;
+	margin-left: 0;
+	color: var(--jn-fg-muted, #c7c7cc);
+	font-style: italic;
+}
+
+.jacnote-editor__content a {
+	color: var(--jn-accent, #ffd60a);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.jacnote-editor__content code {
+	font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+	font-size: 0.9em;
+	background: rgba(255, 255, 255, 0.08);
+	padding: 1px 5px;
+	border-radius: 4px;
+}
+
+/* Listes de tâches style Apple Notes — case ronde, accent jaune. */
+.jacnote-editor__content ul[data-type='taskList'] {
+	list-style: none;
+	padding-left: 0;
+}
+
+.jacnote-editor__content ul[data-type='taskList'] li {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 4px 0;
+}
+
+.jacnote-editor__content ul[data-type='taskList'] li > label {
+	flex-shrink: 0;
+	margin-top: 4px;
+}
+
+.jacnote-editor__content ul[data-type='taskList'] li > label input[type='checkbox'] {
+	appearance: none;
+	width: 18px;
+	height: 18px;
+	border: 1.5px solid var(--jn-fg-muted, #8e8e93);
+	border-radius: 50%;
+	cursor: pointer;
+	position: relative;
+	background: transparent;
+	transition: background 0.15s, border-color 0.15s;
+}
+
+.jacnote-editor__content ul[data-type='taskList'] li > label input[type='checkbox']:checked {
+	background: var(--jn-accent, #ffd60a);
+	border-color: var(--jn-accent, #ffd60a);
+}
+
+.jacnote-editor__content ul[data-type='taskList'] li > label input[type='checkbox']:checked::after {
+	content: '';
+	position: absolute;
+	top: 3px;
+	left: 5px;
+	width: 5px;
+	height: 9px;
+	border: solid #1c1c1e;
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
+}
+
+.jacnote-editor__content ul[data-type='taskList'] li > div {
+	flex: 1;
+	min-width: 0;
+}
+
+.jacnote-editor__content ul[data-type='taskList'] li[data-checked='true'] > div {
+	color: var(--jn-fg-muted, #8e8e93);
+	text-decoration: line-through;
+}
+
+/* Placeholder « Titre… » uniquement sur le premier paragraphe vide. */
+.jacnote-editor__content .ProseMirror p.is-editor-empty:first-child::before {
+	content: attr(data-placeholder);
+	color: var(--jn-fg-muted, #6e6e72);
+	float: left;
+	height: 0;
+	pointer-events: none;
+}

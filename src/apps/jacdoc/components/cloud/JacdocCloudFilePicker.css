@@ -1,0 +1,132 @@
+/* ============================================
+   JacdocCloudFilePicker — overrides spécifiques.
+   Hérite des styles .dfp-* (DriveFilePicker.css)
+   et .jpc-* (JacpdfCloudFilePicker.css).
+
+   Ne pas redéfinir la structure : on ne ré-aligne que ce qui est
+   spécifique JacDoc (segmented view-switch, actions inline sur les
+   rows). Tout le reste vient des classes JacPDF pour garantir un look
+   1:1 avec JacpdfCloudFilePicker.
+   ============================================ */
+
+.jdc-modal {
+  /* hérite tout de .dfp-modal.jpc-modal — pas besoin d'override de fond/bord. */
+}
+
+/* Segmented switch "Mes docs / Partagés / Récents" — placé sous le header,
+   au-dessus de la toolbar, dans le même style que les chips JacPDF. */
+.jdc-view-switch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px 0;
+  flex-shrink: 0;
+}
+
+.jdc-view-chip {
+  border: 1px solid #2a3347;
+  border-radius: 999px;
+  background: #0f1320;
+  color: #9ca3af;
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+}
+
+.jdc-view-chip:hover {
+  background: #1e2535;
+  color: #ffffff;
+}
+
+.jdc-view-chip:active {
+  transform: scale(0.97);
+}
+
+.jdc-view-chip.is-active {
+  border-color: rgba(var(--accent-rgb), 0.48);
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+}
+
+/* Actions inline sur les rows (Renommer / Supprimer / Racine) — apparaissent
+   au hover seulement, comme dans Finder. */
+.jdc-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.jpc-item:hover .jdc-row-actions,
+.jpc-item.jpc-item-selected .jdc-row-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.jdc-row-actions button {
+  border: 1px solid #2a3347;
+  border-radius: 6px;
+  background: #0f1320;
+  color: #cbd5e1;
+  padding: 5px 8px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.jdc-row-actions button:hover {
+  background: #1e2535;
+  color: #ffffff;
+}
+
+.jdc-row-actions button.danger {
+  color: #fecaca;
+  border-color: rgba(248, 113, 113, 0.28);
+}
+
+.jdc-row-actions button.danger:hover {
+  background: rgba(248, 113, 113, 0.12);
+  color: #ffffff;
+}
+
+/* Mode clair pour les éléments spécifiques JacDoc. */
+[data-theme="light"] .jdc-view-chip {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #4b5563;
+}
+
+[data-theme="light"] .jdc-view-chip:hover {
+  background: #f0f1f5;
+  color: #0d1117;
+}
+
+[data-theme="light"] .jdc-view-chip.is-active {
+  background: rgba(57, 255, 20, 0.16);
+  color: #0a7a05;
+  border-color: rgba(57, 255, 20, 0.55);
+}
+
+[data-theme="light"] .jdc-row-actions button {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #4b5563;
+}
+
+[data-theme="light"] .jdc-row-actions button:hover {
+  background: #f0f1f5;
+  color: #0d1117;
+}
+
+[data-theme="light"] .jdc-row-actions button.danger {
+  color: #b91c1c;
+  border-color: rgba(220, 38, 38, 0.35);
+}

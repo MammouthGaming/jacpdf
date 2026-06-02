@@ -1,0 +1,1102 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* HomeContent est rendu DANS un .editor-tab-pane, pas comme une route.
+   Pas de min-height: 100vh — il prend simplement la place du pane qui le
+   contient. Le pane lui-même a un parent flex (editor-app-root) avec la
+   tabbar fixée au-dessus. */
+.home-bg {
+  /* Accent = couleur de marque JacPDF (rouge du logo). Redéfini localement :
+     tout ce qui utilise var(--accent) / var(--accent-rgb) dans l'accueil
+     (logo, focus, FAB, sidebar, drag, icônes récentes) prend la couleur du
+     logo au lieu du vert JacSuite global. */
+  --accent: #ef4444;
+  --accent-rgb: 239, 68, 68;
+  --accent-hover: #dc2626;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 40px 40px;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  /* overflow-x: hidden — empêche le scroll horizontal vers la droite quand
+     la sidebar EditSidebar est fermée (translateX(100%) la met hors-cadre
+     à droite, ce qui créerait de l'overflow visible sans clipping). */
+  overflow: hidden auto;
+  /* Animation du décalage quand la sidebar EditSidebar s'ouvre — le
+     padding-right grandit pour pousser la home vers la gauche, style
+     Chrome side panel (cf. .home-bg-with-sidebar plus bas). */
+  transition: padding-right 0.25s ease;
+}
+
+/* Quand EditSidebar est ouvert : la home est POUSSÉE vers la gauche au
+   lieu d'être recouverte (style Chrome side panel). On grossit le
+   padding-right de 40px (défaut) à 420px (40px de gap + 380px de
+   sidebar). Sur très petit écran, on plafonne pour éviter d'écraser le
+   contenu en dessous d'une largeur lisible — sur mobile la sidebar prend
+   quasi tout l'écran de toute façon. */
+.home-bg.home-bg-with-sidebar {
+  padding-right: min(420px, 90vw);
+}
+
+/* Boutons d'action en haut à droite — Notifications, Amis, Paramètres.
+   Position absolute (pas fixed) pour rester contenus dans le pane et ne pas
+   chevaucher la tabbar. Le conteneur gère le positionnement, chaque bouton
+   partage le même style circulaire 44×44. */
+.home-top-actions {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+  /* Animé pour rester synchrone avec le slide de la sidebar EditSidebar :
+     quand elle s'ouvre, on décale les boutons vers la gauche pour qu'ils
+     restent visibles à côté de la sidebar au lieu d'être cachés derrière. */
+  transition: right 0.25s ease;
+}
+
+/* Quand EditSidebar est ouvert : Notifications / Amis / Paramètres glissent
+   vers la gauche pour rester visibles à côté de la sidebar (380px de
+   sidebar + 20px de gap = 400px depuis le bord droit). */
+.home-bg-with-sidebar .home-top-actions {
+  right: 400px;
+}
+.home-top-action-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  background: #161b27;
+  border: none;
+  border-radius: 50%;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+.home-top-action-btn:hover {
+  background: #1e2535;
+  color: #fff;
+}
+.home-profile-btn {
+  padding: 0;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+.home-profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.home-profile-initial {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--accent-rgb), 0.14);
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 800;
+  font-family: 'Inter', sans-serif;
+}
+.home-profile-btn:hover {
+  background: rgba(var(--accent-rgb), 0.12);
+}
+/* Badge rouge non-lu — superposé en haut à droite du bouton 🔔 quand
+   notifsState.unreadCount > 0. Box-shadow assortie au fond pour donner
+   un anneau de séparation propre (noir en mode sombre, gris clair en
+   mode clair). Affiche "99+" pour les très gros compteurs pour ne pas
+   exploser le bouton. */
+.home-top-action-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 0 0 2px #000;
+  pointer-events: none;
+}
+[data-theme="light"] .home-top-action-badge { box-shadow: 0 0 0 2px #f5f6f8; }
+
+/* Header */
+.home-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 48px;
+}
+.home-logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.home-logo-text {
+  font-size: 48px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -2px;
+}
+.logo-green { color: var(--accent); }
+.home-subtitle {
+  font-size: 15px;
+  color: #6b7280;
+}
+
+/* Grid des actions principales (Ouvrir / Créer / Drive / OneDrive) */
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  max-width: 900px;
+  margin-bottom: 40px;
+}
+.home-card {
+  background: #161b27;
+  border: none;
+  border-radius: 16px;
+  padding: 36px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  text-align: center;
+  font-family: inherit;
+}
+.home-card:hover {
+  background: #1e2535;
+  transform: translateY(-2px);
+}
+.home-card:active { transform: translateY(0); }
+.card-icon {
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.card-icon img,
+.home-recent-icon img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+.card-icon img.home-drive-logo {
+  width: 64px;
+  height: 64px;
+  transform: scale(1.35);
+  object-fit: contain;
+}
+.home-logo-img {
+  width: 48px;
+  height: 64px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+.card-title { font-size: 17px; font-weight: 700; color: #fff; }
+.card-subtitle { font-size: 13px; color: #6b7280; }
+
+/* ─── JacSuite Classroom ─── */
+.home-classroom-section {
+  width: 100%;
+  max-width: 900px;
+  margin: -12px 0 32px;
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.10), rgba(99, 102, 241, 0.08));
+  border: 1px solid rgba(var(--accent-rgb), 0.22);
+  box-sizing: border-box;
+}
+.home-classroom-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.home-classroom-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 800;
+}
+.home-classroom-subtitle {
+  margin: 5px 0 0;
+  color: #9ca3af;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.home-classroom-settings {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(var(--accent-rgb), 0.34);
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.home-classroom-settings:hover {
+  background: rgba(var(--accent-rgb), 0.20);
+  border-color: rgba(var(--accent-rgb), 0.52);
+}
+.home-classroom-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.home-classroom-stat {
+  min-width: 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.home-classroom-stat-label {
+  display: block;
+  margin-bottom: 5px;
+  color: #6b7280;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.home-classroom-stat strong {
+  display: block;
+  color: #fff;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.home-classroom-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.home-classroom-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.home-classroom-item div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.home-classroom-item strong {
+  color: #fff;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.home-classroom-item span {
+  color: #6b7280;
+  font-size: 12px;
+}
+.home-classroom-item code {
+  flex-shrink: 0;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+}
+.home-classroom-empty {
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.18);
+  color: #9ca3af;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Section fichiers récents */
+.home-recent-section { width: 100%; max-width: 900px; }
+
+/* Espacement entre les sections empilées (Activité des amis + Récents) —
+   quel que soit leur ordre (réorganisables par drag-drop). Sans ça, quand
+   on inverse les deux, elles se collent l'une à l'autre. */
+.faf-section + .home-recent-section,
+.home-recent-section + .faf-section {
+  margin-top: 32px;
+}
+.home-recent-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.home-recent-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+.home-recent-title svg { color: #9ca3af; }
+.home-clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #3d1515;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: #f87171;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.2s;
+}
+.home-clear-btn:hover { background: #4d1a1a; }
+
+/* Contrôles de la liste des récents : barre de recherche + filtre source +
+   bouton « Tout effacer » alignés horizontalement à droite du titre. */
+.home-recent-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.home-recent-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.home-recent-search-icon {
+  position: absolute;
+  left: 10px;
+  color: #6b7280;
+  pointer-events: none;
+}
+.home-recent-search {
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  padding: 8px 30px 8px 32px;
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  width: 200px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.home-recent-search::placeholder { color: #4b5563; }
+.home-recent-search:focus { border-color: var(--accent); background: #1e2535; }
+.home-recent-search-clear {
+  position: absolute;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+.home-recent-search-clear:hover { background: #2a3347; color: #fff; }
+.home-recent-filter {
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  padding: 8px 28px 8px 12px;
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  /* Chevron en data-URI pour ne pas dépendre d'un asset externe. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.home-recent-filter:hover { border-color: #4b5563; }
+.home-recent-filter:focus { border-color: var(--accent); }
+
+/* FsmSelect (menu déroulant custom) dans la barre de contrôles des récents :
+   largeur fixe pour rester aligné avec la recherche et le bouton « Tout
+   effacer ». Sans ça, le défaut width:100% de FsmSelect remplirait toute la
+   rangée flex et ferait wrapper les autres contrôles. */
+.home-recent-filter-select { width: 180px; flex-shrink: 0; }
+
+[data-theme="light"] .home-recent-search,
+[data-theme="light"] .home-recent-filter { background: #ffffff; border-color: #d1d5db; color: #0d1117; }
+[data-theme="light"] .home-recent-search::placeholder { color: #9ca3af; }
+[data-theme="light"] .home-recent-search:focus { background: #f0f1f5; }
+[data-theme="light"] .home-recent-search-icon { color: #9ca3af; }
+[data-theme="light"] .home-recent-search-clear:hover { background: #e5e7eb; color: #0d1117; }
+
+.home-recent-empty {
+  background: #161b27;
+  border-radius: 12px;
+  padding: 36px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+}
+.home-recent-empty span { font-size: 13px; color: #4b5563; }
+
+.home-recent-list { display: flex; flex-direction: column; gap: 8px; }
+.home-recent-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #161b27;
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  outline: none;
+}
+.home-recent-item:hover { background: #1e2535; transform: translateX(2px); }
+.home-recent-item:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+.home-recent-item.is-loading { opacity: 0.7; cursor: wait; }
+.home-recent-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(var(--accent-rgb), 0.13);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.home-recent-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.home-recent-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.home-recent-info {
+  font-size: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.home-recent-remove {
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+.home-recent-remove:hover { background: #3d1515; color: #f87171; }
+.home-recent-spinner {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.home-recent-error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+[data-theme="light"] .home-recent-item { background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+[data-theme="light"] .home-recent-item:hover { background: #f0f1f5; }
+[data-theme="light"] .home-recent-name { color: #0d1117; }
+
+/* ─── Mode clair ─── */
+[data-theme="light"] .home-bg { background: #f5f6f8; }
+[data-theme="light"] .home-top-action-btn { background: #ffffff; color: #6b7280; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+[data-theme="light"] .home-top-action-btn:hover { background: #f0f1f5; color: #0d1117; }
+[data-theme="light"] .home-logo-text { color: #0d1117; }
+[data-theme="light"] .home-subtitle { color: #6b7280; }
+[data-theme="light"] .home-card { background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+[data-theme="light"] .home-card:hover { background: #f0f1f5; }
+[data-theme="light"] .card-icon,
+[data-theme="light"] .card-title { color: #0d1117; }
+[data-theme="light"] .card-subtitle { color: #6b7280; }
+[data-theme="light"] .home-recent-title { color: #0d1117; }
+[data-theme="light"] .home-recent-title svg { color: #6b7280; }
+[data-theme="light"] .home-recent-empty { background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+[data-theme="light"] .home-recent-empty span { color: #9ca3af; }
+
+/* ─── Groupes d'onglets ─── */
+.home-groups-section { width: 100%; max-width: 900px; margin-bottom: 32px; }
+.home-groups-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.home-groups-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+.home-groups-title svg { color: #9ca3af; }
+.home-groups-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+.home-group-card {
+  background: #161b27;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+}
+.home-group-card:hover { background: #1e2535; transform: translateY(-1px); }
+.home-group-card:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+.home-group-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: rgba(var(--accent-rgb), 0.13);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.home-group-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.home-group-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.home-group-meta { font-size: 12px; color: #6b7280; }
+.home-group-delete {
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+.home-group-delete:hover { background: #3d1515; color: #f87171; }
+
+[data-theme="light"] .home-groups-title { color: #0d1117; }
+[data-theme="light"] .home-groups-title svg { color: #6b7280; }
+[data-theme="light"] .home-group-card { background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+[data-theme="light"] .home-group-card:hover { background: #f0f1f5; }
+[data-theme="light"] .home-group-name { color: #0d1117; }
+
+/* ─── Drag-drop sur la page : réorganiser les éléments ─── */
+/* Curseur grab pour signaler l'affordance draggable. Le browser gère la
+   motion drag native (HTML5) ; le click reste fonctionnel pour ouvrir le
+   modal/picker associé. */
+.home-top-action-btn[draggable="true"],
+.home-card[draggable="true"],
+.faf-section[draggable="true"],
+.home-recent-section[draggable="true"] {
+  cursor: grab;
+}
+.home-top-action-btn[draggable="true"]:active,
+.home-card[draggable="true"]:active,
+.faf-section[draggable="true"]:active,
+.home-recent-section[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+/* État « en cours de drag » : opacité réduite pour signaler l'item glissé. */
+.home-top-action-btn.is-dragging,
+.home-card.is-dragging,
+.faf-section.is-dragging,
+.home-recent-section.is-dragging {
+  opacity: 0.4;
+}
+
+/* État « survolé par un drop » : anneau d'accent autour de la cible pour
+   signaler où l'item sera inséré. */
+.home-top-action-btn.is-drag-over,
+.home-card.is-drag-over,
+.faf-section.is-drag-over,
+.home-recent-section.is-drag-over {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* Indicateur visuel quand le mode réorganisation est ACTIF — anneau
+   pointillé d'accent autour de chaque élément draggable, pour qu'on
+   voie d'un coup d'œil ce qui peut être glissé. .home-bg-drag-mode est
+   ajouté sur .home-bg quand homeVisibility.dragMode === true. */
+.home-bg-drag-mode .home-top-action-btn[draggable="true"],
+.home-bg-drag-mode .home-card[draggable="true"],
+.home-bg-drag-mode .faf-section[draggable="true"],
+.home-bg-drag-mode .home-recent-section[draggable="true"] {
+  outline: 2px dashed rgba(var(--accent-rgb), 0.45);
+  outline-offset: 4px;
+}
+
+/* ─── FAB édition de la page d'accueil ───
+   Position fixed pour rester accroché au viewport du pane : quand l'utilisateur
+   scroll vers le bas de la home, le bouton ne remonte plus avec le contenu. */
+.home-edit-fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 40;
+  width: 52px;
+  height: 52px;
+  border: none;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  transition: right 0.25s ease, transform 0.15s ease, background 0.2s, box-shadow 0.2s;
+}
+.home-edit-fab:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+}
+.home-edit-fab:active { transform: translateY(0); }
+.home-edit-fab:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+/* Quand la sidebar d'édition est ouverte, le FAB se décale à gauche pour
+   rester accessible à côté du panneau au lieu d'être caché dessous. */
+.home-bg-with-sidebar .home-edit-fab {
+  right: min(404px, calc(90vw + 4px));
+}
+
+[data-theme="light"] .home-edit-fab {
+  color: #0d1117;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+[data-theme="light"] .home-edit-fab:hover {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.24);
+}
+
+
+
+/* ─── Bouton debug onboarding ───
+   Visible en permanence en haut-gauche de la home. Style indigo distinct
+   des boutons normaux (qui sont accent vert) pour signaler immédiatement
+   son statut de bouton de TEST/dev. À retirer en production. */
+.home-debug-onboarding-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(99, 102, 241, 0.13);
+  border: 1px dashed #6366f1;
+  color: #a5b4fc;
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  z-index: 2;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.home-debug-onboarding-btn:hover {
+  background: rgba(99, 102, 241, 0.22);
+  color: #c7d2fe;
+  border-color: #818cf8;
+}
+.home-debug-classroom-btn {
+  top: 58px;
+  background: rgba(57, 255, 20, 0.10);
+  border-color: rgba(57, 255, 20, 0.55);
+  color: var(--accent);
+}
+.home-debug-classroom-btn:hover {
+  background: rgba(57, 255, 20, 0.18);
+  color: var(--accent);
+  border-color: rgba(57, 255, 20, 0.75);
+}
+
+/* Variante « Tester launcher » — stacké sous le bouton onboarding (top:
+   58px, même slot que classroom-btn qui n'est pas monté actuellement).
+   Teinte orange/rouge pour matcher le thème 🚀 et se distinguer du bouton
+   onboarding (indigo) et classroom (vert). */
+.home-debug-launcher-btn {
+  top: 58px;
+  background: rgba(244, 114, 22, 0.13);
+  border-color: rgba(244, 114, 22, 0.55);
+  color: #fdba74;
+}
+.home-debug-launcher-btn:hover {
+  background: rgba(244, 114, 22, 0.22);
+  color: #fed7aa;
+  border-color: rgba(244, 114, 22, 0.78);
+}
+[data-theme="light"] .home-debug-launcher-btn {
+  background: rgba(244, 114, 22, 0.10);
+  color: #c2410c;
+  border-color: rgba(194, 65, 12, 0.45);
+}
+[data-theme="light"] .home-debug-launcher-btn:hover {
+  background: rgba(244, 114, 22, 0.20);
+  color: #9a3412;
+}
+[data-theme="light"] .home-debug-onboarding-btn {
+  background: rgba(99, 102, 241, 0.08);
+  color: #4338ca;
+  border-color: #818cf8;
+}
+[data-theme="light"] .home-debug-onboarding-btn:hover {
+  background: rgba(99, 102, 241, 0.18);
+  color: #3730a3;
+}
+[data-theme="light"] .home-debug-classroom-btn {
+  background: rgba(57, 255, 20, 0.12);
+  color: #128000;
+  border-color: rgba(18, 128, 0, 0.38);
+}
+[data-theme="light"] .home-debug-classroom-btn:hover {
+  background: rgba(57, 255, 20, 0.22);
+  color: #0f6b00;
+}
+
+/* ─── Menu « Applications » (style Google Apps) ───
+   Le wrapper sert d'ancre au menu en absolute. Le menu s'ouvre sous le
+   bouton, aligné sur le bord droit (right: 0) pour rester dans le viewport.
+   Backdrop transparent plein écran qui ferme le menu au clic extérieur. */
+.home-apps-wrapper {
+  position: relative;
+  display: inline-block;
+}
+.home-apps-btn.is-active {
+  background: rgba(var(--accent-rgb), 0.18);
+  color: var(--accent);
+}
+.home-apps-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: transparent;
+}
+.home-apps-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 41;
+  min-width: 320px;
+  padding: 18px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 16px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  font-family: 'Inter', sans-serif;
+  animation: homeAppsMenuIn 0.16s ease-out;
+}
+@keyframes homeAppsMenuIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+/* Petit triangle décoratif qui pointe vers le bouton. */
+.home-apps-menu::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  right: 16px;
+  width: 12px;
+  height: 12px;
+  background: #161b27;
+  border-top: 1px solid #2a3347;
+  border-left: 1px solid #2a3347;
+  transform: rotate(45deg);
+}
+.home-apps-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.home-apps-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.18s, transform 0.12s;
+  outline: none;
+}
+.home-apps-tile:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-1px);
+}
+.home-apps-tile:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.home-apps-tile-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.home-apps-tile:hover .home-apps-tile-icon {
+  transform: scale(1.04);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+}
+/* Variante Classroom : carré vert néon JacSuite avec icône noire (style
+   tuile Google Apps mais aux couleurs JacSuite). */
+.home-apps-tile-icon-classroom {
+  background: var(--accent);
+  color: #000;
+}
+.home-apps-tile-icon img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Variantes par app — dégradé coloré cohérent avec le launcher
+   (cf. JacLauncher.css .jac-app-card--*). Icône emoji centrée — le
+   font-size compense le fait que la tuile soit fixée à 56×56. */
+.home-apps-tile-icon-jacpdf,
+.home-apps-tile-icon-jacdoc,
+.home-apps-tile-icon-jacslide,
+.home-apps-tile-icon-jacnote,
+.home-apps-tile-icon-jacpaint,
+.home-apps-tile-icon-jactache,
+.home-apps-tile-icon-jaccalendrier {
+  color: #fff;
+  font-size: 30px;
+  line-height: 1;
+}
+.home-apps-tile-icon-jacpdf {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.92), rgba(220, 38, 38, 0.92));
+}
+.home-apps-tile-icon-jacdoc {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.92), rgba(37, 99, 235, 0.92));
+}
+.home-apps-tile-icon-jacslide {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.92), rgba(234, 88, 12, 0.92));
+}
+.home-apps-tile-icon-jacnote {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.92), rgba(22, 163, 74, 0.92));
+}
+.home-apps-tile-icon-jacpaint {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.92), rgba(147, 51, 234, 0.92));
+}
+.home-apps-tile-icon-jactache {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.92), rgba(202, 138, 4, 0.92));
+}
+.home-apps-tile-icon-jaccalendrier {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.92), rgba(8, 145, 178, 0.92));
+}
+
+/* Badge « Bientôt » sur tuile inactive — chip discret en haut-droite
+   de la tuile. La tuile passe en position: relative pour ancrer le badge. */
+.home-apps-tile { position: relative; }
+.home-apps-tile-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.88);
+  pointer-events: none;
+}
+[data-theme="light"] .home-apps-tile-badge {
+  background: rgba(0, 0, 0, 0.08);
+  color: #4b5563;
+}
+.home-apps-tile-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e7ecf5;
+  letter-spacing: -0.1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 88px;
+}
+
+/* Mode clair */
+[data-theme="light"] .home-apps-menu {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+}
+[data-theme="light"] .home-apps-menu::before {
+  background: #ffffff;
+  border-color: #e5e7eb;
+}
+[data-theme="light"] .home-apps-tile:hover {
+  background: #f0f1f5;
+}
+[data-theme="light"] .home-apps-tile-label {
+  color: #0d1117;
+}
+[data-theme="light"] .home-apps-btn.is-active {
+  background: rgba(57, 255, 20, 0.18);
+  color: #128000;
+}
+
+/* ─── Placeholder « Bientôt disponible » pour JacDoc / JacSlide / JacNote ───
+   Plein pane (position absolute + inset 0), centré vertical/horizontal.
+   Le bouton « ← Retour aux apps » intérieur passe en position: static via la
+   règle nestée ci-dessous pour suivre le flow normal du __inner stack. */
+.home-soon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  color: #f5f5f7;
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+  padding: 32px;
+}
+.home-soon__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.home-soon__inner h1 {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.home-soon__inner p {
+  margin: 0;
+  font-size: 16px;
+  color: rgba(245, 245, 247, 0.7);
+}
+[data-theme="light"] .home-soon {
+  background: #f5f6f8;
+  color: #0d1117;
+}
+[data-theme="light"] .home-soon__inner h1 { color: #0d1117; }
+[data-theme="light"] .home-soon__inner p { color: #4b5563; }
+
+/* Placeholder simple utilisé par :
+   - src/apps/jacdoc/index.jsx
+   - src/apps/jacslide/index.jsx
+   - src/apps/jacnote/index.jsx
+   Les apps sont cliquables dans le launcher, mais affichent juste « Bientôt ». */
+.app-coming-soon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  color: #f5f5f7;
+  font-family: 'Inter', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+[data-theme="light"] .app-coming-soon {
+  background: #f5f6f8;
+  color: #0d1117;
+}

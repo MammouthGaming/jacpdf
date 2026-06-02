@@ -1,0 +1,356 @@
+/* ── Règles style Word (horizontale en haut + verticale à gauche) ── */
+.jacdoc-ruler-wrap {
+  position: relative;
+  padding: 0;
+  background: var(--jacdoc-bg);
+  flex-shrink: 0;
+}
+.jacdoc-ruler-corner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 4px;
+  background: var(--jacdoc-panel);
+  color: var(--jacdoc-accent);
+  cursor: pointer;
+  padding: 0;
+}
+.jacdoc-ruler-corner::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 5px;
+  width: 9px;
+  height: 10px;
+  border-left: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+}
+.jacdoc-ruler-corner.is-center::before {
+  left: 5px;
+  width: 11px;
+  border-left: none;
+  border-right: none;
+  border-bottom: 2px solid currentColor;
+}
+.jacdoc-ruler-corner.is-center::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 5px;
+  height: 11px;
+  border-left: 2px solid currentColor;
+}
+.jacdoc-ruler-corner.is-right::before {
+  left: 7px;
+  border-left: none;
+  border-right: 2px solid currentColor;
+}
+.jacdoc-ruler-corner.is-decimal::before {
+  left: 5px;
+  width: 11px;
+  border-left: none;
+  border-bottom: 2px solid currentColor;
+}
+.jacdoc-ruler-corner.is-decimal::after {
+  content: '.';
+  position: absolute;
+  right: 4px;
+  bottom: 2px;
+  font-size: 12px;
+  font-weight: 900;
+}
+.jacdoc-ruler-corner.is-bar::before {
+  left: 10px;
+  width: 0;
+  height: 12px;
+  border-left: 2px solid currentColor;
+  border-bottom: none;
+}
+.jacdoc-ruler-strip {
+  width: 100%;
+  height: 22px;
+  background: #2a3347;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+.jacdoc-ruler {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 816px;
+  height: 100%;
+  position: relative;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--jacdoc-fg-dim);
+  background: linear-gradient(
+    to right,
+    #2a3347 0%, #2a3347 11.76%,
+    #8a93a8 11.76%, #8a93a8 88.24%,
+    #2a3347 88.24%, #2a3347 100%
+  );
+  border-radius: 0;
+  user-select: none;
+  overflow: hidden;
+}
+.jacdoc-ruler-numbers {
+  display: flex;
+  height: 100%;
+  align-items: center;
+}
+.jacdoc-ruler-num {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid rgba(0, 0, 0, 0.18);
+  font-variant-numeric: tabular-nums;
+  color: #1a1f2b;
+  font-weight: 600;
+}
+.jacdoc-ruler-num:last-child { border-right: none; }
+
+.jacdoc-ruler-marker,
+.jacdoc-ruler-tab {
+  position: absolute;
+  z-index: 3;
+  border: none;
+  background: transparent;
+  padding: 0;
+  transform: translateX(-50%);
+  cursor: ew-resize;
+  color: var(--jacdoc-accent);
+}
+.jacdoc-ruler-marker:focus-visible,
+.jacdoc-ruler-tab:focus-visible,
+.jacdoc-ruler-corner:focus-visible {
+  outline: 2px solid var(--jacdoc-accent);
+  outline-offset: 2px;
+}
+.jacdoc-ruler-marker.is-margin-left,
+.jacdoc-ruler-marker.is-margin-right {
+  top: 0;
+  width: 10px;
+  height: 22px;
+  border-radius: 3px;
+  background: rgba(var(--jacdoc-accent-rgb), 0.28);
+  box-shadow: 0 0 0 1px rgba(var(--jacdoc-accent-rgb), 0.5);
+}
+.jacdoc-ruler-marker.is-first-indent {
+  top: 1px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 8px solid var(--jacdoc-accent);
+}
+.jacdoc-ruler-marker.is-hanging-indent {
+  bottom: 1px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 8px solid var(--jacdoc-accent);
+}
+.jacdoc-ruler-marker.is-right-indent {
+  bottom: 1px;
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-right: 9px solid var(--jacdoc-accent);
+}
+.jacdoc-ruler-tab {
+  top: 4px;
+  width: 16px;
+  height: 16px;
+}
+.jacdoc-ruler-tab::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 2px;
+  width: 8px;
+  height: 10px;
+  border-left: 2px solid var(--jacdoc-accent);
+  border-bottom: 2px solid var(--jacdoc-accent);
+}
+.jacdoc-ruler-tab.is-center::before {
+  left: 2px;
+  width: 12px;
+  border-left: none;
+  border-bottom: 2px solid var(--jacdoc-accent);
+}
+.jacdoc-ruler-tab.is-center::after {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 2px;
+  height: 11px;
+  border-left: 2px solid var(--jacdoc-accent);
+}
+.jacdoc-ruler-tab.is-right::before {
+  left: 4px;
+  border-left: none;
+  border-right: 2px solid var(--jacdoc-accent);
+}
+.jacdoc-ruler-tab.is-decimal::before {
+  left: 2px;
+  width: 10px;
+  border-left: none;
+  border-bottom: 2px solid var(--jacdoc-accent);
+}
+.jacdoc-ruler-tab.is-decimal::after {
+  content: '.';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  color: var(--jacdoc-accent);
+  font-size: 12px;
+  font-weight: 900;
+}
+.jacdoc-ruler-tab.is-bar::before {
+  left: 7px;
+  height: 13px;
+  width: 0;
+  border-left: 2px solid var(--jacdoc-accent);
+  border-bottom: none;
+}
+
+[data-theme="light"] .jacdoc-ruler-strip {
+  background: #d1d5db;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+[data-theme="light"] .jacdoc-ruler {
+  background: linear-gradient(
+    to right,
+    #d1d5db 0%, #d1d5db 11.76%,
+    #ffffff 11.76%, #ffffff 88.24%,
+    #d1d5db 88.24%, #d1d5db 100%
+  );
+  color: #5f6368;
+}
+[data-theme="light"] .jacdoc-ruler-num {
+  border-right-color: rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .jacdoc-ruler-corner {
+  background: #ffffff;
+  border-color: #d1d5db;
+}
+[data-theme="light"] .jacdoc-ruler-marker.is-margin-left,
+[data-theme="light"] .jacdoc-ruler-marker.is-margin-right {
+  background: rgba(var(--jacdoc-accent-rgb), 0.22);
+}
+
+.jacdoc-ruler-v-strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  overflow: visible;
+  z-index: 2;
+}
+.jacdoc-ruler-v {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 1056px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--jacdoc-fg-dim);
+  background: linear-gradient(
+    to bottom,
+    #2a3347 0%,
+    #2a3347 var(--jacdoc-ruler-v-top, 6.82%),
+    #8a93a8 var(--jacdoc-ruler-v-top, 6.82%),
+    #8a93a8 var(--jacdoc-ruler-v-bot, 93.18%),
+    #2a3347 var(--jacdoc-ruler-v-bot, 93.18%),
+    #2a3347 100%
+  );
+  border-radius: 0;
+  user-select: none;
+  overflow: hidden;
+}
+.jacdoc-ruler-v-numbers {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+.jacdoc-ruler-v-num {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.18);
+  font-variant-numeric: tabular-nums;
+  color: #1a1f2b;
+  font-weight: 600;
+}
+.jacdoc-ruler-v-num:last-child { border-bottom: none; }
+
+[data-theme="light"] .jacdoc-ruler-v-strip { background: transparent; }
+[data-theme="light"] .jacdoc-ruler-v {
+  background: linear-gradient(
+    to bottom,
+    #d1d5db 0%,
+    #d1d5db var(--jacdoc-ruler-v-top, 6.82%),
+    #ffffff var(--jacdoc-ruler-v-top, 6.82%),
+    #ffffff var(--jacdoc-ruler-v-bot, 93.18%),
+    #d1d5db var(--jacdoc-ruler-v-bot, 93.18%),
+    #d1d5db 100%
+  );
+  color: #5f6368;
+}
+[data-theme="light"] .jacdoc-ruler-v-num {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+.jacdoc-ruler-v-marker {
+  position: absolute;
+  left: -4px;
+  width: 30px;
+  height: 14px;
+  transform: translateY(-50%);
+  z-index: 4;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  cursor: ns-resize;
+  padding: 0;
+  transition: background 0.12s;
+}
+.jacdoc-ruler-v-marker::before { content: none; }
+.jacdoc-ruler-v-marker:hover {
+  background: rgba(var(--jacdoc-accent-rgb), 0.18);
+}
+.jacdoc-ruler-v-marker:focus-visible {
+  outline: 2px solid var(--jacdoc-accent);
+  outline-offset: 2px;
+}
+[data-theme="light"] .jacdoc-ruler-v-marker:hover {
+  background: rgba(var(--jacdoc-accent-rgb), 0.18);
+}
+
+.jacdoc-margin-guide {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 2px dashed var(--jacdoc-accent);
+  pointer-events: none;
+  z-index: 8;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.45),
+    0 0 12px rgba(var(--jacdoc-accent-rgb), 0.5);
+}

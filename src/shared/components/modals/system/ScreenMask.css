@@ -1,0 +1,75 @@
+/* Rideau de masquage d'écran. Le rideau s'étend de juste sous la barre
+   d'onglets jusqu'au bas de l'écran — il passe DERRIÈRE le topbar
+   transparent (z=10) grâce à son z-index plus bas (1), ce qui supprime
+   la bande noire que laissait le fond #000 du canvas. Les contrôles du
+   topbar et le bouton × du rideau (décalé de 60px vers le bas) restent
+   accessibles au-dessus. */
+.sm-curtain {
+  position: fixed;
+  top: var(--jacpdf-tabbar-h, 0px);
+  left: 0;
+  right: 0;
+  z-index: 1;
+  background: #0a0e1a;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  user-select: none;
+  pointer-events: auto;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* Bouton de fermeture : décalé de 60px vers le bas pour passer SOUS la
+   topbar (qui occupe les 60 premiers px du rideau) et rester cliquable. */
+.sm-close {
+  position: absolute;
+  top: 72px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  color: #d1d5db;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.15s, color 0.15s;
+}
+.sm-close:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+/* Poignée de drag en bas du rideau — visuellement marquée (gradient + grip)
+   pour indiquer à l'utilisateur où cliquer pour glisser. */
+.sm-handle {
+  width: 100%;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.55) 100%);
+  cursor: ns-resize;
+  transition: background 0.15s;
+}
+.sm-handle:hover {
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.75) 100%);
+}
+
+.sm-grip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  transition: background 0.15s, color 0.15s;
+}
+.sm-handle:hover .sm-grip {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}

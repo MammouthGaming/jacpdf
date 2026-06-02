@@ -1,0 +1,3324 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.fsm-overlay {
+  position: fixed;
+  top: var(--jacpdf-tabbar-h, 0);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fsmFade 0.15s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+@keyframes fsmFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.fsm-card {
+  background: #0d1117;
+  border: 1px solid #1e2535;
+  border-radius: 16px;
+  width: 92%;
+  max-width: 880px;
+  height: 86vh;
+  max-height: 700px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  animation: fsmSlide 0.2s ease;
+}
+
+@keyframes fsmSlide {
+  from { opacity: 0; transform: translateY(-12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Header */
+.fsm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #1e2535;
+  flex-shrink: 0;
+}
+
+.fsm-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.fsm-close {
+  background: #1e2535;
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+.fsm-close:hover { background: #2a3347; color: #fff; }
+
+/* Body */
+.fsm-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.fsm-sidebar {
+  width: 220px;
+  background: #0a0e16;
+  border-right: 1px solid #1e2535;
+  padding: 16px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.fsm-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #9ca3af;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+.fsm-nav-item:hover { background: #161b27; color: #fff; }
+.fsm-nav-item.active {
+  background: rgba(var(--accent-rgb), 0.08);
+  color: var(--accent);
+}
+
+/* Main */
+.fsm-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px 32px;
+}
+.fsm-main::-webkit-scrollbar { width: 6px; }
+.fsm-main::-webkit-scrollbar-track { background: transparent; }
+.fsm-main::-webkit-scrollbar-thumb { background: #2a3347; border-radius: 3px; }
+
+.fsm-section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.fsm-section-sub {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+.fsm-field { margin-bottom: 20px; }
+
+.fsm-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #d1d5db;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.fsm-label-sub {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.fsm-divider {
+  height: 1px;
+  background: #1e2535;
+  margin: 20px 0;
+}
+
+.fsm-select {
+  width: 100%;
+  max-width: 360px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
+}
+.fsm-select:focus { border-color: var(--accent); }
+
+/* Theme */
+.fsm-theme-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.fsm-theme-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: #161b27;
+  border: 2px solid #2a3347;
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.15s, color 0.15s;
+}
+.fsm-theme-btn:hover { color: #fff; }
+.fsm-theme-btn.active { border-color: var(--accent); color: #fff; }
+.fsm-provider-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+.fsm-provider-logo-drive {
+  transform: scale(1.22);
+}
+.fsm-provider-logo-jaccloud {
+  transform: scale(1.08);
+}
+
+.fsm-theme-preview {
+  width: 90px;
+  height: 60px;
+  border-radius: 6px;
+  border: 1px solid #2a3347;
+}
+.fsm-theme-sombre { background: linear-gradient(135deg, #0d1117, #1e2535); }
+.fsm-theme-clair  { background: linear-gradient(135deg, #f3f4f6, #ffffff); }
+.fsm-theme-auto   { background: linear-gradient(135deg, #0d1117 50%, #f3f4f6 50%); }
+
+/* Colors */
+.fsm-colors { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.fsm-color-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.fsm-color-dot:hover { transform: scale(1.1); }
+.fsm-color-dot.active { border-color: #fff; transform: scale(1.1); }
+
+/* Toggle */
+.fsm-toggle-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #161b27;
+  border: 1px solid #1e2535;
+  border-radius: 10px;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+.fsm-toggle {
+  width: 40px;
+  height: 22px;
+  background: #2a3347;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+  padding: 0;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.fsm-toggle.on { background: var(--accent); }
+
+.fsm-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  transition: left 0.2s;
+}
+.fsm-toggle.on .fsm-toggle-thumb { left: 20px; }
+
+/* État grisé : utilisé quand un toggle dépend d'un autre paramètre désactivé
+   (ex. « Onglet inactif » n'a de sens que si la barre d'onglets est visible). */
+.fsm-toggle-row-disabled { opacity: 0.45; pointer-events: none; }
+.fsm-toggle-row-disabled .fsm-label,
+.fsm-toggle-row-disabled .fsm-label-sub { color: #6b7280; }
+.fsm-toggle:disabled { cursor: not-allowed; }
+
+/* Toolbar settings — aperçu orientation */
+.fsm-tb-preview {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  justify-content: center;
+  background: #161b27;
+}
+.fsm-tb-preview-vertical { flex-direction: column; }
+.fsm-tb-preview-horizontal { flex-direction: row; }
+.fsm-tb-preview-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+/* Toolbar settings — Aperçu live de la toolbar */
+.fsm-tb-live-stage {
+  background: #0a0e16;
+  border: 1px solid #1e2535;
+  border-radius: 12px;
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  margin-top: 4px;
+}
+
+.fsm-tb-live-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 14px;
+  padding: 6px 5px;
+  transition: all 0.2s ease;
+}
+.fsm-tb-live-bar-vertical { flex-direction: column; }
+.fsm-tb-live-bar-horizontal { flex-direction: row; padding: 5px 6px; }
+
+.fsm-tb-live-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 12px;
+  color: #4b5563;
+  flex-shrink: 0;
+}
+.fsm-tb-live-bar-horizontal .fsm-tb-live-handle { width: 12px; height: 20px; }
+
+.fsm-tb-live-btn {
+  width: 28px;
+  height: 28px;
+  background: #1e2535;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+/* Aperçu live — drag-and-drop des boutons */
+.fsm-tb-live-btn {
+  cursor: grab;
+  user-select: none;
+}
+.fsm-tb-live-btn:active { cursor: grabbing; }
+.fsm-tb-live-btn.dragging { opacity: 0.35; }
+.fsm-tb-live-btn.drag-over {
+  background: rgba(var(--accent-rgb), 0.22);
+  border-color: var(--accent);
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+}
+.fsm-tb-live-reset {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 6px 12px;
+  width: auto;
+}
+
+/* Toolbar settings — liste des boutons visibles */
+.fsm-tools-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+.fsm-tools-list-row {
+  padding: 6px 12px;
+  margin-bottom: 0;
+}
+.fsm-tool-label {
+  font-size: 13px;
+  color: #d1d5db;
+}
+
+/* Toolbar settings — bouton Réinitialiser inline */
+.fsm-action-btn-inline {
+  width: auto;
+  padding: 8px 14px;
+  margin-bottom: 0;
+}
+
+/* Shortcut groups */
+.fsm-shortcut-group { margin-bottom: 24px; }
+
+.fsm-group-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #1e2535;
+}
+
+.fsm-shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 2px;
+}
+
+.fsm-shortcut-label {
+  font-size: 13px;
+  color: #d1d5db;
+}
+
+.fsm-keys { display: flex; gap: 4px; }
+
+.fsm-kbd {
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-bottom: 2px solid #2a3347;
+  border-radius: 5px;
+  padding: 3px 8px;
+  font-size: 11px;
+  color: #d1d5db;
+  font-family: 'Inter', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* Account */
+.fsm-account-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  background: #161b27;
+  border: 1px solid #1e2535;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.fsm-big-avatar {
+  width: 56px;
+  height: 56px;
+  background: rgba(var(--accent-rgb), 0.13);
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.fsm-account-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.fsm-account-email {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.fsm-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 10px;
+  color: #d1d5db;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.fsm-action-btn:hover { background: #1e2535; border-color: var(--accent); }
+
+.fsm-action-btn.fsm-danger { color: #fb923c; }
+.fsm-action-btn.fsm-danger:hover { border-color: #fb923c; background: #2a1f0a; }
+
+/* About */
+.fsm-about-card {
+  text-align: center;
+  padding: 28px 20px;
+  background: #161b27;
+  border: 1px solid #1e2535;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.fsm-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  font-family: 'Inter', sans-serif;
+}
+.fsm-logo-img {
+  width: 42px;
+  height: 56px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+.fsm-logo-jac { color: #fff; }
+.fsm-logo-pdf { color: var(--accent); margin-left: -4px; }
+
+.fsm-version-tag {
+  display: inline-block;
+  background: rgba(var(--accent-rgb), 0.13);
+  border: 1px solid rgba(var(--accent-rgb), 0.4);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.15s, border-color 0.15s;
+}
+.fsm-version-tag:hover {
+  background: rgba(var(--accent-rgb), 0.2);
+  border-color: var(--accent);
+}
+
+.fsm-about-text {
+  font-size: 12px;
+  color: #9ca3af;
+  line-height: 1.6;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+.fsm-credit-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  color: #d1d5db;
+  background: #161b27;
+  border: 1px solid #1e2535;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+.fsm-credit-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.fsm-credit-role {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 1px;
+}
+
+.fsm-copyright {
+  font-size: 11px;
+  color: #374151;
+  text-align: center;
+  margin-top: 16px;
+}
+
+/* === Mode clair (data-theme="light") =====================================
+   Le themeStore pose data-theme sur <html>. Ces overrides re-thèment le
+   modal Paramètres pour le mode clair. Les variables de thème sont définies
+   dans index.css. Les autres modals / menus restent hardcodés en sombre pour
+   l'instant — à migrer progressivement vers les mêmes variables. */
+[data-theme="light"] .fsm-overlay { background: var(--overlay); }
+[data-theme="light"] .fsm-card { background: var(--bg-surface); border-color: var(--border); }
+[data-theme="light"] .fsm-header { border-bottom-color: var(--border); }
+[data-theme="light"] .fsm-divider { background: var(--border); }
+[data-theme="light"] .fsm-title,
+[data-theme="light"] .fsm-section-title,
+[data-theme="light"] .fsm-account-name,
+[data-theme="light"] .fsm-credit-name,
+[data-theme="light"] .fsm-logo-jac { color: var(--text-primary); }
+[data-theme="light"] .fsm-section-sub,
+[data-theme="light"] .fsm-label-sub,
+[data-theme="light"] .fsm-account-email,
+[data-theme="light"] .fsm-credit-role,
+[data-theme="light"] .fsm-copyright,
+[data-theme="light"] .fsm-group-title { color: var(--text-faint); }
+[data-theme="light"] .fsm-label,
+[data-theme="light"] .fsm-shortcut-label,
+[data-theme="light"] .fsm-tool-label,
+[data-theme="light"] .fsm-action-btn,
+[data-theme="light"] .fsm-kbd,
+[data-theme="light"] .fsm-theme-btn { color: var(--text-secondary); }
+[data-theme="light"] .fsm-sidebar { background: var(--bg-surface-2); border-right-color: var(--border); }
+[data-theme="light"] .fsm-nav-item { color: var(--text-muted); }
+[data-theme="light"] .fsm-nav-item:hover { background: var(--bg-surface-3); color: var(--text-primary); }
+[data-theme="light"] .fsm-close { background: var(--bg-surface-3); color: var(--text-faint); }
+[data-theme="light"] .fsm-close:hover { background: var(--border-strong); color: var(--text-primary); }
+[data-theme="light"] .fsm-toggle { background: var(--bg-surface-3); }
+[data-theme="light"] .fsm-toggle.on { background: var(--accent); }
+[data-theme="light"] .fsm-toggle-row,
+[data-theme="light"] .fsm-account-card,
+[data-theme="light"] .fsm-about-card,
+[data-theme="light"] .fsm-credit-row,
+[data-theme="light"] .fsm-action-btn,
+[data-theme="light"] .fsm-kbd,
+[data-theme="light"] .fsm-select,
+[data-theme="light"] .fsm-theme-btn,
+[data-theme="light"] .fsm-tb-live-stage,
+[data-theme="light"] .fsm-tb-live-bar {
+  background: var(--bg-surface-2);
+  border-color: var(--border);
+}
+[data-theme="light"] .fsm-select { color: var(--text-primary); }
+[data-theme="light"] .fsm-theme-btn.active { color: var(--text-primary); border-color: var(--accent); }
+[data-theme="light"] .fsm-tb-live-btn { background: var(--bg-surface-3); color: var(--text-secondary); }
+[data-theme="light"] .fsm-action-btn:hover { background: var(--bg-surface-3); }
+[data-theme="light"] .fsm-group-title { border-bottom-color: var(--border); }
+
+/* === Section Performance (Lot 7) =========================================
+   Sélecteur de preset (3 cartes) + bandeau d'avertissement « section avancée ».
+   Les réglages détaillés (rendu PDF, historique, animations, OCR…) viennent
+   à l'étape suivante du Lot 7. */
+
+/* Bandeau rouge en haut de la section — prévient l'utilisateur lambda. */
+.fsm-perf-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 10px;
+  margin-bottom: 24px;
+  color: #fca5a5;
+}
+.fsm-perf-warning svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #f87171;
+}
+.fsm-perf-warning-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fecaca;
+  margin: 0 0 4px;
+}
+.fsm-perf-warning-text {
+  font-size: 12px;
+  color: #fca5a5;
+  line-height: 1.55;
+  margin: 0;
+}
+.fsm-perf-warning-text strong {
+  color: #fee2e2;
+  font-weight: 600;
+}
+
+/* Badge « Réglages personnalisés actifs » — visible quand au moins un
+   override diffère du preset courant (rawPreset === 'custom'). */
+.fsm-perf-custom-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 1px solid rgba(var(--accent-rgb), 0.35);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.fsm-perf-custom-reset {
+  background: transparent;
+  border: 1px solid rgba(var(--accent-rgb), 0.5);
+  border-radius: 6px;
+  padding: 5px 12px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.fsm-perf-custom-reset:hover { background: rgba(var(--accent-rgb), 0.13); }
+
+/* Grille 3 cartes — sur écran étroit, on passe en colonne. */
+.fsm-perf-presets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 4px;
+}
+@media (max-width: 720px) {
+  .fsm-perf-presets { grid-template-columns: 1fr; }
+}
+
+.fsm-perf-preset-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  background: #161b27;
+  border: 2px solid #2a3347;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.fsm-perf-preset-card:hover {
+  border-color: #3a4660;
+  background: #1a2030;
+  transform: translateY(-1px);
+}
+.fsm-perf-preset-card.active {
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.06);
+}
+
+.fsm-perf-preset-icon {
+  font-size: 28px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.fsm-perf-preset-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+.fsm-perf-preset-desc {
+  font-size: 12px;
+  color: #9ca3af;
+  line-height: 1.5;
+}
+
+/* Coche verte en haut à droite de la carte sélectionnée. */
+.fsm-perf-preset-check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fsm-perf-todo {
+  font-size: 12px;
+  color: #6b7280;
+  font-style: italic;
+  margin: 0;
+}
+
+/* Mode clair */
+[data-theme="light"] .fsm-perf-warning {
+  background: rgba(239, 68, 68, 0.06);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #b91c1c;
+}
+[data-theme="light"] .fsm-perf-warning svg { color: #dc2626; }
+[data-theme="light"] .fsm-perf-warning-title { color: #991b1b; }
+[data-theme="light"] .fsm-perf-warning-text { color: #b91c1c; }
+[data-theme="light"] .fsm-perf-warning-text strong { color: #7f1d1d; }
+[data-theme="light"] .fsm-perf-preset-card {
+  background: var(--bg-surface-2);
+  border-color: var(--border);
+}
+[data-theme="light"] .fsm-perf-preset-card:hover {
+  background: var(--bg-surface-3);
+  border-color: var(--border-strong);
+}
+[data-theme="light"] .fsm-perf-preset-card.active {
+  background: rgba(var(--accent-rgb), 0.08);
+  border-color: var(--accent);
+}
+[data-theme="light"] .fsm-perf-preset-name { color: var(--text-primary); }
+[data-theme="light"] .fsm-perf-preset-desc { color: var(--text-faint); }
+[data-theme="light"] .fsm-perf-todo { color: var(--text-faint); }
+
+/* === Section Performance — Réglages détaillés (étape 4) ==================
+   Sections repliables (<details>) pour chaque catégorie : Rendu PDF, Onglets,
+   Historique, Animations & UI, Recherche/OCR, Mémoire. Chaque réglage appelle
+   performanceStore.setOverride() (clés de preset) ou setStandalone() (clés
+   indépendantes), ce qui bascule automatiquement le preset sur « Personnalisé ». */
+
+.fsm-perf-details {
+  background: #161b27;
+  border: 1px solid #1e2535;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.fsm-perf-details[open] { border-color: #2a3347; }
+
+.fsm-perf-detail-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: #d1d5db;
+  transition: background 0.15s;
+}
+.fsm-perf-detail-summary::-webkit-details-marker { display: none; }
+.fsm-perf-detail-summary:hover { background: #1a2030; }
+
+.fsm-perf-detail-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+.fsm-perf-detail-title { flex: 1; }
+.fsm-perf-detail-chevron {
+  color: #6b7280;
+  transition: transform 0.15s;
+}
+.fsm-perf-details[open] .fsm-perf-detail-chevron { transform: rotate(90deg); }
+
+.fsm-perf-detail-content {
+  padding: 4px 14px 12px;
+  border-top: 1px solid #1e2535;
+}
+
+.fsm-perf-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #1e2535;
+}
+.fsm-perf-row:last-child { border-bottom: none; }
+
+/* Row grisée quand un toggle parent est désactivé (ex. délai de suspension
+   est inutilisable si « suspendre les onglets » est off). */
+.fsm-perf-row-disabled { opacity: 0.45; pointer-events: none; }
+
+.fsm-perf-row-label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+.fsm-perf-row-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #d1d5db;
+}
+.fsm-perf-row-desc {
+  font-size: 11.5px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+.fsm-perf-row-desc code {
+  font-family: 'SF Mono', 'Menlo', monospace;
+  font-size: 10.5px;
+  background: #0a0e16;
+  border: 1px solid #1e2535;
+  border-radius: 3px;
+  padding: 1px 5px;
+  color: #9ca3af;
+}
+.fsm-perf-row-desc strong {
+  color: #d1d5db;
+  font-weight: 600;
+}
+
+.fsm-perf-select {
+  flex-shrink: 0;
+  background: #0a0e16;
+  border: 1px solid #2a3347;
+  border-radius: 6px;
+  padding: 6px 28px 6px 10px;
+  color: #fff;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  min-width: 140px;
+}
+.fsm-perf-select:focus { border-color: var(--accent); }
+.fsm-perf-select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.fsm-perf-number {
+  flex-shrink: 0;
+  background: #0a0e16;
+  border: 1px solid #2a3347;
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: #fff;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  width: 80px;
+  text-align: right;
+}
+.fsm-perf-number:focus { border-color: var(--accent); }
+
+.fsm-perf-number-with-unit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.fsm-perf-number-with-unit span {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* Mode clair — réglages détaillés */
+[data-theme="light"] .fsm-perf-details {
+  background: var(--bg-surface-2);
+  border-color: var(--border);
+}
+[data-theme="light"] .fsm-perf-details[open] { border-color: var(--border-strong); }
+[data-theme="light"] .fsm-perf-detail-summary { color: var(--text-secondary); }
+[data-theme="light"] .fsm-perf-detail-summary:hover { background: var(--bg-surface-3); }
+[data-theme="light"] .fsm-perf-detail-content { border-top-color: var(--border); }
+[data-theme="light"] .fsm-perf-row { border-bottom-color: var(--border); }
+[data-theme="light"] .fsm-perf-row-name { color: var(--text-primary); }
+[data-theme="light"] .fsm-perf-row-desc { color: var(--text-faint); }
+[data-theme="light"] .fsm-perf-row-desc code {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+[data-theme="light"] .fsm-perf-row-desc strong { color: var(--text-secondary); }
+[data-theme="light"] .fsm-perf-select,
+[data-theme="light"] .fsm-perf-number {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+[data-theme="light"] .fsm-perf-detail-chevron { color: var(--text-faint); }
+[data-theme="light"] .fsm-perf-number-with-unit span { color: var(--text-muted); }
+
+/* ============================================================
+   SUPPLÉMENT — styles des SECTIONS (sections/*.jsx)
+   Le JSX modulaire utilise un nouveau set de classes ; on les
+   définit ici sans toucher aux styles du shell ni du Lot 7.
+   ============================================================ */
+
+/* ---- Conteneur de section ---- */
+.fsm-section {
+  display: block;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ---- Row (ligne label + contrôle) ---- */
+.fsm-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid #1e2535;
+}
+.fsm-row:last-of-type { border-bottom: none; }
+.fsm-row > .fsm-label { flex: 0 0 200px; margin-bottom: 0; }
+
+.fsm-row-col {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+.fsm-row-col > .fsm-label { flex: none; margin-bottom: 4px; }
+
+.fsm-hint {
+  font-size: 11px;
+  color: #6b7280;
+  display: block;
+}
+
+.fsm-info-bar {
+  margin-top: 16px;
+  padding: 10px 14px;
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  border-radius: 8px;
+  color: var(--accent);
+  font-size: 12px;
+}
+
+/* ---- Boutons unifiés ---- */
+.fsm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  color: #d1d5db;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.fsm-btn:hover:not(:disabled) { background: #1e2535; border-color: var(--accent); color: #fff; }
+.fsm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.fsm-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 8px;
+  color: #fca5a5;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.fsm-btn-danger:hover:not(:disabled) { background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #fee2e2; }
+.fsm-btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.fsm-btn-link {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+.fsm-btn-link:hover:not(:disabled) { background: rgba(var(--accent-rgb), 0.1); }
+.fsm-btn-link:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ---- Toggle wrapper (label englobant un checkbox) ----
+   `label.fsm-toggle` est PLUS SPÉCIFIQUE que `.fsm-toggle` (utilisé par
+   les anciens boutons-switch standalone du shell), donc cohabite proprement. */
+label.fsm-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: auto;
+  height: auto;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  position: static;
+  transition: none;
+  font-size: 13px;
+  color: #d1d5db;
+}
+label.fsm-toggle input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 36px;
+  height: 20px;
+  background: #2a3347;
+  border-radius: 11px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+  margin: 0;
+  outline: none;
+}
+label.fsm-toggle input[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: left 0.2s;
+}
+label.fsm-toggle input[type="checkbox"]:checked { background: var(--accent); }
+label.fsm-toggle input[type="checkbox"]:checked::before { left: 18px; }
+label.fsm-toggle input[type="checkbox"]:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ---- Inputs / textarea / select dans les rows et detail bodies ---- */
+.fsm-row input[type="text"],
+.fsm-row input[type="email"],
+.fsm-row input[type="password"],
+.fsm-row input[type="number"],
+.fsm-row input[type="datetime-local"],
+.fsm-row textarea,
+.fsm-row select,
+.fsm-detail-body input[type="text"],
+.fsm-detail-body input[type="email"],
+.fsm-detail-body input[type="number"],
+.fsm-detail-body input[type="datetime-local"],
+.fsm-detail-body input[type="range"],
+.fsm-detail-body textarea,
+.fsm-detail-body select {
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  min-width: 0;
+}
+.fsm-row input:focus,
+.fsm-row textarea:focus,
+.fsm-row select:focus,
+.fsm-detail-body input:focus,
+.fsm-detail-body textarea:focus,
+.fsm-detail-body select:focus { border-color: var(--accent); }
+
+/* ---- Segmented control (Apparence, Sociale, Cloud…) ---- */
+.fsm-segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  background: #0a0e16;
+  border: 1px solid #1e2535;
+  border-radius: 10px;
+  padding: 4px;
+}
+.fsm-seg {
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  color: #9ca3af;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.fsm-seg:hover { color: #fff; }
+.fsm-seg.active { background: rgba(var(--accent-rgb), 0.15); color: var(--accent); }
+
+/* ---- Apparence : grille de couleurs d'accent ---- */
+.fsm-accent-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+.fsm-accent-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.fsm-accent-swatch:hover { transform: scale(1.1); }
+.fsm-accent-swatch.active { border-color: #fff; transform: scale(1.1); }
+
+/* ---- Apparence : grille des outils (drag/hide) ---- */
+.fsm-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+.fsm-tool-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  color: #d1d5db;
+  font-size: 12px;
+  cursor: grab;
+  user-select: none;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.fsm-tool-chip:hover { border-color: var(--accent); }
+.fsm-tool-chip:active { cursor: grabbing; }
+.fsm-tool-chip.off { opacity: 0.4; }
+.fsm-tool-chip.off span { text-decoration: line-through; }
+.fsm-tool-chip.dragging { opacity: 0.3; }
+.fsm-tool-chip small { margin-left: auto; color: #6b7280; font-size: 10px; }
+
+/* ---- Performance : cartes presets (alias du naming v2) ---- */
+.fsm-perf-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  background: #161b27;
+  border: 2px solid #2a3347;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.fsm-perf-card:hover {
+  border-color: #3a4660;
+  background: #1a2030;
+  transform: translateY(-1px);
+}
+.fsm-perf-card.active { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.06); }
+.fsm-perf-card-custom { cursor: default; }
+.fsm-perf-icon { font-size: 28px; line-height: 1; }
+.fsm-perf-name { font-size: 14px; font-weight: 700; color: #fff; }
+.fsm-perf-desc { font-size: 12px; color: #9ca3af; line-height: 1.5; }
+
+/* ---- <details> repliables génériques (Performance, Admin) ---- */
+.fsm-details {
+  background: #161b27;
+  border: 1px solid #1e2535;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.fsm-details[open] { border-color: #2a3347; }
+.fsm-details > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: #d1d5db;
+  transition: background 0.15s;
+}
+.fsm-details > summary::-webkit-details-marker { display: none; }
+.fsm-details > summary::before {
+  content: "\25B6";
+  font-size: 9px;
+  color: #6b7280;
+  transition: transform 0.15s;
+}
+.fsm-details[open] > summary::before { transform: rotate(90deg); }
+.fsm-details > summary:hover { background: #1a2030; }
+.fsm-detail-body {
+  padding: 12px 14px;
+  border-top: 1px solid #1e2535;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.fsm-detail-body small { color: #6b7280; font-size: 11px; }
+
+/* ---- Raccourcis ---- */
+.fsm-shortcut-cat {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #1e2535;
+}
+.fsm-shortcut-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 2px;
+}
+.fsm-shortcut-row.disabled { opacity: 0.4; pointer-events: none; }
+.fsm-shortcut-keys { display: flex; gap: 4px; font-size: 11px; color: #9ca3af; }
+.fsm-shortcut-keys kbd {
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-bottom: 2px solid #2a3347;
+  border-radius: 5px;
+  padding: 3px 8px;
+  font-size: 11px;
+  color: #d1d5db;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+}
+.fsm-shortcut-btn {
+  background: transparent;
+  border: 1px solid #2a3347;
+  border-radius: 6px;
+  padding: 4px 10px;
+  color: #9ca3af;
+  font-size: 11px;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.fsm-shortcut-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.fsm-shortcut-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ---- Sociale : bloc de checkboxes ---- */
+.fsm-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #161b27;
+  border: 1px solid #1e2535;
+  border-radius: 8px;
+}
+
+/* ---- Compte : avatar + édition nom + providers + password ---- */
+.fsm-avatar-wrap { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.fsm-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(var(--accent-rgb), 0.13);
+  border: 2px solid var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+.fsm-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.fsm-avatar-spinner {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+}
+.fsm-name-edit, .fsm-name-view { display: flex; align-items: center; gap: 8px; flex: 1; }
+.fsm-name-edit input { flex: 1; min-width: 0; }
+.fsm-name-view span { color: #fff; font-weight: 500; }
+
+.fsm-providers { display: flex; flex-direction: column; gap: 6px; }
+.fsm-provider {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+}
+.fsm-provider.linked { border-color: rgba(var(--accent-rgb), 0.4); }
+.fsm-provider-icon { font-size: 18px; }
+.fsm-provider-label { flex: 1; color: #d1d5db; font-size: 13px; font-weight: 500; }
+
+.fsm-password-edit { display: flex; align-items: center; gap: 8px; flex: 1; }
+.fsm-password-edit input { flex: 1; min-width: 0; }
+
+/* ---- Cloud ---- */
+.fsm-cloud-connected {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 10px 14px;
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  border-radius: 8px;
+  color: #d1d5db; font-size: 13px;
+}
+.fsm-cloud-disconnected {
+  padding: 10px 14px;
+  background: #161b27;
+  border: 1px dashed #2a3347;
+  border-radius: 8px;
+  color: #9ca3af; font-size: 12px;
+}
+.fsm-warning { color: #fb923c; font-size: 11px; display: block; margin-top: 6px; }
+
+/* ---- À propos ---- */
+.fsm-version-line { display: flex; align-items: center; gap: 12px; color: #fff; }
+.fsm-credits { font-size: 13px; color: #d1d5db; line-height: 1.6; }
+.fsm-credits p { margin: 4px 0; }
+.fsm-credits strong { color: #fff; }
+.fsm-links { display: flex; flex-wrap: wrap; gap: 16px; }
+.fsm-links a { color: var(--accent); font-size: 13px; text-decoration: none; transition: opacity 0.15s; }
+.fsm-links a:hover { opacity: 0.7; text-decoration: underline; }
+
+/* ---- Admin ---- */
+.fsm-search-row { display: flex; gap: 8px; }
+.fsm-search-row input {
+  flex: 1; min-width: 0;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #fff; font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+}
+.fsm-search-row input:focus { border-color: var(--accent); }
+
+.fsm-user-card {
+  margin-top: 12px;
+  padding: 14px;
+  background: #0a0e16;
+  border: 1px solid #1e2535;
+  border-radius: 10px;
+  display: flex; flex-direction: column; gap: 6px;
+  color: #d1d5db; font-size: 12px;
+}
+.fsm-user-card strong { color: #fff; font-size: 13px; }
+.fsm-user-card code {
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: 'SF Mono', 'Menlo', monospace;
+  font-size: 11px;
+  color: #9ca3af;
+}
+.fsm-user-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.fsm-audit { margin-top: 12px; padding-top: 12px; border-top: 1px solid #1e2535; }
+.fsm-audit h5 {
+  font-size: 11px; font-weight: 700; color: #6b7280;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  margin: 0 0 8px;
+}
+.fsm-audit ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 4px;
+  max-height: 220px; overflow-y: auto;
+}
+.fsm-audit li { font-size: 11px; color: #9ca3af; padding: 4px 0; }
+
+.fsm-list-toolbar {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.fsm-user-list {
+  max-height: 360px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.fsm-user-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px; color: #d1d5db;
+  transition: background 0.1s;
+}
+.fsm-user-row:hover { background: #161b27; }
+.fsm-user-row.banned { opacity: 0.55; }
+.fsm-user-email { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fsm-user-meta { color: #6b7280; font-size: 11px; flex-shrink: 0; }
+
+.fsm-sysmsg-form { display: flex; flex-direction: column; gap: 8px; }
+.fsm-sysmsg-form textarea { resize: vertical; min-height: 60px; font-family: 'Inter', sans-serif; }
+.fsm-sysmsg-list { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+.fsm-sysmsg-list h5 {
+  font-size: 11px; font-weight: 700; color: #6b7280;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  margin: 0 0 4px;
+}
+.fsm-sysmsg-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px;
+  background: #161b27;
+  border: 1px solid #1e2535;
+  border-radius: 8px;
+  font-size: 12px; color: #d1d5db;
+}
+.fsm-sysmsg-item strong { flex-shrink: 0; color: #fff; }
+.fsm-sysmsg-item small { flex: 1; color: #6b7280; }
+
+/* ---- École : empty state ---- */
+.fsm-empty {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  background: #161b27;
+  border: 1px dashed #2a3347;
+  border-radius: 12px;
+  color: #9ca3af;
+}
+.fsm-empty-icon { font-size: 36px; margin-bottom: 8px; }
+.fsm-empty p { font-size: 14px; color: #d1d5db; font-weight: 600; margin: 0 0 4px; }
+.fsm-empty small { font-size: 12px; color: #6b7280; line-height: 1.5; }
+
+/* ============================================================
+   Mode clair pour le supplément
+   ============================================================ */
+[data-theme="light"] .fsm-row { border-bottom-color: var(--border); }
+[data-theme="light"] .fsm-btn,
+[data-theme="light"] .fsm-tool-chip,
+[data-theme="light"] .fsm-checks,
+[data-theme="light"] .fsm-provider,
+[data-theme="light"] .fsm-details,
+[data-theme="light"] .fsm-sysmsg-item,
+[data-theme="light"] .fsm-empty,
+[data-theme="light"] .fsm-row input,
+[data-theme="light"] .fsm-row select,
+[data-theme="light"] .fsm-row textarea,
+[data-theme="light"] .fsm-detail-body input,
+[data-theme="light"] .fsm-detail-body select,
+[data-theme="light"] .fsm-detail-body textarea,
+[data-theme="light"] .fsm-search-row input,
+[data-theme="light"] .fsm-perf-card {
+  background: var(--bg-surface-2);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+[data-theme="light"] .fsm-btn:hover:not(:disabled) { background: var(--bg-surface-3); color: var(--text-primary); }
+[data-theme="light"] .fsm-segmented { background: var(--bg-surface); border-color: var(--border); }
+[data-theme="light"] .fsm-seg { color: var(--text-muted); }
+[data-theme="light"] .fsm-seg:hover { color: var(--text-primary); }
+[data-theme="light"] label.fsm-toggle { color: var(--text-secondary); }
+[data-theme="light"] label.fsm-toggle input[type="checkbox"] { background: var(--bg-surface-3); }
+[data-theme="light"] label.fsm-toggle input[type="checkbox"]:checked { background: var(--accent); }
+[data-theme="light"] .fsm-perf-name,
+[data-theme="light"] .fsm-name-view span,
+[data-theme="light"] .fsm-version-line,
+[data-theme="light"] .fsm-cloud-connected { color: var(--text-primary); }
+[data-theme="light"] .fsm-perf-desc,
+[data-theme="light"] .fsm-hint,
+[data-theme="light"] .fsm-cloud-disconnected,
+[data-theme="light"] .fsm-shortcut-cat,
+[data-theme="light"] .fsm-user-meta { color: var(--text-faint); }
+[data-theme="light"] .fsm-shortcut-keys kbd {
+  background: var(--bg-surface-2);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+[data-theme="light"] .fsm-user-card {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+
+/* ============================================================
+   v1 LEGACY CLASSES — utilisées par les sections rewritées au
+   look v1 (RaccourcisSection, CompteSection, etc.). Ces classes
+   étaient injectées via <style> inline dans le monolithe v1 ;
+   on les rend statiques ici.
+   ============================================================ */
+
+/* Bouton kbd cliquable pour réassigner un raccourci.
+   État normal = affichage de la combo. État .editing = en attente
+   de la prochaine touche (highlight accent). */
+.fsm-kbd-btn {
+  background: #1e2535;
+  border: 1px solid #2a3347;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  color: #d1d5db;
+  cursor: pointer;
+  min-width: 84px;
+  text-align: center;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.fsm-kbd-btn:hover { background: #252d3f; color: #fff; }
+.fsm-kbd-btn.editing {
+  background: rgba(var(--accent-rgb), 0.13);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.fsm-kbd-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.fsm-kbd-btn:disabled:hover { background: #1e2535; color: #d1d5db; }
+[data-theme="light"] .fsm-kbd-btn { background: #f0f1f5; border-color: #d1d5db; color: #1f2937; }
+[data-theme="light"] .fsm-kbd-btn:hover { background: #e5e7eb; color: #0d1117; }
+[data-theme="light"] .fsm-kbd-btn:disabled:hover { background: #f0f1f5; color: #1f2937; }
+
+/* Row du bouton « Réinitialiser tous les raccourcis ». */
+.fsm-shortcut-reset-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: 8px 0 16px;
+}
+
+/* Row d'un raccourci désactivé (ex. requiresTabBar=true mais barre cachée).
+   Notation v1 utilise -disabled (suffixe), pas .disabled (classe enfant). */
+.fsm-shortcut-row-disabled .fsm-shortcut-label { opacity: 0.5; }
+.fsm-shortcut-row-disabled .fsm-kbd-btn { opacity: 0.4; }
+
+/* Message d'info compte (ex. « Email de réinitialisation envoyé à … »).
+   Force blanc en mode sombre, sombre en mode clair. */
+.fsm-account-info {
+  color: #ffffff;
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+[data-theme="light"] .fsm-account-info { color: #0d1117; }
+
+/* ============================================================
+   App tabs — barre horizontale en haut de la zone .fsm-main
+   qui sépare les paramètres par app JacSuite (JacPDF / JacDoc /
+   JacSlide / JacNote). Style segmented control assorti à celui
+   de .fsm-segmented utilisé dans Apparence/Sociale.
+   ============================================================ */
+.fsm-app-tabs {
+  display: flex;
+  gap: 4px;
+  background: #0a0e16;
+  border: 1px solid #1e2535;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 24px;
+  width: fit-content;
+}
+.fsm-app-tab {
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  padding: 7px 16px;
+  color: #9ca3af;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.fsm-app-tab-logo {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+.fsm-app-tab:hover { color: #fff; }
+.fsm-app-tab.active {
+  background: rgba(var(--accent-rgb), 0.15);
+  color: var(--accent);
+}
+
+/* Placeholder « Bientôt disponible » affiché quand activeApp !== 'jacpdf'. */
+.fsm-app-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 56px 24px;
+  background: #161b27;
+  border: 1px dashed #2a3347;
+  border-radius: 12px;
+  color: #9ca3af;
+}
+.fsm-app-placeholder-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+/* Logo officiel de l'app (remplace l'emoji icon — jamais d'emoji pour la marque). */
+.fsm-app-placeholder-logo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  margin-bottom: 16px;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.35));
+}
+.fsm-app-placeholder-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 6px;
+}
+/* Badge à côté du nom : « Alpha » ou « Bientôt ». */
+.fsm-app-placeholder-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.fsm-app-placeholder-badge--soon {
+  background: rgba(var(--accent-rgb), 0.14);
+  border: 1px solid rgba(var(--accent-rgb), 0.4);
+  color: var(--accent);
+}
+.fsm-app-placeholder-badge--alpha {
+  background: rgba(251, 146, 60, 0.13);
+  border: 1px solid rgba(251, 146, 60, 0.42);
+  color: #fb923c;
+}
+.fsm-app-placeholder-text {
+  font-size: 13px;
+  color: #9ca3af;
+  line-height: 1.55;
+  max-width: 360px;
+  margin: 0 0 18px;
+}
+/* Bouton « Voir la version » sous le texte. */
+.fsm-app-placeholder-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  background: rgba(var(--accent-rgb), 0.1);
+  border: 1px solid rgba(var(--accent-rgb), 0.36);
+  border-radius: 9px;
+  color: var(--accent);
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.fsm-app-placeholder-btn:hover {
+  background: rgba(var(--accent-rgb), 0.18);
+  border-color: var(--accent);
+}
+
+[data-theme="light"] .fsm-app-tabs {
+  background: var(--bg-surface);
+  border-color: var(--border);
+}
+[data-theme="light"] .fsm-app-tab { color: var(--text-muted); }
+[data-theme="light"] .fsm-app-tab:hover { color: var(--text-primary); }
+[data-theme="light"] .fsm-app-placeholder {
+  background: var(--bg-surface-2);
+  border-color: var(--border);
+  color: var(--text-faint);
+}
+[data-theme="light"] .fsm-app-placeholder-title { color: var(--text-primary); }
+[data-theme="light"] .fsm-app-placeholder-text { color: var(--text-faint); }
+[data-theme="light"] .fsm-app-placeholder-logo {
+  filter: drop-shadow(0 4px 14px rgba(15, 23, 42, 0.18));
+}
+
+/* ============================================================
+   POLISH PARAMÈTRES — look plus moderne pour JacSuite
+   Overrides visuels uniquement : aucune logique modifiée.
+   ============================================================ */
+.fsm-overlay {
+  backdrop-filter: blur(16px);
+  background:
+    radial-gradient(circle at 50% 20%, rgba(var(--accent-rgb), 0.13), transparent 34%),
+    rgba(0, 0, 0, 0.72);
+}
+
+.fsm-card {
+  background:
+    linear-gradient(145deg, rgba(22, 27, 39, 0.98), rgba(8, 12, 20, 0.98)),
+    #0d1117;
+  border-color: rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  box-shadow:
+    0 28px 90px rgba(0, 0, 0, 0.72),
+    0 0 0 1px rgba(var(--accent-rgb), 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.fsm-header {
+  padding: 18px 22px;
+  background: rgba(255, 255, 255, 0.025);
+  border-bottom-color: rgba(255, 255, 255, 0.075);
+}
+
+.fsm-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: -0.03em;
+}
+.fsm-title::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.9);
+}
+
+.fsm-close {
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+.fsm-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(var(--accent-rgb), 0.45);
+}
+
+.fsm-sidebar {
+  width: 236px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 42%),
+    rgba(5, 8, 14, 0.62);
+  border-right-color: rgba(255, 255, 255, 0.07);
+  padding: 14px 10px;
+}
+
+.fsm-nav-item {
+  min-height: 42px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  letter-spacing: -0.01em;
+}
+.fsm-nav-item:hover {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(255, 255, 255, 0.065);
+}
+.fsm-nav-item.active {
+  background:
+    linear-gradient(135deg, rgba(var(--accent-rgb), 0.18), rgba(var(--accent-rgb), 0.07));
+  border-color: rgba(var(--accent-rgb), 0.32);
+  box-shadow:
+    0 8px 20px rgba(var(--accent-rgb), 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.fsm-main {
+  padding: 28px 34px 34px;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(var(--accent-rgb), 0.09), transparent 30%),
+    transparent;
+}
+
+.fsm-section-title {
+  letter-spacing: -0.035em;
+  margin-bottom: 6px;
+}
+.fsm-section-sub {
+  color: #8892a6;
+  line-height: 1.55;
+}
+
+.fsm-app-tabs {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  background: rgba(5, 8, 14, 0.72);
+  border-color: rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 5px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+.fsm-app-tab {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.fsm-app-tab.active {
+  background:
+    linear-gradient(135deg, rgba(var(--accent-rgb), 0.2), rgba(var(--accent-rgb), 0.08));
+  border-color: rgba(var(--accent-rgb), 0.28);
+  box-shadow: 0 6px 18px rgba(var(--accent-rgb), 0.08);
+}
+
+.fsm-toggle-row,
+.fsm-account-card,
+.fsm-about-card,
+.fsm-credit-row,
+.fsm-perf-details,
+.fsm-details,
+.fsm-checks,
+.fsm-provider,
+.fsm-empty,
+.fsm-app-placeholder,
+.fsm-cloud-disconnected,
+.fsm-cloud-connected,
+.fsm-user-card,
+.fsm-sysmsg-item,
+.fsm-perf-preset-card,
+.fsm-perf-card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02)),
+    #121826;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.fsm-toggle-row,
+.fsm-account-card,
+.fsm-about-card,
+.fsm-app-placeholder {
+  border-radius: 16px;
+}
+
+.fsm-field {
+  margin-bottom: 22px;
+}
+
+.fsm-select,
+.fsm-row input[type="text"],
+.fsm-row input[type="email"],
+.fsm-row input[type="password"],
+.fsm-row input[type="number"],
+.fsm-row input[type="datetime-local"],
+.fsm-row textarea,
+.fsm-row select,
+.fsm-detail-body input[type="text"],
+.fsm-detail-body input[type="email"],
+.fsm-detail-body input[type="number"],
+.fsm-detail-body input[type="datetime-local"],
+.fsm-detail-body textarea,
+.fsm-detail-body select,
+.fsm-search-row input,
+.fsm-perf-select,
+.fsm-perf-number {
+  background: rgba(5, 8, 14, 0.64);
+  border-color: rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.fsm-select:focus,
+.fsm-row input:focus,
+.fsm-row textarea:focus,
+.fsm-row select:focus,
+.fsm-detail-body input:focus,
+.fsm-detail-body textarea:focus,
+.fsm-detail-body select:focus,
+.fsm-search-row input:focus,
+.fsm-perf-select:focus,
+.fsm-perf-number:focus {
+  background: rgba(8, 12, 20, 0.92);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
+}
+
+.fsm-action-btn,
+.fsm-btn,
+.fsm-shortcut-btn,
+.fsm-kbd-btn {
+  border-radius: 11px;
+}
+.fsm-action-btn:hover,
+.fsm-btn:hover:not(:disabled),
+.fsm-shortcut-btn:hover:not(:disabled),
+.fsm-kbd-btn:hover {
+  box-shadow: 0 8px 22px rgba(var(--accent-rgb), 0.08);
+}
+
+.fsm-app-placeholder {
+  min-height: 260px;
+  border-style: solid;
+}
+.fsm-app-placeholder-icon {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 16px;
+  background: rgba(var(--accent-rgb), 0.12);
+  border: 1px solid rgba(var(--accent-rgb), 0.26);
+  border-radius: 18px;
+}
+
+.fsm-divider,
+.fsm-group-title,
+.fsm-details > summary,
+.fsm-perf-detail-summary,
+.fsm-detail-body,
+.fsm-perf-detail-content,
+.fsm-row,
+.fsm-perf-row {
+  border-color: rgba(255, 255, 255, 0.075);
+}
+
+.fsm-main::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+}
+.fsm-main::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--accent-rgb), 0.55);
+}
+
+@media (max-width: 820px) {
+  .fsm-card {
+    width: calc(100% - 24px);
+    height: calc(100vh - 32px);
+    max-height: none;
+  }
+  .fsm-body {
+    flex-direction: column;
+  }
+  .fsm-sidebar {
+    width: auto;
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  .fsm-nav-item {
+    flex: 0 0 auto;
+  }
+  .fsm-main {
+    padding: 22px;
+  }
+}
+
+[data-theme="light"] .fsm-overlay {
+  background:
+    radial-gradient(circle at 50% 20%, rgba(var(--accent-rgb), 0.16), transparent 34%),
+    rgba(248, 250, 252, 0.72);
+}
+[data-theme="light"] .fsm-card {
+  background: var(--bg-surface);
+  border-color: rgba(15, 23, 42, 0.12);
+  box-shadow:
+    0 28px 90px rgba(15, 23, 42, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+[data-theme="light"] .fsm-header {
+  background: rgba(255, 255, 255, 0.7);
+  border-bottom-color: var(--border);
+}
+[data-theme="light"] .fsm-sidebar {
+  background: rgba(248, 250, 252, 0.72);
+  border-right-color: var(--border);
+}
+[data-theme="light"] .fsm-nav-item:hover {
+  border-color: var(--border);
+}
+[data-theme="light"] .fsm-toggle-row,
+[data-theme="light"] .fsm-account-card,
+[data-theme="light"] .fsm-about-card,
+[data-theme="light"] .fsm-credit-row,
+[data-theme="light"] .fsm-perf-details,
+[data-theme="light"] .fsm-details,
+[data-theme="light"] .fsm-checks,
+[data-theme="light"] .fsm-provider,
+[data-theme="light"] .fsm-empty,
+[data-theme="light"] .fsm-app-placeholder,
+[data-theme="light"] .fsm-cloud-disconnected,
+[data-theme="light"] .fsm-cloud-connected,
+[data-theme="light"] .fsm-user-card,
+[data-theme="light"] .fsm-sysmsg-item,
+[data-theme="light"] .fsm-perf-preset-card,
+[data-theme="light"] .fsm-perf-card {
+  background: var(--bg-surface-2);
+  border-color: var(--border);
+}
+
+/* ============================================================
+   Classroom — cartes et formulaires
+   ============================================================ */
+.fsm-classroom-info {
+  background: rgba(var(--accent-rgb), 0.08);
+  border-color: rgba(var(--accent-rgb), 0.28);
+  color: var(--accent);
+}
+.fsm-classroom-info svg,
+.fsm-classroom-info .fsm-perf-warning-title {
+  color: var(--accent);
+}
+.fsm-classroom-info .fsm-perf-warning-text {
+  color: #b8c2d6;
+}
+
+.fsm-classroom-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.fsm-classroom-input-spaced {
+  margin-top: 8px;
+}
+.fsm-classroom-create-btn {
+  margin-top: 10px;
+}
+.fsm-classroom-join-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.fsm-classroom-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.fsm-classroom-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.018)),
+    rgba(255, 255, 255, 0.03);
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.fsm-classroom-card:hover {
+  border-color: rgba(var(--accent-rgb), 0.32);
+  transform: translateY(-1px);
+}
+.fsm-classroom-card.active {
+  border-color: rgba(var(--accent-rgb), 0.58);
+  background:
+    linear-gradient(135deg, rgba(var(--accent-rgb), 0.13), rgba(var(--accent-rgb), 0.045)),
+    rgba(255, 255, 255, 0.035);
+  box-shadow: 0 10px 26px rgba(var(--accent-rgb), 0.08);
+}
+.fsm-classroom-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.fsm-classroom-card-title strong {
+  color: #fff;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fsm-classroom-badge {
+  flex-shrink: 0;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(var(--accent-rgb), 0.14);
+  border: 1px solid rgba(var(--accent-rgb), 0.34);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.fsm-classroom-meta {
+  margin: 4px 0 0;
+  line-height: 1.5;
+}
+.fsm-classroom-meta code,
+.fsm-classroom-active-box code {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(var(--accent-rgb), 0.11);
+  border: 1px solid rgba(var(--accent-rgb), 0.28);
+  color: var(--accent);
+  font-family: 'SF Mono', 'Menlo', monospace;
+  font-size: 11px;
+  font-weight: 700;
+}
+.fsm-classroom-active-box {
+  padding: 14px 16px;
+  border: 1px solid rgba(var(--accent-rgb), 0.28);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(var(--accent-rgb), 0.11), rgba(var(--accent-rgb), 0.035)),
+    rgba(255, 255, 255, 0.03);
+  line-height: 1.65;
+}
+.fsm-classroom-active-box strong {
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  .fsm-classroom-form-grid,
+  .fsm-classroom-join-row,
+  .fsm-classroom-card {
+    grid-template-columns: 1fr;
+  }
+  .fsm-classroom-card .fsm-toggle {
+    justify-self: start;
+  }
+}
+
+[data-theme="light"] .fsm-classroom-info .fsm-perf-warning-text {
+  color: var(--text-secondary);
+}
+[data-theme="light"] .fsm-classroom-card {
+  background: var(--bg-surface-2);
+  border-color: var(--border);
+}
+[data-theme="light"] .fsm-classroom-card:hover,
+[data-theme="light"] .fsm-classroom-card.active {
+  border-color: rgba(var(--accent-rgb), 0.42);
+}
+[data-theme="light"] .fsm-classroom-card-title strong,
+[data-theme="light"] .fsm-classroom-active-box strong {
+  color: var(--text-primary);
+}
+[data-theme="light"] .fsm-classroom-active-box {
+  background: rgba(var(--accent-rgb), 0.07);
+  border-color: rgba(var(--accent-rgb), 0.28);
+}
+
+/* ============================================================
+   École — profil étudiant
+   ============================================================ */
+.fsm-school-info {
+  background: rgba(var(--accent-rgb), 0.08);
+  border-color: rgba(var(--accent-rgb), 0.28);
+  color: var(--accent);
+}
+.fsm-school-info svg,
+.fsm-school-info .fsm-perf-warning-title {
+  color: var(--accent);
+}
+.fsm-school-info .fsm-perf-warning-text {
+  color: #b8c2d6;
+}
+
+.fsm-school-photo-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.018)),
+    rgba(255, 255, 255, 0.03);
+}
+.fsm-school-photo-avatar {
+  width: 92px;
+  height: 92px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 35% 25%, rgba(var(--accent-rgb), 0.16), transparent 44%),
+    rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(var(--accent-rgb), 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 12px 28px rgba(0, 0, 0, 0.18);
+  flex: 0 0 auto;
+}
+.fsm-school-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.fsm-school-photo-placeholder {
+  font-size: 30px;
+  opacity: 0.72;
+}
+.fsm-school-photo-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: min(100%, 260px);
+  flex: 1;
+}
+.fsm-school-photo-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.fsm-school-photo-hint {
+  margin: 0;
+  line-height: 1.55;
+}
+.fsm-school-photo-hint code {
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+}
+
+.fsm-school-error {
+  border-color: rgba(239, 68, 68, 0.42);
+  color: #fecaca;
+}
+
+[data-theme="light"] .fsm-school-info .fsm-perf-warning-text {
+  color: var(--text-secondary);
+}
+[data-theme="light"] .fsm-school-photo-row {
+  background: var(--bg-surface-2);
+  border-color: var(--border);
+}
+
+/* Onglets d'apps : scroll horizontal permis, mais barre masquée. */
+.fsm-app-tabs {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  width: 100%;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.fsm-app-tabs::-webkit-scrollbar {
+  display: none;
+}
+.fsm-app-tab {
+  flex: 0 0 auto;
+}
+[data-theme="light"] .fsm-school-photo-avatar {
+  background: rgba(var(--accent-rgb), 0.08);
+  border-color: rgba(var(--accent-rgb), 0.26);
+}
+[data-theme="light"] .fsm-school-photo-hint code {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+
+.fsm-school-card {
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.018)),
+    rgba(255, 255, 255, 0.03);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+.fsm-school-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.fsm-school-grid .fsm-field {
+  margin-bottom: 0;
+}
+.fsm-school-grid .fsm-select {
+  max-width: none;
+}
+.fsm-school-status-row {
+  border-radius: 16px;
+}
+
+@media (max-width: 720px) {
+  .fsm-school-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+[data-theme="light"] .fsm-school-card {
+  background: var(--bg-surface-2);
+  border-color: var(--border);
+}
+
+/* ============================================================
+   SOBRIÉTÉ PARAMÈTRES — neutralise le polish trop “IA”
+   Garde la structure propre, mais revient à un look produit.
+   ============================================================ */
+.fsm-overlay {
+  backdrop-filter: none;
+  background: rgba(0, 0, 0, 0.62);
+}
+
+.fsm-card {
+  background: #0d1117;
+  border: 1px solid #1e2535;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+}
+
+.fsm-header {
+  padding: 20px 24px;
+  background: transparent;
+  border-bottom-color: #1e2535;
+}
+
+.fsm-title {
+  gap: 0;
+  letter-spacing: 0;
+}
+.fsm-title::before {
+  content: none;
+}
+
+.fsm-close {
+  background: #1e2535;
+  border: none;
+}
+.fsm-close:hover {
+  background: #2a3347;
+  border-color: transparent;
+}
+
+.fsm-sidebar {
+  width: 220px;
+  background: #0a0e16;
+  border-right-color: #1e2535;
+  padding: 16px 10px;
+}
+
+.fsm-nav-item {
+  min-height: auto;
+  border: none;
+  border-radius: 8px;
+  letter-spacing: 0;
+}
+.fsm-nav-item:hover {
+  background: #161b27;
+  border-color: transparent;
+}
+.fsm-nav-item.active {
+  background: rgba(var(--accent-rgb), 0.1);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.fsm-main {
+  padding: 28px 32px;
+  background: transparent;
+}
+
+.fsm-section-title {
+  letter-spacing: 0;
+  margin-bottom: 4px;
+}
+.fsm-section-sub {
+  color: #6b7280;
+  line-height: 1.45;
+}
+
+.fsm-app-tabs {
+  width: fit-content;
+  max-width: 100%;
+  background: #0a0e16;
+  border-color: #1e2535;
+  border-radius: 10px;
+  padding: 4px;
+  box-shadow: none;
+}
+.fsm-app-tab {
+  border: none;
+  border-radius: 7px;
+}
+.fsm-app-tab.active {
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.fsm-toggle-row,
+.fsm-account-card,
+.fsm-about-card,
+.fsm-credit-row,
+.fsm-perf-details,
+.fsm-details,
+.fsm-checks,
+.fsm-provider,
+.fsm-empty,
+.fsm-app-placeholder,
+.fsm-cloud-disconnected,
+.fsm-cloud-connected,
+.fsm-user-card,
+.fsm-sysmsg-item,
+.fsm-perf-preset-card,
+.fsm-perf-card,
+.fsm-school-card,
+.fsm-school-photo-row,
+.fsm-classroom-card,
+.fsm-classroom-active-box {
+  background: #161b27;
+  border-color: #1e2535;
+  box-shadow: none;
+}
+
+.fsm-toggle-row,
+.fsm-account-card,
+.fsm-about-card,
+.fsm-app-placeholder,
+.fsm-school-card,
+.fsm-school-photo-row,
+.fsm-classroom-active-box {
+  border-radius: 12px;
+}
+
+.fsm-field {
+  margin-bottom: 20px;
+}
+
+.fsm-select,
+.fsm-row input[type="text"],
+.fsm-row input[type="email"],
+.fsm-row input[type="password"],
+.fsm-row input[type="number"],
+.fsm-row input[type="datetime-local"],
+.fsm-row textarea,
+.fsm-row select,
+.fsm-detail-body input[type="text"],
+.fsm-detail-body input[type="email"],
+.fsm-detail-body input[type="number"],
+.fsm-detail-body input[type="datetime-local"],
+.fsm-detail-body textarea,
+.fsm-detail-body select,
+.fsm-search-row input,
+.fsm-perf-select,
+.fsm-perf-number {
+  background: #161b27;
+  border-color: #2a3347;
+  border-radius: 8px;
+  box-shadow: none;
+}
+.fsm-select:focus,
+.fsm-row input:focus,
+.fsm-row textarea:focus,
+.fsm-row select:focus,
+.fsm-detail-body input:focus,
+.fsm-detail-body textarea:focus,
+.fsm-detail-body select:focus,
+.fsm-search-row input:focus,
+.fsm-perf-select:focus,
+.fsm-perf-number:focus {
+  background: #161b27;
+  border-color: var(--accent);
+  box-shadow: none;
+}
+
+.fsm-action-btn,
+.fsm-btn,
+.fsm-shortcut-btn,
+.fsm-kbd-btn {
+  border-radius: 8px;
+}
+.fsm-action-btn:hover,
+.fsm-btn:hover:not(:disabled),
+.fsm-shortcut-btn:hover:not(:disabled),
+.fsm-kbd-btn:hover {
+  box-shadow: none;
+}
+
+.fsm-app-placeholder {
+  min-height: auto;
+  border-style: dashed;
+}
+.fsm-app-placeholder-icon {
+  width: auto;
+  height: auto;
+  display: block;
+  margin-bottom: 12px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.fsm-main::-webkit-scrollbar-thumb {
+  background: #2a3347;
+}
+.fsm-main::-webkit-scrollbar-thumb:hover {
+  background: #3a4660;
+}
+
+.fsm-classroom-info,
+.fsm-school-info {
+  background: rgba(var(--accent-rgb), 0.07);
+  border-color: rgba(var(--accent-rgb), 0.22);
+  color: #d1d5db;
+}
+.fsm-classroom-info svg,
+.fsm-classroom-info .fsm-perf-warning-title,
+.fsm-school-info svg,
+.fsm-school-info .fsm-perf-warning-title {
+  color: var(--accent);
+}
+.fsm-classroom-info .fsm-perf-warning-text,
+.fsm-school-info .fsm-perf-warning-text {
+  color: #9ca3af;
+}
+
+.fsm-classroom-card {
+  border-radius: 10px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.fsm-classroom-card:hover {
+  border-color: #2a3347;
+  transform: none;
+}
+.fsm-classroom-card.active {
+  background: rgba(var(--accent-rgb), 0.06);
+  border-color: rgba(var(--accent-rgb), 0.36);
+  box-shadow: none;
+}
+.fsm-classroom-badge {
+  background: transparent;
+  border-color: rgba(var(--accent-rgb), 0.35);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.fsm-classroom-meta code,
+.fsm-classroom-active-box code {
+  background: #0a0e16;
+  border-color: #2a3347;
+  color: #d1d5db;
+  font-weight: 600;
+}
+.fsm-classroom-active-box {
+  border-color: rgba(var(--accent-rgb), 0.24);
+}
+
+.fsm-school-photo-row,
+.fsm-school-card {
+  border-radius: 12px;
+}
+.fsm-school-photo-avatar {
+  background: #0a0e16;
+  border-color: #2a3347;
+  box-shadow: none;
+}
+.fsm-school-photo-hint code {
+  background: #0a0e16;
+  border-color: #2a3347;
+  color: #9ca3af;
+}
+
+.fsm-perf-preset-card:hover,
+.fsm-perf-card:hover {
+  transform: none;
+}
+
+@media (max-width: 820px) {
+  .fsm-card {
+    width: calc(100% - 24px);
+    height: calc(100vh - 32px);
+    max-height: none;
+  }
+  .fsm-body {
+    flex-direction: column;
+  }
+  .fsm-sidebar {
+    width: auto;
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid #1e2535;
+  }
+  .fsm-nav-item {
+    flex: 0 0 auto;
+  }
+  .fsm-main {
+    padding: 22px;
+  }
+}
+
+[data-theme="light"] .fsm-overlay {
+  background: var(--overlay);
+}
+[data-theme="light"] .fsm-card {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.18);
+}
+[data-theme="light"] .fsm-header {
+  background: transparent;
+  border-bottom-color: var(--border);
+}
+[data-theme="light"] .fsm-sidebar {
+  background: var(--bg-surface-2);
+  border-right-color: var(--border);
+}
+[data-theme="light"] .fsm-toggle-row,
+[data-theme="light"] .fsm-account-card,
+[data-theme="light"] .fsm-about-card,
+[data-theme="light"] .fsm-credit-row,
+[data-theme="light"] .fsm-perf-details,
+[data-theme="light"] .fsm-details,
+[data-theme="light"] .fsm-checks,
+[data-theme="light"] .fsm-provider,
+[data-theme="light"] .fsm-empty,
+[data-theme="light"] .fsm-app-placeholder,
+[data-theme="light"] .fsm-cloud-disconnected,
+[data-theme="light"] .fsm-cloud-connected,
+[data-theme="light"] .fsm-user-card,
+[data-theme="light"] .fsm-sysmsg-item,
+[data-theme="light"] .fsm-perf-preset-card,
+[data-theme="light"] .fsm-perf-card,
+[data-theme="light"] .fsm-school-card,
+[data-theme="light"] .fsm-school-photo-row,
+[data-theme="light"] .fsm-classroom-card,
+[data-theme="light"] .fsm-classroom-active-box {
+  background: var(--bg-surface-2);
+  border-color: var(--border);
+}
+
+/* ============================================================
+   Inputs natifs date/time — masque l'icône horloge/calendrier
+   du navigateur (look natif blanc qui détonnait) et applique
+   un cursor pointer pour conserver l'ouverture du picker au
+   clic sur le champ.
+   ============================================================ */
+.fsm-row input[type="time"],
+.fsm-row input[type="date"],
+.fsm-row input[type="datetime-local"],
+.fsm-detail-body input[type="time"],
+.fsm-detail-body input[type="date"],
+.fsm-detail-body input[type="datetime-local"],
+.fsm-input[type="time"],
+.fsm-input[type="date"],
+.fsm-input[type="datetime-local"] {
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  color-scheme: dark;
+  cursor: pointer;
+  max-width: 200px;
+}
+.fsm-input[type="time"]:focus,
+.fsm-input[type="date"]:focus,
+.fsm-input[type="datetime-local"]:focus { border-color: var(--accent); }
+.fsm-input[type="time"]:disabled,
+.fsm-input[type="date"]:disabled,
+.fsm-input[type="datetime-local"]:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Masque l'icône horloge/calendrier native (Chrome/Edge/Safari). */
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) opacity(0.4);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+input[type="time"]::-webkit-calendar-picker-indicator:hover,
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  filter: invert(1) opacity(0.8);
+}
+
+/* Mode clair : l'icône native est sombre par défaut, on garde. */
+[data-theme="light"] input[type="time"]::-webkit-calendar-picker-indicator,
+[data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="light"] input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: opacity(0.5);
+}
+[data-theme="light"] .fsm-input[type="time"],
+[data-theme="light"] .fsm-input[type="date"],
+[data-theme="light"] .fsm-input[type="datetime-local"] {
+  background: var(--bg-surface-2);
+  border-color: var(--border);
+  color: var(--text-primary);
+  color-scheme: light;
+}
+
+/* ============================================================
+   MOBILE — Item 6 du plan.
+   Trois paliers responsive :
+     - 820px : tablette / petit laptop → sidebar horizontale (déjà géré plus haut)
+     - 640px : téléphone paysage / petite tablette
+     - 480px : téléphone portrait → modal plein écran, touch targets agrandis
+   Cible Apple HIG / Material : 44×44 dp minimum pour tout élément tactile.
+   ============================================================ */
+@media (max-width: 640px) {
+  /* Touch targets : agrandir les toggles button-thumb. */
+  .fsm-toggle {
+    width: 48px;
+    height: 28px;
+    border-radius: 14px;
+  }
+  .fsm-toggle-thumb {
+    top: 2px;
+    left: 2px;
+    width: 24px;
+    height: 24px;
+  }
+  .fsm-toggle.on .fsm-toggle-thumb { left: 22px; }
+
+  /* Toggle row : un peu plus de respiration, et passer le contrôle sous le label
+     si le contenu est trop long. */
+  .fsm-toggle-row {
+    padding: 14px;
+    gap: 12px;
+  }
+
+  /* Theme rows : forcer le wrap correct + boutons plein-largeur en colonne. */
+  .fsm-theme-row {
+    gap: 8px;
+  }
+  .fsm-theme-btn {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+    padding: 14px 10px;
+    font-size: 13px;
+  }
+
+  /* Champs : selects plein-largeur. */
+  .fsm-select {
+    max-width: 100%;
+    padding: 12px 14px;
+    font-size: 14px; /* iOS Safari : 16px+ évite le zoom auto au focus,
+                       mais 14px reste lisible si on assume l'auto-zoom
+                       — à monter à 16px si retour utilisateur. */
+  }
+  .fsm-row input[type="text"],
+  .fsm-row input[type="email"],
+  .fsm-row input[type="password"],
+  .fsm-row input[type="number"],
+  .fsm-row input[type="datetime-local"],
+  .fsm-row textarea,
+  .fsm-row select {
+    font-size: 16px; /* Pas de zoom natif iOS sur ces inputs. */
+    padding: 12px 14px;
+  }
+
+  /* Sidebar horizontale : nav items plus larges au tap. */
+  .fsm-nav-item {
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  /* Sections : alignements & espacement. */
+  .fsm-section-title { font-size: 18px; }
+  .fsm-main { padding: 18px; }
+
+  /* Header un peu plus compact. */
+  .fsm-header { padding: 14px 16px; }
+  .fsm-title { font-size: 17px; }
+
+  /* Close button : 44×44. */
+  .fsm-close {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+  }
+
+  /* Avatars compte : centré, plus d'espace. */
+  .fsm-account-card {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  /* Boutons actions : taille tap-friendly. */
+  .fsm-action-btn,
+  .fsm-btn,
+  .fsm-btn-danger {
+    min-height: 44px;
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+
+  /* Cartes Cloud provider (theme-btn avec logos) : alignement vertical. */
+  .fsm-theme-row .fsm-theme-btn { min-height: 88px; }
+
+  /* Cartes presets perf : plein-largeur, plus de respiration. */
+  .fsm-perf-presets { grid-template-columns: 1fr; }
+  .fsm-perf-preset-card { padding: 18px; }
+
+  /* Carte raccourcis : boutons kbd plus larges. */
+  .fsm-kbd-btn {
+    min-width: 100px;
+    padding: 8px 14px;
+    min-height: 36px;
+    font-size: 13px;
+  }
+
+  /* Shortcut row : passer en deux lignes si étroit. */
+  .fsm-shortcut-row {
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Modal plein écran sur téléphone portrait. */
+  .fsm-overlay {
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+  .fsm-card {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+    border: none;
+  }
+
+  /* Sidebar : passer en sélecteur compact (chips) + scroll horizontal déjà actif. */
+  .fsm-sidebar {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+  .fsm-nav-item {
+    border-radius: 999px;
+    padding: 8px 14px;
+    min-height: 38px;
+  }
+
+  /* App tabs : pleine largeur scrollable, padding minimal. */
+  .fsm-app-tabs { padding: 3px; }
+  .fsm-app-tab { padding: 8px 12px; }
+
+  /* Theme-row : 1 colonne sur ultra-étroit pour les enums longs (provider names). */
+  .fsm-theme-row { flex-direction: column; align-items: stretch; }
+  .fsm-theme-btn { flex: none; width: 100%; }
+
+  /* Notification "safe area" iOS : laisser l'espace pour la home indicator. */
+  .fsm-main {
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
+  }
+  .fsm-overlay {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* ============================================================
+   POINTER COARSE — détection tactile pure (pas dépendant de la largeur)
+   Permet aussi aux tablettes en mode paysage d'avoir des touch targets
+   confortables même si la largeur dépasse 640px.
+   ============================================================ */
+@media (pointer: coarse) {
+  .fsm-toggle { width: 48px; height: 28px; }
+  .fsm-toggle-thumb { width: 24px; height: 24px; }
+  .fsm-toggle.on .fsm-toggle-thumb { left: 22px; }
+  .fsm-action-btn,
+  .fsm-btn,
+  .fsm-btn-danger,
+  .fsm-nav-item,
+  .fsm-theme-btn,
+  .fsm-app-tab,
+  .fsm-kbd-btn {
+    min-height: 44px;
+  }
+  /* Désactiver les hover transitions qui restent « collées » sur tactile. */
+  .fsm-nav-item:hover,
+  .fsm-theme-btn:hover,
+  .fsm-action-btn:hover,
+  .fsm-btn:hover,
+  .fsm-kbd-btn:hover {
+    transform: none;
+  }
+}
+
+/* ============================================================
+   FsmSelect — dropdown custom remplaçant les <select> natifs.
+   Composant React : settings/shared/FsmSelect.jsx
+   ============================================================ */
+.fsm-cselect {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 360px;
+  font-family: 'Inter', sans-serif;
+}
+.fsm-cselect.is-disabled { opacity: 0.5; pointer-events: none; }
+
+.fsm-cselect__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.fsm-cselect__trigger:hover { border-color: #3a4660; }
+.fsm-cselect__trigger:focus-visible,
+.fsm-cselect.is-open .fsm-cselect__trigger {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
+}
+
+.fsm-cselect__value {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+.fsm-cselect__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.fsm-cselect__icon img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+.fsm-cselect__label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fsm-cselect__placeholder { color: #6b7280; }
+
+.fsm-cselect__chevron {
+  flex-shrink: 0;
+  color: #6b7280;
+  transition: transform 0.15s, color 0.15s;
+}
+.fsm-cselect.is-open .fsm-cselect__chevron {
+  transform: rotate(180deg);
+  color: var(--accent);
+}
+
+/* Popover du menu */
+.fsm-cselect__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  background: #0d1117;
+  border: 1px solid #2a3347;
+  border-radius: 10px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  max-height: 280px;
+  overflow-y: auto;
+  animation: fsmCselectMenuDown 0.13s ease;
+  scrollbar-width: thin;
+  scrollbar-color: #2a3347 transparent;
+}
+.fsm-cselect__menu::-webkit-scrollbar { width: 6px; }
+.fsm-cselect__menu::-webkit-scrollbar-thumb {
+  background: #2a3347;
+  border-radius: 3px;
+}
+.fsm-cselect__menu--up {
+  top: auto;
+  bottom: calc(100% + 6px);
+  animation-name: fsmCselectMenuUp;
+}
+@keyframes fsmCselectMenuDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fsmCselectMenuUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Option */
+.fsm-cselect__option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #d1d5db;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  outline: none;
+  transition: background 0.1s, color 0.1s;
+}
+.fsm-cselect__option[data-active="true"] {
+  background: rgba(var(--accent-rgb), 0.1);
+  color: #fff;
+}
+.fsm-cselect__option[data-selected="true"] {
+  color: var(--accent);
+  font-weight: 600;
+}
+.fsm-cselect__option[data-selected="true"][data-active="true"] {
+  background: rgba(var(--accent-rgb), 0.16);
+}
+.fsm-cselect__option:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.fsm-cselect__option-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 20px;
+}
+.fsm-cselect__option-icon img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+.fsm-cselect__option-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.fsm-cselect__option-label {
+  font-size: 13px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fsm-cselect__option-desc {
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fsm-cselect__option-check {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+/* Mode clair */
+[data-theme="light"] .fsm-cselect__trigger {
+  background: var(--bg-surface-2);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+[data-theme="light"] .fsm-cselect__trigger:hover { border-color: var(--border-strong); }
+[data-theme="light"] .fsm-cselect__chevron,
+[data-theme="light"] .fsm-cselect__placeholder { color: var(--text-faint); }
+[data-theme="light"] .fsm-cselect__menu {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+}
+[data-theme="light"] .fsm-cselect__option { color: var(--text-secondary); }
+[data-theme="light"] .fsm-cselect__option[data-active="true"] {
+  background: rgba(var(--accent-rgb), 0.08);
+  color: var(--text-primary);
+}
+[data-theme="light"] .fsm-cselect__option-desc { color: var(--text-faint); }
+
+/* Mobile / touch — élargir les zones tactiles */
+@media (pointer: coarse) {
+  .fsm-cselect__trigger { min-height: 44px; padding: 12px 14px; }
+  .fsm-cselect__option { min-height: 44px; padding: 10px 12px; }
+}
+@media (max-width: 640px) {
+  .fsm-cselect { max-width: 100%; }
+}
+
+/* ============================================================
+   FSM App Picker — dropdown du sélecteur d'app dans le header
+   de la modale Paramètres (FullSettingsModal.jsx). Anciennement
+   stylé via inline styles avec couleurs sombres hardcodées ;
+   migré ici pour suivre data-theme="light".
+   ============================================================ */
+.fsm-app-picker {
+  position: relative;
+  margin-left: 14px;
+}
+
+.fsm-app-picker__trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 180px;
+  padding: 7px 12px;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.fsm-app-picker__trigger:hover { border-color: #3a4660; }
+
+.fsm-app-picker__logo {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+.fsm-app-picker__label { flex: 1; }
+.fsm-app-picker__chevron {
+  color: #9ca3af;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.fsm-app-picker__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+}
+
+.fsm-app-picker__menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 100%;
+  background: #161b27;
+  border: 1px solid #2a3347;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  z-index: 10;
+  padding: 4px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.fsm-app-picker__option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: #d1d5db;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, color 0.12s;
+}
+.fsm-app-picker__option:hover { background: rgba(255, 255, 255, 0.05); }
+.fsm-app-picker__option.is-active {
+  background: rgba(var(--accent-rgb), 0.14);
+  color: var(--accent);
+}
+.fsm-app-picker__option-logo {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+
+/* Mode clair — re-thématise les surfaces sombres en surfaces claires. */
+[data-theme="light"] .fsm-app-picker__trigger {
+  background: var(--bg-surface-2);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+[data-theme="light"] .fsm-app-picker__trigger:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-surface-3);
+}
+[data-theme="light"] .fsm-app-picker__chevron { color: var(--text-faint); }
+[data-theme="light"] .fsm-app-picker__menu {
+  background: var(--bg-surface);
+  border-color: var(--border);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+}
+[data-theme="light"] .fsm-app-picker__option { color: var(--text-secondary); }
+[data-theme="light"] .fsm-app-picker__option:hover {
+  background: var(--bg-surface-2);
+  color: var(--text-primary);
+}
+[data-theme="light"] .fsm-app-picker__option.is-active {
+  background: rgba(var(--accent-rgb), 0.1);
+  color: var(--accent);
+}
+
+/* Touch / mobile — agrandit les zones tactiles, comme les autres contrôles. */
+@media (pointer: coarse) {
+  .fsm-app-picker__trigger { min-height: 44px; padding: 10px 14px; }
+  .fsm-app-picker__option { min-height: 44px; padding: 10px 12px; }
+}
+
+/* Drapeaux SVG inline (menu Langue) — finitions visuelles */
+.fsm-flag-svg {
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  display: block;
+}
+[data-theme="light"] .fsm-flag-svg {
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.12);
+}

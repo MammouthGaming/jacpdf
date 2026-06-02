@@ -1,0 +1,2315 @@
+/* Éditeur JacDoc — style JacPDF (dark + accent vert néon).
+   - Shell noir/anthracite, identique à l'accueil JacDoc et au launcher.
+   - Toolbar style JacPDF : pilule arrondie, panneau #161b27, accent vert
+     pour les boutons actifs (au lieu du bleu Google Docs).
+   - Page de doc : fond proche-blanc légèrement teinté (#f8faf9) avec un
+     halo vert subtil quand on écrit — même vibe que les onglets PDF
+     focalisés dans JacPDF.
+   - Bubble menu : pilule dark avec accent vert (cf. JacPDF context menus). */
+
+:root {
+  --jacdoc-accent: var(--accent, #39FF14);
+  --jacdoc-accent-rgb: var(--accent-rgb, 57, 255, 20);
+  --jacdoc-accent-hover: var(--accent-hover, #4cff32);
+  --jacdoc-bg: #000;
+  --jacdoc-panel: #161b27;
+  --jacdoc-panel-hover: #1e2535;
+  --jacdoc-border: #2a3347;
+  --jacdoc-fg: #e7ecf5;
+  --jacdoc-fg-dim: #9ca3af;
+  --jacdoc-page-bg: #1f1f1f;       /* page document : gris foncé type Word mode sombre */
+  --jacdoc-page-fg: #e7e7e7;       /* texte sur page sombre */
+  --jacdoc-page-border: #3a3a3a;   /* séparateurs sur page sombre */
+}
+
+.jacdoc-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--jacdoc-bg);
+  color: var(--jacdoc-fg);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  position: relative;       /* ancre pour les pilules flottantes mots/zoom */
+}
+
+.jacdoc-loading {
+  padding: 32px;
+  color: var(--jacdoc-fg-dim);
+  font-size: 14px;
+}
+
+/* Topbar déplacée dans ../../components/JacDocTopbar.css */
+
+/* CSS déplacé :
+   - Comments panel → ../../components/JacDocCommentsPanel.css
+   - Modales JacDoc → ../../components/JacDocModals/JacDocModals.css */
+/* Statusbar déplacée dans ../../components/JacDocStatusBar.css */
+
+/* Mode clair : page document */
+[data-theme="light"] .jacdoc-page-bg {
+  background: #ffffff;
+}
+[data-theme="light"] .jacdoc-page-content {
+  color: #0d1117;
+}
+
+/* ── Apparence : afficher / masquer les marges visuelles ──
+   Quand le paramètre « Afficher les marges » est désactivé
+   (data-show-margins="false" sur .jacdoc-root, ou
+   data-jacdoc-show-margins="false" sur <html> via le fallback HMR),
+   on retire le rectangle de page (fond + ombre) pour que le texte
+   flotte directement sur le fond du scroll, et on réduit fortement la
+   padding interne pour utiliser toute la largeur disponible. C'est
+   l'équivalent de "Page sans marges" / "plein écran" dans Word. */
+.jacdoc-root[data-show-margins="false"] .jacdoc-page-content,
+[data-jacdoc-show-margins="false"] .jacdoc-page-content {
+  /* La page-bg (rectangle blanc / sombre simulant la feuille) reste
+     visible : ce paramètre ne masque QUE l'espace blanc des marges
+     internes de la page, pas le document lui-même. Le texte utilise
+     alors plus de largeur, façon « plein écran » des éditeurs modernes. */
+  padding: 24px 32px !important;
+}
+
+/* ── Barre de menus (centre du topbar, style Google Docs) ───── */
+.jacdoc-menubar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0;
+  margin-left: -4px;      /* aligne le premier menu avec le logo au-dessus */
+  background: transparent;
+  border-bottom: none;
+  flex-shrink: 0;
+  z-index: 11;
+  user-select: none;
+  font-family: inherit;
+  /* Une seule rangée : flex-wrap: nowrap empêche les menus
+     (Fichier, Modifier, …) de s'empiler sur 2+ lignes quand la fenêtre
+     rétrécit. width: 100% + min-width: 0 forcent le menubar à respecter
+     la largeur de la colonne topbar-left (sinon align-items: flex-start
+     du parent flex-column le laisse grandir au-delà). PAS d'overflow:
+     hidden ici — ça clipperait le popover du bouton ⋯ qui déborde sous
+     le menubar. Avec le collapse progressif (`.is-hidden` sur les menus
+     en surplus), aucun bouton ne déborde de toute façon. */
+  flex-wrap: nowrap;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+.jacdoc-menubar > .jacdoc-menu { flex-shrink: 0; }
+/* Collapse progressif : le ResizeObserver décide combien de menus
+   gardent leur place inline (`visibleCount`) et marque les autres
+   `.is-hidden` (display: none). Les menus en surplus sont rendus
+   dans le popover ⋯ à côté (cf. .jacdoc-menubar-overflow). On garde
+   les boutons cachés en DOM pour préserver leurs refs et permettre
+   les remesures futures. */
+.jacdoc-menubar > .jacdoc-menu.is-hidden { display: none; }
+
+/* Bouton ⋯ qui apparaît en mode compact à la place des menus
+   (Fichier, Modifier, …) — calque de .jacdoc-editor-more-btn
+   utilisé pour Historique/Commentaires dans la topbar, mais sans
+   l'encadrement (32×26 plat pour rester aligné sur les boutons de
+   menu adjacents en mode normal). */
+.jacdoc-menubar-overflow {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.jacdoc-menubar-overflow-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 26px;
+  background: transparent;
+  border: none;
+  color: var(--jacdoc-fg-dim);
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s, color 0.12s;
+}
+.jacdoc-menubar-overflow-btn:hover,
+.jacdoc-menubar-overflow-btn.is-open {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+}
+/* Popover vertical des menus compactés. Calque visuel du
+   .jacdoc-menu-dropdown mais plus étroit puisqu'il ne contient que
+   des libellés courts (Fichier, Modifier, …). */
+.jacdoc-menubar-overflow-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 180px;
+  background: var(--jacdoc-panel);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+  z-index: 51;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  animation: jacdoc-menu-in 0.12s ease-out;
+}
+.jacdoc-menubar-overflow-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: none;
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.jacdoc-menubar-overflow-item:hover,
+.jacdoc-menubar-overflow-item.is-active {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+}
+[data-theme="light"] .jacdoc-menubar-overflow-btn { color: #5f6368; }
+[data-theme="light"] .jacdoc-menubar-overflow-btn:hover,
+[data-theme="light"] .jacdoc-menubar-overflow-btn.is-open {
+  background: #f0f1f5; color: #0d1117;
+}
+[data-theme="light"] .jacdoc-menubar-overflow-menu {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+[data-theme="light"] .jacdoc-menubar-overflow-item { color: #0d1117; }
+[data-theme="light"] .jacdoc-menubar-overflow-item:hover,
+[data-theme="light"] .jacdoc-menubar-overflow-item.is-active {
+  background: #f0f1f5; color: #0d1117;
+}
+.jacdoc-menu {
+  position: relative;
+}
+.jacdoc-menu-btn {
+  background: transparent;
+  border: none;
+  color: var(--jacdoc-fg-dim);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.jacdoc-menu-btn:hover,
+.jacdoc-menu.is-open .jacdoc-menu-btn {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+}
+
+.jacdoc-menu-dropdown {
+  /* position: fixed plutôt qu'absolute : top/left sont calculés
+     inline depuis le rect du bouton qui ouvre le menu (cf.
+     positionDropdownFor dans JacDocMenuBar.jsx). Indispensable car
+     en mode compact `.is-collapsed`, les boutons de menu sont en
+     display: none et leur dropdown enfant serait inaccessible. Même
+     pattern que .jacdoc-fontsel-popup ailleurs dans la base. */
+  position: fixed;
+  min-width: 240px;
+  max-width: 320px;
+  background: var(--jacdoc-panel);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  animation: jacdoc-menu-in 0.12s ease-out;
+}
+@keyframes jacdoc-menu-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.jacdoc-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 13px;
+  text-align: left;
+  padding: 7px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.jacdoc-menu-item:hover:not(:disabled) {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+}
+.jacdoc-menu-item:disabled {
+  opacity: 0.4;
+  cursor: default;
+  color: var(--jacdoc-fg-dim);
+}
+.jacdoc-menu-item-label { flex: 1; }
+.jacdoc-menu-item-hint {
+  color: var(--jacdoc-fg-dim);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.jacdoc-menu-item-icon {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.jacdoc-menu-item-icon svg {
+  display: block;
+  flex-shrink: 0;
+}
+.jacdoc-menu-item-logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  flex-shrink: 0;
+  pointer-events: none;
+  user-select: none;
+}
+.jacdoc-menu-item-logo[src*="Google%20Drive"],
+.jacdoc-menu-item-logo[src*="Google Drive"] {
+  transform: scale(1.16);
+}
+.jacdoc-menu-item-wrap {
+  position: relative;
+}
+.jacdoc-menu-item-parent {
+  padding-right: 8px;
+}
+.jacdoc-menu-item-arrow {
+  color: var(--jacdoc-fg-dim);
+  font-size: 16px;
+  line-height: 1;
+  margin-left: 2px;
+}
+.jacdoc-menu-submenu {
+  position: absolute;
+  top: -6px;
+  left: calc(100% + 6px);
+  min-width: 220px;
+  background: var(--jacdoc-panel);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+  z-index: 60;
+  display: none;
+  flex-direction: column;
+  gap: 1px;
+  animation: jacdoc-menu-in 0.12s ease-out;
+}
+.jacdoc-menu-submenu::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -8px;
+  width: 8px;
+}
+.jacdoc-menu-item-wrap.has-submenu:hover > .jacdoc-menu-submenu,
+.jacdoc-menu-item-wrap.has-submenu:focus-within > .jacdoc-menu-submenu {
+  display: flex;
+}
+.jacdoc-menu-item-wrap.has-submenu:hover > .jacdoc-menu-item-parent {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+}
+.jacdoc-menu-sep {
+  height: 1px;
+  background: var(--jacdoc-border);
+  margin: 4px 6px;
+}
+
+/* Mode clair : barre de menus */
+[data-theme="light"] .jacdoc-menubar {
+  background: #ffffff;
+  border-bottom-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-menu-btn { color: #3c4043; }
+[data-theme="light"] .jacdoc-menu-btn:hover,
+[data-theme="light"] .jacdoc-menu.is-open .jacdoc-menu-btn {
+  background: #f0f1f5; color: #0d1117;
+}
+[data-theme="light"] .jacdoc-menu-dropdown {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+[data-theme="light"] .jacdoc-menu-item { color: #0d1117; }
+[data-theme="light"] .jacdoc-menu-item:hover:not(:disabled) {
+  background: #f0f1f5;
+}
+[data-theme="light"] .jacdoc-menu-item-hint { color: #5f6368; }
+[data-theme="light"] .jacdoc-menu-item-arrow { color: #5f6368; }
+[data-theme="light"] .jacdoc-menu-submenu {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+[data-theme="light"] .jacdoc-menu-item-wrap.has-submenu:hover > .jacdoc-menu-item-parent {
+  background: #f0f1f5;
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-menu-sep { background: #e5e7eb; }
+
+/* ── Topbar masqué (mode compact style Google Docs) ──
+   Déclenché par le bouton flèche à droite de la toolbar. On utilise
+   display:none plutôt qu'une transition de hauteur pour éviter les
+   sauts de mise en page — reprise de Google Docs qui fait pareil. */
+.jacdoc-editor-topbar.is-collapsed {
+  display: none;
+}
+
+/* ── Rangée toolbar : toolbar scrollable à gauche + bouton compact à droite ──
+   Le bouton reste TOUJOURS visible (hors du scroll horizontal) grâce à
+   ce wrapper flex. Le fond + la border-bottom sont remontés du .jacdoc-
+   toolbar vers ce wrapper pour que le bouton partage le même chrome. */
+.jacdoc-toolbar-row {
+  display: flex;
+  align-items: stretch;
+  background: var(--jacdoc-panel);
+  border-bottom: 1px solid var(--jacdoc-border);
+  flex-shrink: 0;
+  z-index: 10;
+}
+.jacdoc-toolbar-row .jacdoc-toolbar {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border-bottom: none;
+}
+.jacdoc-toolbar-collapse {
+  width: 40px;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--jacdoc-border);
+  color: var(--jacdoc-fg-dim);
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  padding: 0;
+}
+.jacdoc-toolbar-collapse:hover {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+}
+.jacdoc-toolbar-collapse:active {
+  background: var(--jacdoc-panel);
+}
+.jacdoc-toolbar-collapse-icon {
+  transition: transform 0.2s ease;
+}
+.jacdoc-toolbar-collapse-icon.is-flipped {
+  transform: rotate(180deg);
+}
+
+[data-theme="light"] .jacdoc-toolbar-row {
+  background: #ffffff;
+  border-bottom-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-toolbar-collapse {
+  color: #5f6368;
+  border-left-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-toolbar-collapse:hover {
+  background: #f0f1f5;
+  color: #0d1117;
+}
+
+/* ── Toolbar (barre pleine largeur, scroll horizontal si étroit) ── */
+.jacdoc-toolbar {
+  display: flex;
+  flex-wrap: nowrap;            /* une seule rangée */
+  align-items: center;
+  gap: 3px;
+  padding: 6px 10px;
+  background: var(--jacdoc-panel);
+  border-bottom: 1px solid var(--jacdoc-border);
+  z-index: 10;
+  overflow-x: auto;             /* scroll horizontal quand ça déborde */
+  overflow-y: hidden;
+  scrollbar-width: none;        /* Firefox : pas de scrollbar visible */
+  -ms-overflow-style: none;     /* IE/Edge legacy */
+  -webkit-overflow-scrolling: touch;
+  flex-shrink: 0;
+}
+/* WebKit : scrollbar invisible mais scroll toujours fonctionnel. */
+.jacdoc-toolbar::-webkit-scrollbar { display: none; height: 0; width: 0; }
+
+/* Tous les enfants de la toolbar gardent leur taille (pas d'écrasement). */
+.jacdoc-toolbar > * { flex-shrink: 0; }
+
+/* La variante flottante a été retirée — la classe peut rester dans le JSX,
+   elle n'a simplement plus d'effet. */
+
+/* Règles Word déplacées dans ../../components/JacDocRulers.css */
+
+/* Break visuel Word-like NON destructif.
+   Injecté par une Decoration ProseMirror à une position texte : ce n'est
+   pas un vrai node du document. Il sert à pousser les lignes suivantes
+   vers le corps de la page suivante sans couper le paragraphe dans le
+   modèle. */
+.jacdoc-visual-page-break {
+  display: inline-block;
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  vertical-align: top;
+  pointer-events: none;
+  user-select: none;
+  line-height: 0;
+  font-size: 0;
+}
+
+/* Force le ::marker (le picot • OU le numéro 1. OU tout autre style
+   de marker) à suivre la font-size + font-family du <li> lui-même.
+   Sans cette règle, Safari et Firefox laissent les numéros des listes
+   ordonnées à la taille par défaut même quand on grossit le <li> via
+   style="font-size: Xpt". Word/Docs ne souffrent pas du problème car
+   leurs markers sont rendus en HTML, pas en ::marker. */
+.jacdoc-content li::marker {
+  font-size: inherit;
+  font-family: inherit;
+  color: inherit;
+}
+
+/* Spacer de pagination À L'INTÉRIEUR d'un <ol>/<ul>.
+   Il est rendu comme <li> pour rester HTML-valide, mais il ne doit jamais
+   afficher de puce/numéro ni incrémenter le compteur. Sans cette règle,
+   une liste numérotée peut générer un item vide, décaler la numérotation,
+   ou créer une page fantôme. */
+.jacdoc-content .ProseMirror li.jacdoc-visual-page-break-list {
+  display: block !important;
+  list-style: none !important;
+  list-style-type: none !important;
+  counter-increment: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  min-height: 0 !important;
+  line-height: 0 !important;
+  font-size: 0 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+}
+.jacdoc-content .ProseMirror li.jacdoc-visual-page-break-list::marker {
+  content: '' !important;
+  font-size: 0 !important;
+}
+.jacdoc-tb-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--jacdoc-fg-dim);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.jacdoc-tb-btn:hover:not(:disabled) {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+}
+.jacdoc-tb-btn.is-active {
+  background: rgba(var(--jacdoc-accent-rgb), 0.15);
+  color: var(--jacdoc-accent);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.35);
+}
+.jacdoc-tb-btn:disabled { opacity: 0.35; cursor: default; }
+.jacdoc-tb-select {
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--jacdoc-border);
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+.jacdoc-tb-select:hover { border-color: rgba(var(--jacdoc-accent-rgb), 0.4); }
+.jacdoc-tb-select:focus { border-color: var(--jacdoc-accent); }
+.jacdoc-tb-sep {
+  width: 1px;
+  height: 22px;
+  background: var(--jacdoc-border);
+  margin: 0 8px;
+}
+
+/* ── Zone de scroll + page document ───────────── */
+.jacdoc-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--jacdoc-editor-scroll-padding, 20px 24px 120px);
+  position: relative;          /* ancre pour la règle verticale absolue à gauche */
+  /* Bande grise verticale de 22 px à GAUCHE : tracée en
+     background:local sur le scroll lui-même. Avantage clé vs un
+     <strip> absolu : l'image est dimensionnée par rapport à
+     l'overflow area (= scrollHeight + padding), donc la bande
+     déborde TOUJOURS la fin du document, peu importe le nombre de
+     pages ou la longueur. C'est exactement le comportement Word :
+     la règle verticale continue dans le hors-page sous la dernière
+     feuille. */
+  background:
+    radial-gradient(ellipse at top, rgba(var(--jacdoc-accent-rgb), 0.04), transparent 60%) center / auto no-repeat scroll,
+    linear-gradient(to right, #2a3347 22px, transparent 22px) 0 0 / 100% 100% no-repeat local,
+    var(--jacdoc-bg);
+}
+/* .jacdoc-page = conteneur multi-pages (positionnement relatif). Ne porte
+   plus le fond/bordure : ce sont les .jacdoc-page-bg à l'intérieur qui
+   simulent les pages. min-height est calculée en inline. */
+.jacdoc-page {
+  max-width: var(--jacdoc-editor-page-max-width, 816px);
+  margin: 0 auto;
+  position: relative;
+}
+/* Rectangles « page » absolument positionnés, empilés avec un gap.
+   La 1ʳᵉ à top:0, la 2ᵉ à top:1080, etc. (1056 + 24 de gap). */
+.jacdoc-page-bg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1056px;
+  background: var(--jacdoc-page-bg);
+  border-radius: 12px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.5),
+    0 12px 32px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(var(--jacdoc-accent-rgb), 0.08);
+  pointer-events: none;
+  z-index: 0;
+}
+/* Le contenu éditeur flotte par-dessus les page-bg, avec les marges Word. */
+.jacdoc-page-content {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  padding: 72px 96px;
+  min-height: inherit;
+  color: var(--jacdoc-page-fg);
+}
+.jacdoc-page-gap-blocker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 24px;
+  z-index: 6;
+  /* Opaque, couleur du fond scroll : masque tout contenu / curseur qui
+     déborderait dans le gap noir entre deux pages, comme Word qui rend
+     cette zone purement décorative et non-éditable. */
+  background: #000;
+  cursor: default;
+  pointer-events: auto;
+  user-select: none;
+}
+[data-theme="light"] .jacdoc-page-gap-blocker {
+  background: #f5f6f8;
+}
+
+/* ── Haut et bas de page (style Word) ──
+   Invisible en mode normal. Un clic n'importe où dans la marge haute ou
+   basse entre en édition. Quand le mode haut/bas est actif, les deux zones
+   de la page courante sont disponibles et le corps du document est assombri. */
+.jacdoc-page-header,
+.jacdoc-page-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 72px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  /* Fond transparent pour ne JAMAIS masquer le curseur, même quand il se
+     trouve pile sur la frontière supérieure ou inférieure du corps. La
+     pagination JS (cf. JacDocEditor.jsx) garantit déjà que le curseur ne
+     déborde pas dans la marge — pas besoin de masquer ici. */
+  background: transparent;
+  border: none;
+  color: var(--jacdoc-fg-dim);
+  cursor: text;
+  font-family: inherit;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.2px;
+  line-height: 1.3;
+  padding: 0 96px;
+  text-align: center;
+  white-space: pre-wrap;
+}
+.jacdoc-page-header.is-empty,
+.jacdoc-page-footer.is-empty {
+  color: transparent;
+}
+.jacdoc-page-header.is-editing,
+.jacdoc-page-footer.is-editing {
+  color: var(--jacdoc-page-fg);
+}
+.jacdoc-page-header.is-editing {
+  border-bottom: 1px solid var(--jacdoc-page-border);
+}
+.jacdoc-page-footer.is-editing {
+  border-top: 1px solid var(--jacdoc-page-border);
+}
+.jacdoc-root.is-editing-page-header .jacdoc-page-content,
+.jacdoc-root.is-editing-page-footer .jacdoc-page-content {
+  opacity: 0.34;
+  filter: grayscale(0.25);
+  pointer-events: none;
+  user-select: none;
+}
+.jacdoc-page-hf-input {
+  width: 100%;
+  height: 28px;
+  min-height: 28px;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  color: var(--jacdoc-page-fg);
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 28px;
+  padding: 0;
+  text-align: center;
+}
+.jacdoc-page-hf-input::placeholder {
+  color: transparent;
+}
+[data-theme="light"] .jacdoc-page-header,
+[data-theme="light"] .jacdoc-page-footer {
+  background: #ffffff;
+  color: #5f6368;
+}
+[data-theme="light"] .jacdoc-page-header.is-empty,
+[data-theme="light"] .jacdoc-page-footer.is-empty {
+  color: transparent;
+}
+[data-theme="light"] .jacdoc-page-header.is-editing,
+[data-theme="light"] .jacdoc-page-footer.is-editing,
+[data-theme="light"] .jacdoc-page-hf-input {
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-page-header.is-editing,
+[data-theme="light"] .jacdoc-page-footer.is-editing {
+  border-color: #d1d5db;
+}
+
+
+.jacdoc-title {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin: 0 0 24px;
+  color: var(--jacdoc-page-fg);
+  outline: none;
+  border-bottom: 1px solid var(--jacdoc-page-border);
+  padding-bottom: 12px;
+  background: transparent;
+}
+[data-theme="light"] .jacdoc-title {
+  color: #0d1117;
+  border-bottom-color: #e5e7eb;
+}
+
+/* ── Contenu ProseMirror ─────────────── */
+.jacdoc-content .ProseMirror {
+  outline: none;
+  min-height: 400px;
+  font-family: var(--jacdoc-default-font, inherit);
+  font-size: var(--jacdoc-default-text-size, 16px);
+  line-height: var(--jacdoc-line-height, 1.65);
+  color: var(--jacdoc-page-fg);
+}
+.jacdoc-content .ProseMirror > * + * { margin-top: var(--jacdoc-paragraph-gap, 0.75em); }
+.jacdoc-content h1 { font-size: 28px; font-weight: 700; line-height: 1.25; letter-spacing: -0.3px; }
+.jacdoc-content h2 { font-size: 22px; font-weight: 700; line-height: 1.3;  }
+.jacdoc-content h3 { font-size: 18px; font-weight: 600; line-height: 1.35; }
+.jacdoc-content p {
+  margin: 0;
+  min-height: 1.65em;
+  padding-left: var(--jacdoc-hanging-indent, 0px);
+  padding-right: var(--jacdoc-right-indent, 0px);
+  text-indent: calc(var(--jacdoc-first-indent, 0px) - var(--jacdoc-hanging-indent, 0px));
+}
+.jacdoc-content ul,
+.jacdoc-content ol {
+  padding-left: calc(1.5em + var(--jacdoc-hanging-indent, 0px));
+  padding-right: var(--jacdoc-right-indent, 0px);
+}
+.jacdoc-content li > p {
+  padding-left: 0;
+  text-indent: 0;
+}
+.jacdoc-content ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: calc(0.25em + var(--jacdoc-hanging-indent, 0px));
+}
+/* Liste de tâches : la case à cocher est dessinée en CSS pur (appearance:
+   none) avec des tailles en `em` pour qu'elle grandisse/rétrécisse en même
+   temps que la font-size du <li> englobant. Sans ça, la case reste à 13px
+   même quand on met le texte à 32pt et a l'air ridicule. Le coché est
+   rendu via ::after (chevron blanc incliné, style Word/Docs). */
+.jacdoc-content ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5em;
+}
+.jacdoc-content ul[data-type="taskList"] li > label {
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  /* hauteur d'une ligne pour aligner la case avec la 1ère ligne du <p>
+     même quand le texte est multi-lignes */
+  height: 1.65em;
+  flex-shrink: 0;
+}
+.jacdoc-content ul[data-type="taskList"] li input[type="checkbox"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  /* CRITICAL : sans font-size: inherit, l'<input> garde la font-size par
+     défaut du navigateur (~13px) et `1em` reste figé à 13px peu importe
+     ce qu'on met sur le <li> englobant. */
+  font-size: inherit;
+  line-height: 1;
+  width: 1em;
+  height: 1em;
+  margin: 0;
+  border: 1.5px solid var(--jacdoc-fg-dim);
+  border-radius: 0.22em;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+  transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
+}
+.jacdoc-content ul[data-type="taskList"] li input[type="checkbox"]:hover {
+  border-color: var(--jacdoc-accent);
+  box-shadow: 0 0 0 2px rgba(var(--jacdoc-accent-rgb), 0.15);
+}
+.jacdoc-content ul[data-type="taskList"] li input[type="checkbox"]:focus-visible {
+  outline: none;
+  border-color: var(--jacdoc-accent);
+  box-shadow: 0 0 0 2px rgba(var(--jacdoc-accent-rgb), 0.35);
+}
+.jacdoc-content ul[data-type="taskList"] li input[type="checkbox"]:checked {
+  background: var(--jacdoc-accent);
+  border-color: var(--jacdoc-accent);
+}
+.jacdoc-content ul[data-type="taskList"] li input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 0.3em;
+  height: 0.55em;
+  border: solid #000;
+  border-width: 0 0.14em 0.14em 0;
+  transform: translate(-50%, -55%) rotate(45deg);
+}
+/* Texte d'un item coché : barré + estompé, comme Google Docs / Word. */
+.jacdoc-content ul[data-type="taskList"] li[data-checked="true"] > div > p,
+.jacdoc-content ul[data-type="taskList"] li[data-checked="true"] > p {
+  text-decoration: line-through;
+  color: var(--jacdoc-fg-dim);
+}
+[data-theme="light"] .jacdoc-content ul[data-type="taskList"] li input[type="checkbox"] {
+  border-color: #9ca3af;
+}
+[data-theme="light"] .jacdoc-content ul[data-type="taskList"] li input[type="checkbox"]:hover {
+  border-color: var(--jacdoc-accent);
+}
+.jacdoc-content blockquote {
+  border-left: 3px solid var(--jacdoc-accent);
+  padding-left: 1em;
+  color: #b8bcc4;
+  font-style: italic;
+  background: rgba(var(--jacdoc-accent-rgb), 0.06);
+  border-radius: 0 6px 6px 0;
+  padding: 0.5em 1em;
+}
+[data-theme="light"] .jacdoc-content blockquote { color: #4b5563; background: rgba(var(--jacdoc-accent-rgb), 0.04); }
+.jacdoc-content code {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.9em;
+  color: var(--jacdoc-page-fg);
+}
+[data-theme="light"] .jacdoc-content code { background: #eef1f3; color: #0d1117; }
+.jacdoc-content pre {
+  background: #0d1117;
+  color: #e6edf3;
+  padding: 16px 18px;
+  border-radius: 10px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 14px;
+  border: 1px solid #1f2937;
+}
+.jacdoc-content pre code { background: transparent; padding: 0; color: inherit; }
+.jacdoc-content a {
+  color: var(--jacdoc-accent);
+  text-decoration: underline;
+  text-decoration-color: rgba(var(--jacdoc-accent-rgb), 0.5);
+  text-underline-offset: 2px;
+}
+[data-theme="light"] .jacdoc-content a { color: #0a7a05; }
+.jacdoc-content a:hover { text-decoration-color: var(--jacdoc-accent); }
+.jacdoc-content mark {
+  background: rgba(var(--jacdoc-accent-rgb), 0.35);
+  padding: 0 3px;
+  border-radius: 3px;
+  color: var(--jacdoc-page-fg);
+}
+[data-theme="light"] .jacdoc-content mark { color: #0d1117; }
+.jacdoc-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+.jacdoc-content hr {
+  border: none;
+  border-top: 1px solid var(--jacdoc-page-border);
+  margin: 1.5em 0;
+}
+[data-theme="light"] .jacdoc-content hr { border-top-color: #d1d5db; }
+
+/* ── Node Tiptap « saut de page » (Ctrl/Cmd+Entrée) ──
+   Marker visible inline dans le flux à la position où l'utilisateur l'a
+   inséré : ligne pointillée horizontale avec le texte « Saut de page »
+   au centre. C'est purement visuel — la bascule à la page suivante est
+   gérée par la pagination JS (cf. useEffect dans JacDocEditor.jsx) qui
+   pousse le bloc SUIVANT au sommet de la nouvelle page via forcedNextPage. */
+.jacdoc-pagebreak-node {
+  height: 20px;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  user-select: none;
+  cursor: default;
+}
+.jacdoc-pagebreak-node::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 1px dashed var(--jacdoc-page-border);
+}
+.jacdoc-pagebreak-node::after {
+  content: 'Saut de page';
+  position: relative;
+  background: var(--jacdoc-page-bg);
+  padding: 0 12px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--jacdoc-fg-dim);
+}
+[data-theme="light"] .jacdoc-pagebreak-node::after {
+  background: #ffffff;
+  color: #5f6368;
+}
+/* État « node sélectionné » (clic sur le marker) : outline accent vert
+   pour signaler qu'on peut l'effacer avec Suppr/Backspace. */
+.jacdoc-pagebreak-node.ProseMirror-selectednode {
+  outline: 2px solid var(--jacdoc-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.jacdoc-content ::selection {
+  background: rgba(var(--jacdoc-accent-rgb), 0.35);
+}
+
+/* Placeholder */
+.jacdoc-content .ProseMirror p.is-editor-empty:first-child::before,
+.jacdoc-content .ProseMirror h1.is-empty::before,
+.jacdoc-content .ProseMirror h2.is-empty::before,
+.jacdoc-content .ProseMirror h3.is-empty::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #9ca3af;
+  pointer-events: none;
+  height: 0;
+}
+
+/* ── Bubble menu (désactivé en Phase 1 mais style prêr pour Phase 2) ── */
+.jacdoc-bubble {
+  display: flex;
+  gap: 2px;
+  padding: 5px;
+  background: var(--jacdoc-panel);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+.jacdoc-bubble button {
+  min-width: 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  color: var(--jacdoc-fg-dim);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  transition: background 0.12s, color 0.12s;
+}
+.jacdoc-bubble button:hover { background: var(--jacdoc-panel-hover); color: var(--jacdoc-fg); }
+.jacdoc-bubble button.is-active {
+  background: rgba(var(--jacdoc-accent-rgb), 0.18);
+  color: var(--jacdoc-accent);
+}
+
+/* ── Mode clair (suit le thème global JacSuite) ── */
+[data-theme="light"] .jacdoc-root {
+  background: #f5f6f8;
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-toolbar {
+  background: #ffffff;
+  border-bottom-color: #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+[data-theme="light"] .jacdoc-tb-btn { color: #5f6368; }
+[data-theme="light"] .jacdoc-tb-btn:hover:not(:disabled) {
+  background: #f0f1f5; color: #0d1117;
+}
+[data-theme="light"] .jacdoc-tb-select {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-tb-sep { background: #e5e7eb; }
+[data-theme="light"] .jacdoc-scroll {
+  /* Calque clair de la bande grise verticale style Word : même astuce
+     background:local que la version dark, avec la teinte #d1d5db. */
+  background:
+    radial-gradient(ellipse at top, rgba(var(--jacdoc-accent-rgb), 0.06), transparent 60%) center / auto no-repeat scroll,
+    linear-gradient(to right, #d1d5db 22px, transparent 22px) 0 0 / 100% 100% no-repeat local,
+    #f5f6f8;
+}
+[data-theme="light"] .jacdoc-page-bg {
+  background: #ffffff;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    0 12px 32px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Modale « Nombre de mots » (style Google Docs) ──
+   Ouverte au clic sur la pilule mots. Backdrop dimmé + flou ; carte
+   centrée avec titre + 4 lignes label/valeur séparées par 1px. */
+.jacdoc-wc-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 16px;
+  animation: jacdoc-wc-fade 0.18s ease-out;
+}
+.jacdoc-wc-modal {
+  width: min(440px, calc(100vw - 32px));
+  background: var(--jacdoc-panel);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  animation: jacdoc-wc-pop 0.2s ease-out;
+}
+.jacdoc-wc-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 22px 24px 6px;
+}
+.jacdoc-wc-modal-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin: 0;
+  color: var(--jacdoc-fg);
+}
+.jacdoc-wc-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--jacdoc-fg-dim);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  transition: background 0.12s, color 0.12s;
+}
+.jacdoc-wc-modal-close:hover {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+}
+.jacdoc-wc-modal-rows {
+  padding: 8px 24px 20px;
+}
+.jacdoc-wc-modal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--jacdoc-border);
+  font-size: 15px;
+}
+.jacdoc-wc-modal-row:last-child {
+  border-bottom: none;
+}
+.jacdoc-wc-modal-label {
+  color: var(--jacdoc-fg);
+  font-weight: 500;
+}
+.jacdoc-wc-modal-value {
+  color: var(--jacdoc-fg);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+@keyframes jacdoc-wc-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes jacdoc-wc-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Mode clair pour la modale */
+[data-theme="light"] .jacdoc-wc-modal {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+}
+[data-theme="light"] .jacdoc-wc-modal-title,
+[data-theme="light"] .jacdoc-wc-modal-label,
+[data-theme="light"] .jacdoc-wc-modal-value { color: #0d1117; }
+[data-theme="light"] .jacdoc-wc-modal-row { border-bottom-color: #e5e7eb; }
+[data-theme="light"] .jacdoc-wc-modal-close { color: #5f6368; }
+[data-theme="light"] .jacdoc-wc-modal-close:hover { background: #f0f1f5; color: #0d1117; }
+
+/* ── Modale « En-tête et pied de page » ──
+   Réutilise le même chrome que la modale word-count (overlay + card +
+   header + close). Spécifiques ici : deux textareas + hint sur les
+   tokens {page}/{pages}. Animé via les mêmes @keyframes jacdoc-wc-*. */
+.jacdoc-hf-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 16px;
+  animation: jacdoc-wc-fade 0.18s ease-out;
+}
+.jacdoc-hf-modal {
+  width: min(520px, calc(100vw - 32px));
+  background: var(--jacdoc-panel);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  animation: jacdoc-wc-pop 0.2s ease-out;
+}
+.jacdoc-hf-modal.is-wide {
+  width: min(860px, calc(100vw - 32px));
+}
+.jacdoc-hf-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 22px 24px 6px;
+}
+.jacdoc-hf-modal-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin: 0;
+  color: var(--jacdoc-fg);
+}
+.jacdoc-hf-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--jacdoc-fg-dim);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  transition: background 0.12s, color 0.12s;
+}
+.jacdoc-hf-modal-close:hover {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+}
+.jacdoc-hf-modal-body {
+  padding: 8px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.jacdoc-hf-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  padding: 10px 12px;
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.jacdoc-hf-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--jacdoc-fg);
+  font-size: 13px;
+  font-weight: 700;
+}
+.jacdoc-hf-options input {
+  accent-color: var(--jacdoc-accent);
+}
+.jacdoc-hf-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.jacdoc-hf-variant {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.025);
+}
+.jacdoc-hf-variant.is-disabled {
+  opacity: 0.48;
+}
+.jacdoc-hf-variant-title {
+  color: var(--jacdoc-fg);
+  font-size: 13px;
+  font-weight: 800;
+}
+.jacdoc-hf-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.jacdoc-hf-modal-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--jacdoc-fg-dim);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.jacdoc-hf-modal-input {
+  width: 100%;
+  background: var(--jacdoc-panel-hover);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.jacdoc-hf-modal-input:focus {
+  border-color: var(--jacdoc-accent);
+  box-shadow: 0 0 0 3px rgba(var(--jacdoc-accent-rgb), 0.18);
+}
+.jacdoc-hf-modal-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+.jacdoc-hf-modal-hint {
+  font-size: 12px;
+  color: var(--jacdoc-fg-dim);
+  line-height: 1.55;
+}
+.jacdoc-hf-modal-hint code {
+  background: rgba(var(--jacdoc-accent-rgb), 0.12);
+  color: var(--jacdoc-accent);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+}
+[data-theme="light"] .jacdoc-hf-modal {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+}
+[data-theme="light"] .jacdoc-hf-modal-title { color: #0d1117; }
+[data-theme="light"] .jacdoc-hf-modal-close { color: #5f6368; }
+[data-theme="light"] .jacdoc-hf-modal-close:hover { background: #f0f1f5; color: #0d1117; }
+[data-theme="light"] .jacdoc-hf-modal-input {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-hf-options,
+[data-theme="light"] .jacdoc-hf-variant {
+  background: #ffffff;
+  border-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-hf-options label,
+[data-theme="light"] .jacdoc-hf-variant-title {
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-hf-modal-hint code {
+  background: rgba(var(--jacdoc-accent-rgb), 0.12);
+  color: #0a7a05;
+}
+
+/* ── Modale Rechercher et remplacer ── */
+.jacdoc-find-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.52);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 220;
+  padding: 16px;
+  animation: jacdoc-wc-fade 0.18s ease-out;
+}
+.jacdoc-find-modal {
+  width: min(520px, calc(100vw - 32px));
+  background: var(--jacdoc-panel);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.62);
+  overflow: hidden;
+  animation: jacdoc-wc-pop 0.2s ease-out;
+}
+.jacdoc-find-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 22px 24px 10px;
+}
+.jacdoc-find-modal-title {
+  margin: 0;
+  color: var(--jacdoc-fg);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.jacdoc-find-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--jacdoc-fg-dim);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+.jacdoc-find-modal-close:hover {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+}
+.jacdoc-find-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 24px 18px;
+}
+.jacdoc-find-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.jacdoc-find-modal-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--jacdoc-fg-dim);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.jacdoc-find-modal-input {
+  width: 100%;
+  height: 40px;
+  background: var(--jacdoc-panel-hover);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 10px;
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 15px;
+  padding: 0 12px;
+  outline: none;
+}
+.jacdoc-find-modal-input:focus {
+  border-color: var(--jacdoc-accent);
+  box-shadow: 0 0 0 3px rgba(var(--jacdoc-accent-rgb), 0.18);
+}
+.jacdoc-find-modal-message {
+  color: var(--jacdoc-fg-dim);
+  font-size: 12px;
+}
+.jacdoc-find-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px 22px;
+  border-top: 1px solid var(--jacdoc-border);
+}
+.jacdoc-find-modal-btn {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid var(--jacdoc-border);
+  background: transparent;
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.jacdoc-find-modal-btn:hover {
+  background: var(--jacdoc-panel-hover);
+}
+.jacdoc-find-modal-btn.is-primary {
+  background: var(--jacdoc-accent);
+  border-color: var(--jacdoc-accent);
+  color: #000;
+}
+[data-theme="light"] .jacdoc-find-modal {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+}
+[data-theme="light"] .jacdoc-find-modal-title,
+[data-theme="light"] .jacdoc-find-modal-input,
+[data-theme="light"] .jacdoc-find-modal-btn {
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-find-modal-input {
+  background: #ffffff;
+  border-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-find-modal-actions {
+  border-top-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-find-modal-close:hover,
+[data-theme="light"] .jacdoc-find-modal-btn:hover {
+  background: #f0f1f5;
+}
+
+/* ── Modale Renommer le document ── */
+.jacdoc-rename-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.52);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 220;
+  padding: 16px;
+  animation: jacdoc-wc-fade 0.18s ease-out;
+}
+.jacdoc-rename-modal {
+  width: min(440px, calc(100vw - 32px));
+  background: var(--jacdoc-panel);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.62);
+  padding: 0;
+  overflow: hidden;
+  animation: jacdoc-wc-pop 0.2s ease-out;
+}
+.jacdoc-rename-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 22px 24px 10px;
+}
+.jacdoc-rename-modal-title {
+  margin: 0;
+  color: var(--jacdoc-fg);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.jacdoc-rename-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--jacdoc-fg-dim);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  transition: background 0.12s, color 0.12s;
+}
+.jacdoc-rename-modal-close:hover {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+}
+.jacdoc-rename-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 8px 24px 20px;
+}
+.jacdoc-rename-modal-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--jacdoc-fg-dim);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.jacdoc-rename-modal-input {
+  width: 100%;
+  height: 42px;
+  background: var(--jacdoc-panel-hover);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 10px;
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 15px;
+  padding: 0 12px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.jacdoc-rename-modal-input:focus {
+  border-color: var(--jacdoc-accent);
+  box-shadow: 0 0 0 3px rgba(var(--jacdoc-accent-rgb), 0.18);
+}
+.jacdoc-rename-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px 22px;
+  border-top: 1px solid var(--jacdoc-border);
+}
+.jacdoc-rename-modal-btn {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid var(--jacdoc-border);
+  background: transparent;
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s, transform 0.12s;
+}
+.jacdoc-rename-modal-btn:hover:not(:disabled) {
+  background: var(--jacdoc-panel-hover);
+}
+.jacdoc-rename-modal-btn.is-primary {
+  background: var(--jacdoc-accent);
+  border-color: var(--jacdoc-accent);
+  color: #000;
+}
+.jacdoc-rename-modal-btn.is-primary:hover:not(:disabled) {
+  background: var(--jacdoc-accent-hover);
+  border-color: var(--jacdoc-accent-hover);
+}
+.jacdoc-rename-modal-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.jacdoc-rename-modal-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+[data-theme="light"] .jacdoc-rename-modal {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+}
+[data-theme="light"] .jacdoc-rename-modal-title,
+[data-theme="light"] .jacdoc-rename-modal-input,
+[data-theme="light"] .jacdoc-rename-modal-btn {
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-rename-modal-close {
+  color: #5f6368;
+}
+[data-theme="light"] .jacdoc-rename-modal-close:hover,
+[data-theme="light"] .jacdoc-rename-modal-btn:hover:not(:disabled) {
+  background: #f0f1f5;
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-rename-modal-input {
+  background: #ffffff;
+  border-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-rename-modal-actions {
+  border-top-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-rename-modal-btn.is-primary {
+  color: #000;
+}
+
+/* ── Sélecteur de police (custom dropdown, même visuel que JacPDF
+   FormatBar > SizeSelect avec optionFontFamily) ──
+   - Bouton plat qui s'intègre dans la toolbar (130px min-width).
+   - Popup ancré absolu sous le bouton, chaque option rendue dans SA
+     propre police (font-family inline par option).
+   - Active state : fond accent + texte accent (même teinte que les
+     toggles de la toolbar). */
+.jacdoc-fontsel-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.jacdoc-fontsel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  height: 30px;
+  min-width: 130px;
+  padding: 0 10px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  outline: none;
+}
+.jacdoc-fontsel:hover,
+.jacdoc-fontsel.is-open {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+}
+.jacdoc-fontsel-value {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+  text-align: left;
+  flex: 1;
+}
+.jacdoc-fontsel-arrow {
+  color: var(--jacdoc-fg-dim);
+  flex-shrink: 0;
+}
+.jacdoc-fontsel-popup {
+  /* position: fixed pour échapper à l'overflow:hidden de la toolbar
+     (sinon le popup est clippé). Les coords top/left sont injectées
+     inline depuis JS à partir du rect du bouton trigger. */
+  position: fixed;
+  min-width: 220px;
+  max-height: 360px;
+  overflow-y: auto;
+  background: var(--jacdoc-panel);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 10px;
+  padding: 4px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: jacdoc-menu-in 0.12s ease-out;
+}
+.jacdoc-fontsel-opt {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--jacdoc-fg);
+  font-size: 15px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.1s, color 0.1s;
+}
+.jacdoc-fontsel-opt:hover { background: var(--jacdoc-panel-hover); }
+.jacdoc-fontsel-opt.is-active {
+  background: rgba(var(--accent-rgb), 0.13);
+  color: var(--accent);
+}
+
+/* Mode clair */
+[data-theme="light"] .jacdoc-fontsel { color: #0d1117; }
+[data-theme="light"] .jacdoc-fontsel:hover,
+[data-theme="light"] .jacdoc-fontsel.is-open { background: #f0f1f5; color: #0d1117; }
+[data-theme="light"] .jacdoc-fontsel-arrow { color: #5f6368; }
+[data-theme="light"] .jacdoc-fontsel-popup {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+[data-theme="light"] .jacdoc-fontsel-opt { color: #0d1117; }
+[data-theme="light"] .jacdoc-fontsel-opt:hover { background: #f0f1f5; }
+
+/* Champ manuel en bas du menu d'interligne. */
+.jacdoc-lineheight-manual {
+  border-top: 1px solid var(--jacdoc-border);
+  margin-top: 4px;
+  padding: 8px 6px 4px;
+}
+.jacdoc-lineheight-manual-label {
+  color: var(--jacdoc-fg-dim);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin: 0 2px 6px;
+  text-transform: uppercase;
+}
+.jacdoc-lineheight-manual-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.jacdoc-lineheight-manual-input {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 7px;
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  padding: 0 8px;
+}
+.jacdoc-lineheight-manual-input:focus {
+  border-color: var(--jacdoc-accent);
+  box-shadow: 0 0 0 2px rgba(var(--jacdoc-accent-rgb), 0.16);
+}
+.jacdoc-lineheight-manual-apply {
+  height: 30px;
+  border: 1px solid rgba(var(--jacdoc-accent-rgb), 0.45);
+  border-radius: 7px;
+  background: rgba(var(--jacdoc-accent-rgb), 0.14);
+  color: var(--jacdoc-accent);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 0 10px;
+}
+.jacdoc-lineheight-manual-apply:hover {
+  background: rgba(var(--jacdoc-accent-rgb), 0.22);
+}
+[data-theme="light"] .jacdoc-lineheight-manual {
+  border-top-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-lineheight-manual-input {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  color: #0d1117;
+}
+[data-theme="light"] .jacdoc-lineheight-manual-label {
+  color: #5f6368;
+}
+[data-theme="light"] .jacdoc-lineheight-manual-apply {
+  color: #0a7a05;
+}
+
+/* ── Contrôle taille de police style Google Docs : [−] [14] [+] ──
+   3 boutons en ligne, sans border—le visuel s'intègre dans la toolbar.
+   Les boutons −/+ décrémentent/incrémentent dans la liste SIZES. Le bouton
+   du milieu ouvre un popup avec toutes les tailles standard. */
+.jacdoc-fontsize {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  height: 30px;
+  position: relative;
+}
+.jacdoc-fontsize-btn {
+  width: 26px;
+  height: 30px;
+  background: transparent;
+  border: none;
+  color: var(--jacdoc-fg-dim);
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+  padding: 0;
+}
+.jacdoc-fontsize-btn:hover:not(:disabled) {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+}
+.jacdoc-fontsize-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.jacdoc-fontsize-val {
+  width: 44px;
+  min-width: 0;
+  height: 30px;
+  padding: 0 4px;
+  margin: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  cursor: text;
+  text-align: center;
+  box-sizing: border-box;
+  border-radius: 6px;
+  outline: none;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  -moz-appearance: textfield;
+}
+.jacdoc-fontsize-val::-webkit-outer-spin-button,
+.jacdoc-fontsize-val::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.jacdoc-fontsize-val:hover { background: var(--jacdoc-panel-hover); }
+.jacdoc-fontsize-val:focus {
+  background: var(--jacdoc-panel-hover);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.45);
+  box-shadow: 0 0 0 2px rgba(var(--jacdoc-accent-rgb), 0.18);
+}
+
+[data-theme="light"] .jacdoc-fontsize-btn { color: #5f6368; }
+[data-theme="light"] .jacdoc-fontsize-btn:hover:not(:disabled) { background: #f0f1f5; color: #0d1117; }
+[data-theme="light"] .jacdoc-fontsize-val { color: #0d1117; }
+[data-theme="light"] .jacdoc-fontsize-val:hover { background: #f0f1f5; }
+
+/* ── Pickers de couleur (texte + surlignage) style Google Docs ──
+   Bouton compact avec un glyphe (« A » ou marqueur) en haut et une
+   barre de couleur en bas qui reflète la couleur actuellement
+   appliquée. Clic = popup palette 10×8 pastilles + option « Aucune ». */
+.jacdoc-color-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 32px;
+  height: 32px;
+  padding: 3px 0 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--jacdoc-fg-dim);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.jacdoc-color-btn:hover {
+  background: var(--jacdoc-panel-hover);
+  color: var(--jacdoc-fg);
+}
+.jacdoc-color-btn.is-open {
+  background: rgba(var(--jacdoc-accent-rgb), 0.15);
+  color: var(--jacdoc-accent);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.35);
+}
+.jacdoc-color-btn-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  height: 16px;
+}
+.jacdoc-color-btn-glyph svg { display: block; }
+.jacdoc-color-btn-bar {
+  display: block;
+  width: 18px;
+  height: 4px;
+  border-radius: 2px;
+  background: currentColor;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+/* Pas de couleur appliquée : on garde l'espace pour ne pas faire sauter
+   le glyphe, mais la barre devient invisible (ni couleur fantôme, ni
+   ligne). Dès qu'on choisit une couleur, le bouton reçoit `.has-color`
+   et la barre réapparaît avec la teinte active. */
+.jacdoc-color-btn:not(.has-color) .jacdoc-color-btn-bar {
+  visibility: hidden;
+}
+
+/* Popup picker : palette grille + bouton « Aucune » au-dessus. */
+.jacdoc-color-popup {
+  position: fixed;
+  background: var(--jacdoc-panel);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: jacdoc-menu-in 0.12s ease-out;
+}
+.jacdoc-color-none {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  padding: 0 10px;
+  background: transparent;
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 7px;
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.jacdoc-color-none:hover { background: var(--jacdoc-panel-hover); }
+.jacdoc-color-none-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background:
+    linear-gradient(135deg, transparent 45%, #e06666 45%, #e06666 55%, transparent 55%),
+    #ffffff;
+  border: 1px solid #bdbdbd;
+  flex-shrink: 0;
+}
+.jacdoc-color-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 22px);
+  gap: 4px;
+}
+.jacdoc-color-swatch {
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.jacdoc-color-swatch:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.32);
+  z-index: 1;
+}
+.jacdoc-color-swatch.is-active {
+  outline: 2px solid var(--jacdoc-accent);
+  outline-offset: 1px;
+  z-index: 1;
+}
+
+/* Récentes : section sous la palette, séparée par un trait fin. Label
+   discret en small caps + rangée de pastilles légèrement plus petites. */
+.jacdoc-color-recents {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--jacdoc-border);
+}
+.jacdoc-color-recents-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--jacdoc-fg-dim);
+}
+.jacdoc-color-recents-row {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.jacdoc-color-swatch.jacdoc-color-swatch-recent {
+  width: 20px;
+  height: 20px;
+}
+
+/* « Choisir une autre couleur… » : ouvre la roue chromatique HSV/hex
+   (ColorPicker.jsx) pour personnaliser une teinte hors palette. Style
+   aligne sur le bouton « Aucune » pour une cohérence verticale dans le
+   popup, avec une légère inflexion accent au survol. */
+.jacdoc-color-custom {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 10px;
+  background: transparent;
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 7px;
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.jacdoc-color-custom:hover {
+  background: rgba(var(--jacdoc-accent-rgb), 0.14);
+  border-color: rgba(var(--jacdoc-accent-rgb), 0.45);
+  color: var(--jacdoc-accent);
+}
+.jacdoc-color-custom svg { flex-shrink: 0; }
+
+[data-theme="light"] .jacdoc-color-recents { border-top-color: #e5e7eb; }
+[data-theme="light"] .jacdoc-color-recents-label { color: #5f6368; }
+[data-theme="light"] .jacdoc-color-custom {
+  color: #0d1117;
+  border-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-color-custom:hover {
+  background: rgba(var(--jacdoc-accent-rgb), 0.14);
+  color: var(--jacdoc-accent);
+}
+
+/* Menu contextuel sur clic droit d'une pastille récente : petit popover
+   flottant avec entête (pastille + hex) + action destructive. Position
+   fixe au point du clic, z-index au-dessus du popup parent. */
+.jacdoc-color-ctx-menu {
+  position: fixed;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+  padding: 4px;
+  /* Même bleu-anthracite que les autres popovers JacDoc (toolbar, menus,
+     popup palette couleur) pour rester cohérent avec l'ensemble du chrome. */
+  background: var(--jacdoc-panel);
+  border: 1px solid var(--jacdoc-border);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  animation: jacdoc-ctx-menu-in 0.08s ease-out;
+}
+[data-theme="light"] .jacdoc-color-ctx-menu {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+@keyframes jacdoc-ctx-menu-in {
+  from { opacity: 0; transform: translateY(-2px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.jacdoc-color-ctx-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 7px;
+  border-bottom: 1px solid var(--jacdoc-border);
+  margin-bottom: 3px;
+}
+.jacdoc-color-ctx-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  flex-shrink: 0;
+}
+.jacdoc-color-ctx-hex {
+  font-family: 'SF Mono', Menlo, ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--jacdoc-fg-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.jacdoc-color-ctx-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  color: var(--jacdoc-fg);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s, color 0.1s;
+}
+.jacdoc-color-ctx-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.jacdoc-color-ctx-item.is-danger { color: #f87171; }
+.jacdoc-color-ctx-item.is-danger:hover {
+  background: rgba(239, 68, 68, 0.14);
+  color: #fca5a5;
+}
+.jacdoc-color-ctx-item svg { flex-shrink: 0; }
+
+[data-theme="light"] .jacdoc-color-ctx-dot {
+  border-color: rgba(0, 0, 0, 0.12);
+}
+[data-theme="light"] .jacdoc-color-ctx-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+[data-theme="light"] .jacdoc-color-ctx-item.is-danger { color: #dc2626; }
+[data-theme="light"] .jacdoc-color-ctx-item.is-danger:hover {
+  background: rgba(220, 38, 38, 0.1);
+  color: #b91c1c;
+}
+
+[data-theme="light"] .jacdoc-color-btn { color: #5f6368; }
+[data-theme="light"] .jacdoc-color-btn:hover { background: #f0f1f5; color: #0d1117; }
+[data-theme="light"] .jacdoc-color-popup {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+[data-theme="light"] .jacdoc-color-none {
+  color: #0d1117;
+  border-color: #e5e7eb;
+}
+[data-theme="light"] .jacdoc-color-none:hover { background: #f0f1f5; }
+[data-theme="light"] .jacdoc-color-swatch {
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+/* ── Mode lecture ──
+   Masque tout le chrome d'édition et garde seulement la page, les pilules
+   de navigation/zoom et le bouton de sortie. */
+.jacdoc-root.is-reading-mode .jacdoc-editor-topbar,
+.jacdoc-root.is-reading-mode .jacdoc-toolbar-row,
+.jacdoc-root.is-reading-mode .jacdoc-ruler-wrap,
+.jacdoc-root.is-reading-mode .jacdoc-ruler-v {
+  display: none !important;
+}
+.jacdoc-root.is-reading-mode .jacdoc-scroll {
+  padding-top: 36px;
+  background:
+    radial-gradient(ellipse at top, rgba(var(--jacdoc-accent-rgb), 0.08), transparent 60%),
+    #050505;
+}
+.jacdoc-root.is-reading-mode .jacdoc-page {
+  transition: transform 0.18s ease;
+}
+.jacdoc-root.is-reading-mode .jacdoc-content .ProseMirror {
+  caret-color: transparent;
+}
+.jacdoc-reading-exit {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  z-index: 90;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--jacdoc-accent-rgb), 0.42);
+  background: rgba(10, 12, 16, 0.82);
+  color: var(--jacdoc-accent);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.jacdoc-reading-exit:hover {
+  background: rgba(var(--jacdoc-accent-rgb), 0.14);
+}
+[data-theme="light"] .jacdoc-root.is-reading-mode .jacdoc-scroll {
+  background:
+    radial-gradient(ellipse at top, rgba(var(--jacdoc-accent-rgb), 0.08), transparent 60%),
+    #eef1f4;
+}
+[data-theme="light"] .jacdoc-reading-exit {
+  background: rgba(255, 255, 255, 0.9);
+  color: #0a7a05;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
+}
+
+/* ── Responsive ── */
+@media (max-width: 720px) {
+  .jacdoc-scroll { padding: 20px 8px 80px; }
+  .jacdoc-page-content { padding: 40px 28px; }
+  .jacdoc-page-bg { border-radius: 8px; }
+  .jacdoc-title { font-size: 26px; }
+  .jacdoc-toolbar { padding: 6px 10px; }
+  .jacdoc-floating-pill { bottom: 10px; }
+  .jacdoc-floating-words { left: 10px; }
+  .jacdoc-floating-right { bottom: 10px; right: 10px; }
+  .jacdoc-hf-modal-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Impression / Export PDF natif (Ctrl+P) ──
+   Le print natif utilise la même géométrie que l'éditeur : page Lettre
+   816×1056 px, marges réelles de .jacdoc-page-content, et breaks visuels
+   Word-like convertis en vrais sauts de page. Les gaps noirs à l'écran
+   ne sont jamais imprimés. */
+@media print {
+  /* Cache le chrome de l'éditeur */
+  .jacdoc-editor-topbar,
+  .jacdoc-toolbar-row,
+  .jacdoc-ruler-wrap,
+  .jacdoc-ruler-v,
+  .jacdoc-floating-pill,
+  .jacdoc-floating-right,
+  .jacdoc-floating-words,
+  .jacdoc-page-bg,
+  .jacdoc-page-gap-blocker,
+  .jacdoc-margin-guide,
+  .jacdoc-wc-modal-overlay,
+  .jacdoc-hf-modal-overlay,
+  .jacdoc-bubble { display: none !important; }
+
+  .jacdoc-root,
+  .jacdoc-scroll {
+    overflow: visible !important;
+    height: auto !important;
+    background: #ffffff !important;
+    color: #000 !important;
+    padding: 0 !important;
+  }
+
+  .jacdoc-page {
+    zoom: 1 !important;
+    width: 816px !important;
+    max-width: 816px !important;
+    min-height: auto !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+  }
+
+  .jacdoc-page-content {
+    min-height: auto !important;
+    color: #000 !important;
+    background: #ffffff !important;
+  }
+
+  .jacdoc-content .ProseMirror {
+    color: #000 !important;
+  }
+
+  .jacdoc-page-header,
+  .jacdoc-page-footer {
+    border: none !important;
+    background: transparent !important;
+    color: #555 !important;
+  }
+  .jacdoc-page-header.is-empty,
+  .jacdoc-page-footer.is-empty {
+    display: none !important;
+  }
+
+  /* Les sauts durs et les breaks visuels deviennent des sauts de page
+     papier, sans hauteur de gap noir. */
+  .jacdoc-pagebreak-node,
+  .jacdoc-visual-page-break {
+    display: block !important;
+    page-break-before: always;
+    break-before: page;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+    overflow: hidden !important;
+  }
+  .jacdoc-pagebreak-node::before,
+  .jacdoc-pagebreak-node::after { display: none !important; }
+
+  @page {
+    size: 816px 1056px;
+    margin: 0;
+  }
+}

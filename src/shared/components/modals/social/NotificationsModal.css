@@ -1,0 +1,486 @@
+/* ============================================================
+   NotificationsModal
+   ============================================================ */
+
+.nm-overlay {
+  position: fixed;
+  inset: 0;
+  top: var(--jacpdf-tabbar-h, 0);
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: nmFade 0.18s ease;
+  backdrop-filter: blur(2px);
+}
+
+@keyframes nmFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.nm-card {
+  background: #161b27;
+  color: #e7ecf5;
+  width: min(92vw, 480px);
+  max-height: 80vh;
+  border-radius: 14px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: nmSlide 0.22s ease;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@keyframes nmSlide {
+  from { transform: translateY(8px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+/* ---------- Header ---------- */
+
+.nm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.nm-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nm-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.nm-unread-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 11px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.nm-close {
+  background: transparent;
+  border: none;
+  color: #9aa3b2;
+  cursor: pointer;
+  font-size: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nm-close:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e7ecf5;
+}
+
+/* ---------- Toolbar ---------- */
+
+.nm-toolbar {
+  display: flex;
+  gap: 6px;
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.nm-btn-ghost {
+  background: transparent;
+  border: none;
+  color: #9aa3b2;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nm-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e7ecf5;
+}
+
+.nm-btn-ghost.nm-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+}
+
+/* ---------- Body ---------- */
+
+.nm-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0 12px;
+}
+
+.nm-section {
+  padding: 6px 0;
+}
+
+.nm-section-label {
+  margin: 10px 18px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7280;
+}
+
+.nm-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---------- Item ---------- */
+
+.nm-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: start;
+  gap: 12px;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: background 0.15s;
+  outline: none;
+}
+
+.nm-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nm-item:focus-visible {
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.nm-item-unread {
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.nm-item-unread:hover {
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.nm-icon-bubble {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.nm-content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nm-row-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nm-unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6366f1;
+  flex-shrink: 0;
+}
+
+.nm-text-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e7ecf5;
+  line-height: 1.3;
+}
+
+.nm-text-body {
+  font-size: 13px;
+  color: #9aa3b2;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.nm-text-time {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+/* Actions inline (Accepter / Refuser) sur les notifs friend_request.
+   Cachées par défaut (max-height:0 + opacity:0), révélées au survol/focus
+   comme le bouton X de suppression. Animation max-height pour éviter de
+   prendre de la place quand cachées — les autres notifs ne sont pas
+   poussées vers le bas tant qu'on n'est pas sur la friend_request. */
+.nm-row-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 0;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease, opacity 0.15s ease, margin-top 0.2s ease;
+}
+
+.nm-item-actionable:hover .nm-row-actions,
+.nm-item-actionable:focus-within .nm-row-actions {
+  max-height: 40px;
+  margin-top: 8px;
+  opacity: 1;
+}
+
+.nm-action-btn {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, opacity 0.15s;
+}
+
+.nm-action-btn:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+/* Accepter — vert plein, lecture immédiate de l'action positive. */
+.nm-action-accept {
+  background: #22c55e;
+  color: #052e13;
+}
+.nm-action-accept:hover:not(:disabled) {
+  background: #16a34a;
+}
+
+/* Refuser — ghost neutre par défaut, vire au rouge sur hover pour clarifier
+   l'intention destructive avant le clic. */
+.nm-action-decline {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e7ecf5;
+}
+.nm-action-decline:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+}
+
+[data-theme="light"] .nm-action-accept {
+  background: #16a34a;
+  color: #ffffff;
+}
+[data-theme="light"] .nm-action-accept:hover:not(:disabled) {
+  background: #15803d;
+}
+[data-theme="light"] .nm-action-decline {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1f2937;
+}
+[data-theme="light"] .nm-action-decline:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+}
+
+.nm-delete-btn {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.nm-item:hover .nm-delete-btn,
+.nm-item:focus-within .nm-delete-btn {
+  opacity: 1;
+}
+
+.nm-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+/* ---------- Empty state ---------- */
+
+.nm-empty {
+  padding: 32px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.nm-empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.nm-empty-icon {
+  font-size: 40px;
+  opacity: 0.5;
+  margin-bottom: 4px;
+}
+
+.nm-empty-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e7ecf5;
+}
+
+.nm-empty-sub {
+  font-size: 12px;
+  color: #9aa3b2;
+  max-width: 280px;
+  line-height: 1.45;
+}
+
+/* ---------- Context menu (clic droit sur une notif) ---------- */
+
+.nm-context-menu {
+  position: fixed;
+  z-index: 300;
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  background: #1e2535;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  min-width: 180px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  font-family: 'Inter', sans-serif;
+  animation: nmFade 0.1s ease;
+}
+
+.nm-context-item {
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #e7ecf5;
+  transition: background 0.1s;
+  user-select: none;
+}
+
+.nm-context-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nm-context-item-danger {
+  color: #f87171;
+}
+.nm-context-item-danger:hover {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+[data-theme="light"] .nm-context-menu {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+[data-theme="light"] .nm-context-item { color: #1f2937; }
+[data-theme="light"] .nm-context-item:hover { background: rgba(0, 0, 0, 0.05); }
+[data-theme="light"] .nm-context-item-danger { color: #dc2626; }
+[data-theme="light"] .nm-context-item-danger:hover {
+  background: rgba(220, 38, 38, 0.08);
+}
+
+/* ============================================================
+   Light theme overrides
+   ============================================================ */
+
+[data-theme="light"] .nm-card {
+  background: #ffffff;
+  color: #1f2937;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .nm-header {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .nm-title { color: #1f2937; }
+
+[data-theme="light"] .nm-close { color: #6b7280; }
+[data-theme="light"] .nm-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1f2937;
+}
+
+[data-theme="light"] .nm-toolbar {
+  background: rgba(0, 0, 0, 0.02);
+  border-bottom-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .nm-btn-ghost { color: #6b7280; }
+[data-theme="light"] .nm-btn-ghost:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1f2937;
+}
+
+[data-theme="light"] .nm-section-label { color: #9ca3af; }
+
+[data-theme="light"] .nm-item:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .nm-item-unread {
+  background: rgba(99, 102, 241, 0.05);
+}
+
+[data-theme="light"] .nm-item-unread:hover {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+[data-theme="light"] .nm-icon-bubble {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .nm-text-title { color: #1f2937; }
+[data-theme="light"] .nm-text-body { color: #6b7280; }
+[data-theme="light"] .nm-text-time { color: #9ca3af; }
+
+[data-theme="light"] .nm-empty-title { color: #1f2937; }
+[data-theme="light"] .nm-empty-sub { color: #6b7280; }
